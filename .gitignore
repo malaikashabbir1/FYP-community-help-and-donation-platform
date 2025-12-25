@@ -1,0 +1,4 @@
+node_modules/
+.env
+# Ignore generated CSS
+public/css/style.css
