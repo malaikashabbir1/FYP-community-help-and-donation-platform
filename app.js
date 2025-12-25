@@ -1,6 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/auth');
+
+// for JWT
+const cookieParser = require('cookie-parser');
+const pageAuthRoutes = require('./routes/auth');
+const apiAuthRoutes = require('./routes/api/authApi');
 
 const app = express();
 
@@ -8,15 +13,21 @@ const app = express();
 connectDB();
 
 // Middleware
+app.use(express.urlencoded({ extended: true })); // to read form data from POST
 app.use(express.json()); // parse JSON request body from backend (for API)
 
-// Tailwind
+// _______Tailwind
 app.use(express.static("public"));
 
-// Routes
-app.use('/api/auth', authRoutes);
+// _________Routes
+app.use('/auth', pageAuthRoutes);      // Page routes
+app.use('/api/auth', apiAuthRoutes);   // API routes
+
+// Middleware to parse cookies (needed for JWT in cookies)
+app.use(cookieParser());
 
 
+// View engine
 app.set("view engine", "ejs");
 
 // Adding middeware 
