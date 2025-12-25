@@ -1,13 +1,33 @@
-const express = require("express");
+const express = require('express');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/auth');
+
 const app = express();
-const PORT = 3000;
 
-app.use(express.json());
+// Connect to MongoDB
+connectDB();
 
-app.get("/", (req,res) => {
-  res.send("HELLO WORLD! I am here to help you and find the donors and for taking donations from the donors.");
+// Middleware
+app.use(express.json()); // parse JSON request body from backend (for API)
+
+// Tailwind
+app.use(express.static("public"));
+
+// Routes
+app.use('/api/auth', authRoutes);
+
+
+app.set("view engine", "ejs");
+
+// Adding middeware 
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
-app.listen(PORT, ()=>{
-  console.log(`Server is running on the port ${PORT}, Express Server `);
-})
+app.get("/register", (req, res) => {
+  res.render("auth/register");
+});
+
+// Start server
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
