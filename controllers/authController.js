@@ -1,23 +1,42 @@
-const User = require('../models/user');
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
-// Signup controller
 exports.signup = async (req, res) => {
+  const { name, email, password, role } = req.body;
+  const errors = {};
+
   try {
-    const { name, email, password } = req.body;
+    // Validate all fields
+    if (!name || name.trim() === '') errors.name = 'Name is required';
+    if (!email || email.trim() === '') errors.email = 'Email is required';
+    if (!password || password.length < 6) errors.password = 'Password must be at least 6 characters';
+    if (!role) errors.role = 'Role is required';
 
-    // Check if user already exists
+    // Check duplicate email
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: 'Email already exists' });
+    if (existingUser) errors.email = 'Email already exists';
 
-    // Create new user
-    const newUser = new User({ name, email, password });
-    const savedUser = await newUser.save();
+    // If any errors, re-render with previous input
+    if (Object.keys(errors).length > 0) {
+      return res.render('auth/register', {
+        errors,
+        oldInput: req.body
+      });
+    }
 
-    res.status(201).json({
-      message: 'User created successfully',
-      user: savedUser
-    });
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create and save user
+    const newUser = new User({ name, email, password: hashedPassword, role });
+    await newUser.save();
+    console.log('User saved successfully:', newUser);
+
+    // Redirect to login after success
+    res.redirect('/auth/login');
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).send('Server error');
   }
 };
