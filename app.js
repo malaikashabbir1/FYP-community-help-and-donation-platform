@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
+const pageAuthRoutes = require('./routes/auth');
+const apiAuthRoutes = require('./routes/api/authApi');
 
 // for JWT
 const cookieParser = require('cookie-parser');
-const pageAuthRoutes = require('./routes/auth');
-const apiAuthRoutes = require('./routes/api/authApi');
+const authenticateToken = require('./middlewares/authenticateToken');
+const authorizeRole = require('./middlewares/authorizeRole');
 
 const app = express();
 
@@ -38,6 +40,26 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
   res.render("auth/register");
 });
+
+// Dashboards
+app.get( '/admin/dashboard', authenticateToken, authorizeRole('admin'),
+    (req, res) => {
+        res.render('admin/adminDashboard');
+    }
+);
+
+app.get( '/donor/dashboard', authenticateToken, authorizeRole('donor'),
+    (req, res) => {
+        res.render('donor/donorDashboard');
+    }
+);
+
+app.get( '/volunteer/dashboard', authenticateToken, authorizeRole('volunteer'),
+    (req, res) => {
+        res.render('volunteer/volunteerDashboard');
+    }
+);
+
 
 // Start server
 const PORT = 3000;
