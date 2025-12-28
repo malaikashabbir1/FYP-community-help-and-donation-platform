@@ -1,3 +1,6 @@
+// ____________________ FOR REGISTRATION AND LOGIN ____________________________
+
+
 const express = require('express');
 const authController = require('../controllers/authController');
 
@@ -21,9 +24,7 @@ router.get('/login', (req, res) => {
 // Handle login with JWT + role-based redirection
 router.post('/login', authController.loginUser);
 
-// Dashboard page
-router.get('/dashboard', (req, res) => {
-    res.render('auth/dashboard');
-});
+// Logout Route
+router.get('/logout', authController.logoutUser);
 
 module.exports = router;

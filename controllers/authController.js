@@ -89,3 +89,17 @@ exports.loginUser = async (req, res) => {
         return res.status(500).render('auth/login', { errors: { general: 'Server error' }, email });
     }
 };
+
+// _______________ LOGOUT ________________________
+exports.logoutUser = (req, res) => {
+    // Clear JWT cookie
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    });
+
+    // Redirect to login page
+    res.redirect('/auth/login');
+};
