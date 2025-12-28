@@ -3,6 +3,11 @@ const express = require('express');
 const connectDB = require('./config/db');
 const pageAuthRoutes = require('./routes/auth');
 const apiAuthRoutes = require('./routes/api/authApi');
+ 
+// _____________ ROLES ROUTES ______________
+const adminRoutes = require('./routes/adminRoutes');
+const donorRoutes = require('./routes/donorRoutes');
+const volunteerRoutes = require('./routes/volunteerRoutes');
 
 // for JWT
 const cookieParser = require('cookie-parser');
@@ -28,38 +33,43 @@ app.use('/api/auth', apiAuthRoutes);   // API routes
 // Middleware to parse cookies (needed for JWT in cookies)
 app.use(cookieParser());
 
+//  ____________Make JWT user available in all EJS pages_____________
+app.use((req, res, next) => {
+  const token = req.cookies.token;
+  if (token) {
+    try {
+      const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      res.locals.user = decoded;
+    } catch (err) {
+      req.user = null;
+      res.locals.user = null;
+    }
+  } else {
+    req.user = null;
+    res.locals.user = null;
+  }
+  next();
+});
+
+
 
 // View engine
 app.set("view engine", "ejs");
 
 // Adding middeware 
 app.get("/", (req, res) => {
-  res.send("Server is running");
+  res.render("homePage");
 });
 
 app.get("/register", (req, res) => {
   res.render("auth/register");
 });
 
-// Dashboards
-app.get( '/admin/dashboard', authenticateToken, authorizeRole('admin'),
-    (req, res) => {
-        res.render('admin/adminDashboard');
-    }
-);
-
-app.get( '/donor/dashboard', authenticateToken, authorizeRole('donor'),
-    (req, res) => {
-        res.render('donor/donorDashboard');
-    }
-);
-
-app.get( '/volunteer/dashboard', authenticateToken, authorizeRole('volunteer'),
-    (req, res) => {
-        res.render('volunteer/volunteerDashboard');
-    }
-);
-
+// ____________ Roles Routes for Dashboards ______________
+app.use('/admin', adminRoutes);
+app.use('/donor', donorRoutes);
+app.use('/volunteer', volunteerRoutes);
 
 // Start server
 const PORT = 3000;
