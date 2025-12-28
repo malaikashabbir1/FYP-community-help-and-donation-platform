@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpingHands - Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+
+   <!-- Navbar -->
+  <nav id="navbar" class="fixed w-full z-50 bg-transparent transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+      <a href="/" class="flex items-center space-x-3">
+        <img src="/images/logo.jpeg" alt="HelpingHands Logo" class="w-10 h-10 object-contain" />
+        <span class="text-lg sm:text-xl font-bold text-white">HelpingHands</span>
+      </a>
+
+      <div class="hidden md:flex space-x-6 items-center">
+        <a href="#projects" class="hover:text-emerald-200 transition-colors duration-200">Projects</a>
+        <a href="#features" class="hover:text-emerald-200 transition-colors duration-200">Features</a>
+        <a href="#about" class="hover:text-emerald-200 transition-colors duration-200">About</a>
+        <a href="/auth/login" class="bg-emerald-500 px-3 py-1 rounded hover:bg-emerald-600 transition-colors duration-200">Login</a>
+        <a href="/auth/register" class="bg-emerald-500 px-3 py-1 rounded hover:bg-emerald-600 transition-colors duration-200">Register</a>
+      </div>
+
+      <button id="mobileBtn" class="md:hidden text-2xl focus:outline-none">☰</button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-blue-500 px-4 py-3 space-y-2 rounded-b-lg shadow-inner">
+      <a href="#projects" class="block hover:text-emerald-200 transition-colors duration-200">Projects</a>
+      <a href="#features" class="block hover:text-emerald-200 transition-colors duration-200">Features</a>
+      <a href="#about" class="block hover:text-emerald-200 transition-colors duration-200">About</a>
+      <a href="#contact" class="block hover:text-emerald-200 transition-colors duration-200">Contact</a>
+      <a href="/auth/login" class="block bg-emerald-500 px-3 py-2 rounded hover:bg-emerald-600 transition-colors duration-200">Login</a>
+      <a href="/auth/register" class="block bg-emerald-500 px-3 py-2 rounded hover:bg-emerald-600 transition-colors duration-200">Register</a>
+    </div>
+  </nav>
+  
+  <!-- Scripts -->
+  <script>
+    // Mobile menu toggle
+    document.getElementById("mobileBtn").addEventListener("click", () => {
+      document.getElementById("mobileMenu").classList.toggle("hidden");
+    });
+
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-blue-600', 'shadow-md');
+        navbar.classList.remove('bg-transparent');
+      } else {
+        navbar.classList.remove('bg-blue-600', 'shadow-md');
+        navbar.classList.add('bg-transparent');
+      }
+    });
+  </script>
+
+  <!-- Hero Section with Background Image and Overlay -->
+  <section class="relative h-screen bg-cover bg-center" style="background-image: url('/images/hands2.jpeg');">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div> <!-- dark overlay -->
+    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">HelpingHands Community Platform</h1>
+      <p class="text-lg sm:text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl">Connect with volunteers, donors, and projects to make a real difference in your community.</p>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/auth/register" class="bg-emerald-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-600 transition duration-200">Get Started</a>
+        <a href="/auth/login" class="border border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-200">Login</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="max-w-7xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-blue-600 text-center mb-12">Our Active Projects</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <img src="/images/water.jpg" alt="Project 1" class="w-full h-48 object-cover">
+        <div class="p-6">
+          <h3 class="text-xl font-semibold text-blue-600 mb-2">Clean Water Initiative</h3>
+          <p class="text-gray-700 mb-4">Providing clean drinking water to rural communities.</p>
+          <a href="/auth/register" class="text-emerald-500 font-semibold hover:underline">Join Now</a>
+        </div>
+      </div>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <img src="/images/education.jpg" alt="Project 2" class="w-full h-48 object-cover">
+        <div class="p-6">
+          <h3 class="text-xl font-semibold text-blue-600 mb-2">Education for All</h3>
+          <p class="text-gray-700 mb-4">Supporting underprivileged children with access to education.</p>
+          <a href="/auth/register" class="text-emerald-500 font-semibold hover:underline">Join Now</a>
+        </div>
+      </div>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <img src="/images/health.webp" alt="Project 3" class="w-full h-48 object-cover">
+        <div class="p-6">
+          <h3 class="text-xl font-semibold text-blue-600 mb-2">Healthcare Outreach</h3>
+          <p class="text-gray-700 mb-4">Providing basic healthcare services to remote areas.</p>
+          <a href="/auth/register" class="text-emerald-500 font-semibold hover:underline">Join Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="bg-blue-50 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-blue-600 text-center mb-12">Platform Features</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300 text-center">
+          <i class="fas fa-hand-holding-heart text-4xl text-emerald-500 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Easy Donations</h3>
+          <p>Donate to causes with just a few clicks and track your contributions.</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300 text-center">
+          <i class="fas fa-users text-4xl text-emerald-500 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Volunteer Opportunities</h3>
+          <p>Find volunteering tasks that match your skills and schedule.</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300 text-center">
+          <i class="fas fa-chart-line text-4xl text-emerald-500 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Progress Tracking</h3>
+          <p>Monitor project updates and community impact transparently.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="max-w-4xl mx-auto px-4 py-16 text-center">
+    <h2 class="text-3xl font-bold text-blue-600 mb-6">About HelpingHands</h2>
+    <p class="text-gray-700 text-lg">HelpingHands connects donors, volunteers, and administrators to make meaningful contributions. We simplify donations, volunteering, and project tracking, so you can focus on helping your community.</p>
+  </section>
+
+  <!-- Contact Section -->
+  <!-- <section id="contact" class="max-w-4xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-blue-600 text-center mb-6">Contact Us</h2>
+    <form class="bg-white shadow-lg rounded-lg p-8 max-w-xl mx-auto space-y-4">
+      <input type="text" placeholder="Your Name" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <input type="email" placeholder="Your Email" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <textarea placeholder="Your Message" rows="4" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+      <button type="submit" class="bg-emerald-500 text-white px-6 py-2 rounded hover:bg-emerald-600 transition duration-200">Send Message</button>
+    </form>
+  </section> -->
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white py-6 text-center">
+    <p>&copy; 2025 HelpingHands. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
