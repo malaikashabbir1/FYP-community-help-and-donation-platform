@@ -1,83 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="/css/style.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpingHands - Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+<body class="bg-gray-50 font-sans flex items-center justify-center min-h-screen">
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-blue-600">Create an Account</h1>
 
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-center">Create an Account</h1>
-        
-        <form action="/api/auth/register" method="POST" class="space-y-4">
+    <form action="/api/auth/register" method="POST" class="space-y-4">
+      
+      <!-- Name -->
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" name="name" id="name" required
+               value="<%= oldInput && oldInput.name ? oldInput.name : '' %>"
+               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+        <% if (errors && errors.name) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.name %></p>
+        <% } %>
+      </div>
 
-            <!-- Name -->
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" name="name" id="name" required
-                    value="<%= oldInput && oldInput.name ? oldInput.name : '' %>"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <% if (errors && errors.name) { %>
-                    <p class="text-red-500 text-sm mt-1"><%= errors.name %></p>
-                <% } %>
-            </div>
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" required
+               value="<%= oldInput && oldInput.email ? oldInput.email : '' %>"
+               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+        <% if (errors && errors.email) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.email %></p>
+        <% } %>
+      </div>
 
-            <!-- Email -->
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" required
-                    value="<%= oldInput && oldInput.email ? oldInput.email : '' %>"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <% if (errors && errors.email) { %>
-                    <p class="text-red-500 text-sm mt-1"><%= errors.email %></p>
-                <% } %>
-            </div>
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" name="password" id="password" required
+               value="<%= oldInput && oldInput.password ? oldInput.password : '' %>"
+               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+        <% if (errors && errors.password) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.password %></p>
+        <% } %>
+      </div>
 
-            <!-- Password -->
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" name="password" id="password" required
-                    value="<%= oldInput && oldInput.password ? oldInput.password : '' %>"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <% if (errors && errors.password) { %>
-                    <p class="text-red-500 text-sm mt-1"><%= errors.password %></p>
-                <% } %>
-            </div>
+      <!-- Role -->
+      <div>
+        <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+        <select name="role" id="role" required
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+          <option value="">--Select Role--</option>
+          <option value="donor" <%= oldInput && oldInput.role === 'donor' ? 'selected' : '' %>>Donor</option>
+          <option value="volunteer" <%= oldInput && oldInput.role === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
+          <option value="admin" <%= oldInput && oldInput.role === 'admin' ? 'selected' : '' %>>Admin</option>
+        </select>
+        <% if (errors && errors.role) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.role %></p>
+        <% } %>
+      </div>
 
-            <!-- Role -->
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
-                <select name="role" id="role" required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">--Select Role--</option>
-                    <option value="donor" <%= oldInput && oldInput.role === 'donor' ? 'selected' : '' %>>Donor</option>
-                    <option value="volunteer" <%= oldInput && oldInput.role === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
-                    <option value="admin" <%= oldInput && oldInput.role === 'admin' ? 'selected' : '' %>>Admin</option>
-                </select>
-                <% if (errors && errors.role) { %>
-                    <p class="text-red-500 text-sm mt-1"><%= errors.role %></p>
-                <% } %>
-            </div>
+      <!-- Submit -->
+      <div>
+        <button type="submit"
+                class="w-full bg-emerald-500 text-white py-2 px-4 rounded-md hover:bg-emerald-600 transition duration-200 font-semibold">
+          Register
+        </button>
+      </div>
 
-            <!-- Submit Button -->
-            <div>
-                <button type="submit"
-                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">
-                    Register
-                </button>
-            </div>
+    </form>
 
-        </form>
-
-        <p class="mt-4 text-center text-sm text-gray-600">
-            Already have an account? 
-            <a href="/auth/login" class="text-indigo-600 hover:underline">Login</a>
-        </p>
-    </div>
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Already have an account? 
+      <a href="/auth/login" class="text-emerald-500 hover:underline">Login</a>
+    </p>
+  </div>
 
 </body>
 </html>
