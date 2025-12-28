@@ -1,0 +1,75 @@
+<nav class="bg-blue-600 text-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center space-x-3">
+      <img src="/images/logo.jpeg" alt="HelpingHands Logo" class="w-10 h-10 object-contain" />
+      <span class="text-lg sm:text-xl font-bold leading-tight text-emerald-300">
+        HelpingHands <br class="hidden sm:block">
+      </span>
+    </a>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:flex space-x-6 items-center">
+      <a href="/<%= user.role %>/dashboard" class="hover:text-gray-200">Dashboard</a>
+
+      <% if (user.role === 'admin') { %>
+        <a href="/admin/users" class="hover:text-gray-200">Users</a>
+        <a href="/admin/donations" class="hover:text-gray-200">Donations</a>
+        <a href="/admin/requests" class="hover:text-gray-200">Requests</a>
+        <a href="/admin/reports" class="hover:text-gray-200">Reports</a>
+      <% } %>
+
+      <% if (user.role === 'donor') { %>
+        <a href="/donor/donate" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Donate</a>
+        <a href="/donor/my-donations" class="hover:text-gray-200">My Donations</a>
+        <a href="/donor/requests" class="hover:text-gray-200">Requests</a>
+      <% } %>
+
+      <% if (user.role === 'volunteer') { %>
+        <a href="/volunteer/requests" class="hover:text-gray-200">Requests</a>
+        <a href="/volunteer/tasks" class="hover:text-gray-200">My Tasks</a>
+        <a href="/volunteer/donations" class="hover:text-gray-200">Opportunities</a>
+      <% } %>
+
+      <a href="/profile" class="hover:text-gray-200">Profile</a>
+      <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Logout</a>
+    </div>
+
+    <!-- Mobile Button -->
+    <button id="mobileBtn" class="md:hidden">☰</button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden md:hidden bg-blue-500 px-4 py-3 space-y-2">
+    <a href="/<%= user.role %>/dashboard" class="block">Dashboard</a>
+
+    <% if (user.role === 'admin') { %>
+      <a href="/admin/users" class="block">Users</a>
+      <a href="/admin/donations" class="block">Donations</a>
+      <a href="/admin/requests" class="block">Requests</a>
+      <a href="/admin/reports" class="block">Reports</a>
+    <% } %>
+
+    <% if (user.role === 'donor') { %>
+      <a href="/donor/donate" class="block bg-emerald-600 px-3 py-2 rounded">Donate</a>
+      <a href="/donor/my-donations" class="block">My Donations</a>
+      <a href="/donor/requests" class="block">Requests</a>
+    <% } %>
+
+    <% if (user.role === 'volunteer') { %>
+      <a href="/volunteer/requests" class="block">Requests</a>
+      <a href="/volunteer/tasks" class="block">My Tasks</a>
+      <a href="/volunteer/donations" class="block">Opportunities</a>
+    <% } %>
+
+    <a href="/profile" class="block">Profile</a>
+    <a href="/auth/logout" class="block bg-emerald-600 px-3 py-2 rounded">Logout</a>
+  </div>
+</nav>
+
+<script>
+  document.getElementById("mobileBtn").addEventListener("click", () => {
+    document.getElementById("mobileMenu").classList.toggle("hidden");
+  });
+</script>
