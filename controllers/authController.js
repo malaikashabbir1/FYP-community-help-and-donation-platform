@@ -1,8 +1,9 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const ActivityLog = require('../models/activityLog'); // Add this line
 
-// ------ SIGNUP ------
+//____________SIGNUP ___________
 exports.signup = async (req, res) => {
   const { name, email, password, role } = req.body;
   const errors = {};
@@ -17,6 +18,27 @@ exports.signup = async (req, res) => {
     // Check duplicate email
     const existingUser = await User.findOne({ email });
     if (existingUser) errors.email = 'Email already exists';
+
+    // --- Single admin restriction 
+    if (role === 'admin') {
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+        errors.role = 'Admin already exists. Only one admin allowed.';
+        return res.render('auth/register', { 
+            errors, 
+            oldInput: { name, email, role } 
+        });
+    }
+    }
+
+    // If any other errors
+    if (Object.keys(errors).length > 0) {
+        return res.render('auth/register', {
+        errors,
+        oldInput: { name, email, role }
+    });
+    }
+
 
     // If any errors, re-render with previous input
     if (Object.keys(errors).length > 0) {
@@ -34,6 +56,15 @@ exports.signup = async (req, res) => {
     await newUser.save();
     console.log('User saved successfully:', newUser);
 
+    // --- Add ActivityLog entry for admin dashboard
+    await ActivityLog.create({
+    type: 'user',                     // Type of activity
+    refId: newUser._id,               // Reference to the new user
+    userId: newUser._id,              // Actor (the user themselves)
+    description: `${newUser.name} registered as ${newUser.role}`,
+    createdAt: new Date()             // optional; timestamps handled automatically if schema has timestamps
+    });
+
     // Redirect to login after success
     res.redirect('/auth/login');
 
@@ -44,35 +75,44 @@ exports.signup = async (req, res) => {
 };
 
 
-
-// --- LOGIN ---
+// _________ LOGIN _____________
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 1️⃣ Find user in DB
+        //  Find user in DB
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).render('auth/login', { errors: { email: 'Email not found' }, email });
+            return res.status(400).render('auth/login', { 
+                errors: { email: 'Email not found' }, 
+                oldInput: { email, password }  // Pass old input
+            });
         }
 
-        // 2️⃣ Compare password
+        //  Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).render('auth/login',  { errors: { password: 'Incorrect password' }, email });
+            return res.status(400).render('auth/login',  { 
+                errors: { password: 'Incorrect password' }, 
+                oldInput: { email, password }  // Pass old input
+            });
         }
 
-        // 3️⃣ Generate JWT
+        //   Generate JWT
         const token = jwt.sign(
-            { userId: user._id, role: user.role },
+            {
+                userId: user._id,
+                role: user.role,
+                name: user.name 
+            },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        // 4️⃣ Set JWT in HTTP-only cookie
+        //  Set JWT in HTTP-only cookie
         res.cookie('token', token, { httpOnly: true /*, secure: true in production */ });
 
-        // 5️⃣ Redirect based on role
+        //  Redirect based on role
         switch (user.role) {
             case 'admin':
                 return res.redirect('/admin/dashboard');
@@ -86,9 +126,13 @@ exports.loginUser = async (req, res) => {
 
     } catch (err) {
         console.error('Login error:', err);
-        return res.status(500).render('auth/login', { errors: { general: 'Server error' }, email });
+        return res.status(500).render('auth/login', { 
+            errors: { general: 'Server error' }, 
+            oldInput: { email, password }  // Pass old input
+        });
     }
 };
+
 
 // _______________ LOGOUT ________________________
 exports.logoutUser = (req, res) => {
