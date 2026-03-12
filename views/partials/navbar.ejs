@@ -3,7 +3,7 @@
 
     <!-- Logo -->
     <a href="/" class="flex items-center space-x-3">
-      <img src="/images/logo.jpeg" alt="HelpingHands Logo" class="w-10 h-10 object-contain" />
+      <img src="/images/logo.PNG" alt="HelpingHands Logo" class="w-10 h-10 object-contain rounded-full" />
       <span class="text-lg sm:text-xl font-bold leading-tight text-emerald-300">
         HelpingHands <br class="hidden sm:block">
       </span>
@@ -14,25 +14,26 @@
       <a href="/<%= user.role %>/dashboard" class="hover:text-gray-200">Dashboard</a>
 
       <% if (user.role === 'admin') { %>
-        <a href="/admin/users" class="hover:text-gray-200">Users</a>
-        <a href="/admin/donations" class="hover:text-gray-200">Donations</a>
-        <a href="/admin/requests" class="hover:text-gray-200">Requests</a>
-        <a href="/admin/reports" class="hover:text-gray-200">Reports</a>
+        <a href="/coming-soon/users" class="hover:text-gray-200">Users</a>
+        <a href="/coming-soon/donations" class="hover:text-gray-200">Donations</a>
+        <a href="/coming-soon/requests" class="hover:text-gray-200">Requests</a>
+        <a href="/coming-soon/reports" class="hover:text-gray-200">Reports</a>
       <% } %>
 
       <% if (user.role === 'donor') { %>
-        <a href="/donor/donate" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Donate</a>
-        <a href="/donor/my-donations" class="hover:text-gray-200">My Donations</a>
-        <a href="/donor/requests" class="hover:text-gray-200">Requests</a>
+        <a href="/coming-soon/donate" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Donate</a>
+        <a href="/coming-soon/my-donations" class="hover:text-gray-200">My Donations</a>
+        <a href="/coming-soon/donor-requests" class="hover:text-gray-200">Requests</a>
       <% } %>
 
       <% if (user.role === 'volunteer') { %>
-        <a href="/volunteer/requests" class="hover:text-gray-200">Requests</a>
-        <a href="/volunteer/tasks" class="hover:text-gray-200">My Tasks</a>
-        <a href="/volunteer/donations" class="hover:text-gray-200">Opportunities</a>
+        <a href="/coming-soon/volunteer-requests" class="hover:text-gray-200">Requests</a>
+        <a href="/coming-soon/my-tasks" class="hover:text-gray-200">My Tasks</a>
+        <a href="/coming-soon/opportunities" class="hover:text-gray-200">Opportunities</a>
       <% } %>
 
-      <a href="/profile" class="hover:text-gray-200">Profile</a>
+      <a href="/coming-soon/profile" class="hover:text-gray-200">Profile</a>
+      <a href="/" class="bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">Home</a>
       <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Logout</a>
     </div>
 
@@ -45,26 +46,27 @@
     <a href="/<%= user.role %>/dashboard" class="block">Dashboard</a>
 
     <% if (user.role === 'admin') { %>
-      <a href="/admin/users" class="block">Users</a>
-      <a href="/admin/donations" class="block">Donations</a>
-      <a href="/admin/requests" class="block">Requests</a>
-      <a href="/admin/reports" class="block">Reports</a>
+      <a href="/coming-soon/users" class="block">Users</a>
+      <a href="/coming-soon/donations" class="block">Donations</a>
+      <a href="/coming-soon/requests" class="block">Requests</a>
+      <a href="/coming-soon/reports" class="block">Reports</a>
     <% } %>
 
     <% if (user.role === 'donor') { %>
-      <a href="/donor/donate" class="block bg-emerald-600 px-3 py-2 rounded">Donate</a>
-      <a href="/donor/my-donations" class="block">My Donations</a>
-      <a href="/donor/requests" class="block">Requests</a>
+      <a href="/coming-soon/donate" class="block bg-emerald-600 px-3 py-2 rounded">Donate</a>
+      <a href="/coming-soon/my-donations" class="block">My Donations</a>
+      <a href="/coming-soon/donor-requests" class="block">Requests</a>
     <% } %>
 
     <% if (user.role === 'volunteer') { %>
-      <a href="/volunteer/requests" class="block">Requests</a>
-      <a href="/volunteer/tasks" class="block">My Tasks</a>
-      <a href="/volunteer/donations" class="block">Opportunities</a>
+      <a href="/coming-soon/volunteer-requests" class="block">Requests</a>
+      <a href="/coming-soon/my-tasks" class="block">My Tasks</a>
+      <a href="/coming-soon/opportunities" class="block">Opportunities</a>
     <% } %>
 
-    <a href="/profile" class="block">Profile</a>
-    <a href="/auth/logout" class="block bg-emerald-600 px-3 py-2 rounded">Logout</a>
+    <a href="/coming-soon/profile" class="block">Profile</a>
+    <a href="/" class=" inline-block bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">Home</a>
+    <a href="/auth/logout" class="inline-block bg-emerald-600 px-3 py-2 rounded">Logout</a>
   </div>
 </nav>
 
