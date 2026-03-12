@@ -3,11 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-  <h1>ADMIN DASHBOARD</h1>
-  <p>Welcome, Admin!</p>
-  
+<body class="flex flex-col min-h-screen">
+
+  <!-- Navbar -->
+  <%- include('../partials/navbar') %>
+
+  <!-- Main Dashboard -->
+  <main class="flex-grow bg-gray-50 px-6 py-10">
+
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+    <p class="text-gray-600 mt-1">Welcome, <span class="font-medium"><%= user.name %></span></p>
+  </div>
+
+    <!-- Stats Cards -->
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+    <!-- Total Users Card -->
+    <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-6 flex items-center justify-between">
+      <div>
+        <h3 class="text-sm text-gray-500">Total Users</h3>
+        <p class="text-2xl font-bold text-blue-600 mt-2"><%= totalUsers %></p>
+      </div>
+      <i class="fas fa-users text-3xl text-blue-500"></i>
+    </div>
+
+    <!-- Donors Card -->
+    <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-6 flex items-center justify-between">
+      <div>
+        <h3 class="text-sm text-gray-500">Donors</h3>
+        <p class="text-2xl font-bold text-green-600 mt-2"><%= donors %></p>
+      </div>
+      <i class="fas fa-hand-holding-heart text-3xl text-green-500"></i>
+    </div>
+
+    <!-- Volunteers Card -->
+    <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-6 flex items-center justify-between">
+      <div>
+        <h3 class="text-sm text-gray-500">Volunteers</h3>
+        <p class="text-2xl font-bold text-purple-600 mt-2"><%= volunteers %></p>
+      </div>
+      <i class="fas fa-user-friends text-3xl text-purple-500"></i>
+    </div>
+
+    <!-- Pending Requests Card -->
+    <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-6 flex items-center justify-between">
+      <div>
+        <h3 class="text-sm text-gray-500">Pending Requests</h3>
+        <p class="text-2xl font-bold text-red-600 mt-2"><%= pendingRequests %></p>
+      </div>
+      <i class="fas fa-clock text-3xl text-red-500"></i>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-8">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <!-- Manage Users -->
+      <a href="/coming-soon/users" 
+      class="flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+      <i class="fas fa-users text-lg"></i>
+      Manage Users
+      </a>
+
+      <!-- View Donations -->
+      <a href="/coming-soon/donations" 
+      class="flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+      <i class="fas fa-hand-holding-heart text-lg"></i>
+      View Donations
+      </a>
+
+      <!-- View Requests -->
+      <a href="/coming-soon/requests" 
+       class="flex items-center justify-center gap-2 px-6 py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+      <i class="fas fa-envelope text-lg"></i>
+      View Requests
+      </a>
+
+    </div>  
+  </div>
+
+
+  <!-- RECENT REGISTRATION -->
+  <div class="max-w-7xl mx-auto bg-white shadow-md rounded-lg p-6 mt-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4"> Recent Registrations </h2>
+    <% if(recentUsers.length === 0){ %>
+        <p class="text-gray-500">No recent registrations.</p>
+    <% } else { %>
+        <ul class="divide-y divide-gray-200">
+            <% recentUsers.forEach(user => { %>
+                <li class="py-3 flex justify-between items-center hover:bg-gray-50 px-2 rounded transition">
+                    <div>
+                        <p class="text-gray-800 font-medium">
+                            <%= user.name %>
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            Registered as 
+                            <span class="px-2 py-1 text-xs font-semibold rounded  <%= user.role === 'donor' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700' %>">
+                              <%= user.role %>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        <%= new Date(user.createdAt).toLocaleString() %>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+    <% } %>
+</div>
+</main>
+
+<!-- Footer -->
+<%- include('../partials/footer') %>
 </body>
 </html>
