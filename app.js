@@ -34,12 +34,18 @@ app.use('/api/auth', apiAuthRoutes);   // API routes
 app.use(cookieParser());
 
 //  ____________Make JWT user available in all EJS pages_____________
+// JWT → a token used to verify the user's identity
+// Cookie → a small storage in the browser used to store things like JWT
+
 app.use((req, res, next) => {
+  // server reads the JWT stored in the cookie.
   const token = req.cookies.token;
+  // If verification succeeds → it returns the decoded payload.
   if (token) {
     try {
       const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
       req.user = decoded;
+      // res.locals makes data available to view templates (EJS, Pug, etc).
       res.locals.user = decoded;
     } catch (err) {
       req.user = null;
@@ -70,6 +76,11 @@ app.get("/register", (req, res) => {
 app.use('/admin', adminRoutes);
 app.use('/donor', donorRoutes);
 app.use('/volunteer', volunteerRoutes);
+
+
+// ___________Coming-Soon Functionality _____________
+const commonRoutes = require('./routes/commonRoutes');
+app.use('/', commonRoutes);
 
 // Start server
 const PORT = 3000;
