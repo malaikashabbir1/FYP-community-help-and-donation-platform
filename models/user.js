@@ -19,8 +19,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['donor', 'volunteer', 'admin'], //only one option is valid
     default: 'donor'
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved'],
+    default: 'pending'
   }
-}, { timestamps: true }); //automatically adds createdAt and updatedAt (date&time)
+},
+   { timestamps: true }); //automatically adds createdAt and updatedAt (date&time)
+
+// Prevent OverwriteModelError
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // Export the model
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;
