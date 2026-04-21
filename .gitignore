@@ -1,4 +1,29 @@
+# Node dependencies
 node_modules/
+
+# Environment variables
 .env
-# Ignore generated CSS
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data (IMPORTANT for you)
+uploads/
+
+# Generated files
 public/css/style.css
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+temp/
+
