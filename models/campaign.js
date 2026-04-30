@@ -29,9 +29,17 @@ const campaignSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['draft', 'active', 'completed'],
+    enum: ['draft', 'pending', 'active', 'rejected', 'completed'],
     default: 'draft'
+  },
+
+   // CAMPAIGN OWNERSHIP
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
+
 
 }, { timestamps: true });
 
