@@ -1,7 +1,8 @@
 const allowedTransitions = {
-  draft: ['active', 'rejected'],
+  draft: ['pending'],
+  pending: ['active', 'rejected'],
   active: ['completed'],
-  rejected: [],
+  rejected: ['draft'],
   completed: []
 };
 
