@@ -1,3 +1,7 @@
+// This controller handles both:
+// 1. Campaign creation (by volunteers)
+// 2. Campaign management (by admin)
+
 const Campaign = require('../models/campaign');
 const { canChangeStatus } = require('../utils/campaignRules');
 const mongoose = require('mongoose');
@@ -23,7 +27,8 @@ exports.getAllCampaigns = async (req, res) => {
 
     // search filter
     if (search) {
-      const safeSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const searchTerm = search.trim();
+      const safeSearch = searchTerm.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
       filter.name = {
         $regex: safeSearch,
@@ -31,10 +36,7 @@ exports.getAllCampaigns = async (req, res) => {
       };
     }
 
-
-
-
-    const campaigns = await Campaign.find(filter).sort({ createdAt: -1 });
+    const campaigns = await Campaign.find(filter).populate('createdBy', 'name role').sort({ createdAt: -1 });
 
     const message = req.session.message;
     req.session.message = null;
@@ -52,52 +54,6 @@ exports.getAllCampaigns = async (req, res) => {
   }
 };
 
-// Show create form
-exports.createPage = (req, res) => {
-  res.render('admin/campaigns/create');
-};
-
-// Campaign Craetion
-exports.createCampaign = async (req, res) => {
-  try {
-    const { name, description, goal} = req.body;
-
-    //validation
-    if (!name || !description || !goal) {
-      setMessage(req, "error", "All fields are required");
-      return res.redirect('/admin/campaigns/create');
-    }
-    if (!req.file) {
-      setMessage(req, "error", "Image is required");
-      return res.redirect('/admin/campaigns/create');
-    }
-
-   
-    // numeric validation
-    if (isNaN(goal) || goal <= 0) {
-      setMessage(req, "error", "Goal must be a positive number");
-      return res.redirect('/admin/campaigns/create');
-    }
-    // limit validation
-    if (goal < 100 || goal > 10000000) {
-      setMessage(req, "error", "Goal must be between 100 and 10,000,000");
-      return res.redirect('/admin/campaigns/create');
-    }
-
-    await Campaign.create({
-      name,
-      description,
-      goal,
-      image: req.file ? `/uploads/${req.file.filename}` : null,
-      status: 'draft'
-    });
-
-    res.redirect('/admin/campaigns');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error creating campaign');
-  }
-};
 
 // Show the existing campaign data for the Edit option
 exports.editPage = async (req, res) => {
@@ -139,6 +95,18 @@ exports.updateCampaign = async (req, res) => {
       setMessage(req, "error", "Campaign not found");
       return res.redirect('/admin/campaigns');
     }
+
+    // User is NOT owner AND NOT admin → block access
+    if ( campaign.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).send("Not authorized to edit this campaign");
+    }
+
+    // STATUS CHECK (prevent editing active campaigns) ONLY ADMIN CAN
+    if (campaign.status !== 'draft' && req.user.role !== 'admin') {
+      setMessage(req, "error", "Approved campaigns cannot be edited");
+      return res.redirect('/admin/campaigns');
+    }
+
 
     const { name, description, goal } = req.body;
 
@@ -187,7 +155,7 @@ exports.updateCampaign = async (req, res) => {
   }
 };
 
-
+// __________________All controls are handled by the admin_______________
 // Delete Campaign 
 exports.deleteCampaign = async (req, res) => {
   try {
@@ -305,6 +273,37 @@ exports.completeCampaign = async (req, res) => {
   } catch (error) {
     console.error(error);
     setMessage(req, "error", "Server error while completing campaign");
+    return res.redirect('/admin/campaigns');
+  }
+};
+
+// REJECT CAMPAIGN
+exports.rejectCampaign = async (req, res) => {
+  try {
+    const campaign = await Campaign.findById(req.params.id);
+
+    //  Check if campaign exists
+    if (!campaign) {
+      setMessage(req, "error", "Campaign not found");
+      return res.redirect('/admin/campaigns');
+    }
+
+    // Check if status change is allowed
+    if (!canChangeStatus(campaign.status, 'rejected')) {
+      setMessage(req, "error", `Cannot reject a ${campaign.status} campaign`);
+      return res.redirect('/admin/campaigns');
+    }
+
+    // Update status
+    campaign.status = 'rejected';
+    await campaign.save();
+
+    setMessage(req, "success", "Campaign rejected successfully");
+    return res.redirect('/admin/campaigns');
+
+  } catch (err) {
+    console.error(err);
+    setMessage(req, "error", "Server error while rejecting campaign");
     return res.redirect('/admin/campaigns');
   }
 };
