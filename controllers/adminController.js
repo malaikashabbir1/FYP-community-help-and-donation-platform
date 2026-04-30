@@ -12,9 +12,13 @@ exports.getAdminDashboard = async (req, res) => {
 
     // CAMPAIGN STATS
     const totalCampaigns = await Campaign.countDocuments();
+
     const draftCampaigns = await Campaign.countDocuments({ status: 'draft' });
+    const pendingCampaigns = await Campaign.countDocuments({ status: 'pending' });
+
     const activeCampaigns = await Campaign.countDocuments({ status: 'active' });
     const completedCampaigns = await Campaign.countDocuments({ status: 'completed' });
+    const rejectedCampaigns = await Campaign.countDocuments({ status: 'rejected' });
 
     // for Pending Requests 
     const recentActivity = await ActivityLog.find()
@@ -36,8 +40,10 @@ exports.getAdminDashboard = async (req, res) => {
       volunteers,
       totalCampaigns,
       draftCampaigns,
+      pendingCampaigns,
       activeCampaigns,
       completedCampaigns,
+      rejectedCampaigns,
       recentActivity,
       recentUsers,
       user: req.user
