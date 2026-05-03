@@ -181,15 +181,15 @@
 
             </div>
 
-            <!-- EDIT / DELETE -->
+            <!-- Review / DELETE -->
             <div class="mt-4 flex gap-2">
 
-              <a href="/admin/campaigns/edit/<%= c._id %>"
+              <a href="/admin/campaigns/<%= c._id %>/review"
                 class="w-full text-center bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600">
-                Edit
+                Review
               </a>
 
-              <form action="/admin/campaigns/delete/<%= c._id %>" method="POST"
+              <form action="/admin/campaigns/<%= c._id %>/delete" method="POST"
                 class="w-full">
 
                 <button class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">
@@ -215,5 +215,15 @@
 
 <%- include('../../partials/footer') %>
 
+<script>
+  setTimeout(() => {
+    const alertBox = document.getElementById('alertBox');
+    if (alertBox) {
+      alertBox.style.transition = "opacity 0.5s ease";
+      alertBox.style.opacity = "0";
+      setTimeout(() => alertBox.remove(), 500);
+    }
+  }, 3000); // disappears after 3 seconds
+</script>
 </body>
 </html>
