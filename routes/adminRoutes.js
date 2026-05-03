@@ -36,49 +36,42 @@ router.get(
   adminCampaignController.getAllCampaigns
 );
 
-// Show create campaign page
+// Review Campaign 
 router.get(
-  '/campaigns/create',
+  '/campaigns/:id/review',
   authenticateToken,
   authorizeRole('admin'),
-  adminCampaignController.createPage
-);
-
-// Handle create campaign
-router.post(
-  '/campaigns/create',
-  authenticateToken,
-  authorizeRole('admin'),
-  upload.single('image'),
-  adminCampaignController.createCampaign
-);
-
-// Show Edit Campaign Page 
-router.get(
-  '/campaigns/edit/:id',
-  authenticateToken,
-  authorizeRole('admin'),
-  adminCampaignController.editPage
-);
-
-// Update campaign 
-router.post(
-  '/campaigns/edit/:id',
-  authenticateToken,
-  authorizeRole('admin'),
-  upload.single('image'),
-  adminCampaignController.updateCampaign
+  adminCampaignController.reviewPage
 );
 
 // delete the campaign
 router.post(
-  '/campaigns/delete/:id',
+  '/campaigns/:id/delete',
   authenticateToken,
   authorizeRole('admin'),
   adminCampaignController.deleteCampaign
 );
 
-router.post('/campaign/:id/approve', adminCampaignController.approveCampaign);
-router.post('/campaign/:id/complete', adminCampaignController.completeCampaign);
+// approve campaign
+router.post('/campaigns/:id/approve',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminCampaignController.approveCampaign
+);
+
+// complete campaign
+router.post('/campaigns/:id/complete',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminCampaignController.completeCampaign
+);
+
+// reject campaign
+router.post(
+  '/campaigns/:id/reject',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminCampaignController.rejectCampaign
+);
 
 module.exports = router;
