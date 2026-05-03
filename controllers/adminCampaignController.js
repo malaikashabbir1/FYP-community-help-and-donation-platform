@@ -55,105 +55,27 @@ exports.getAllCampaigns = async (req, res) => {
 };
 
 
-// Show the existing campaign data for the Edit option
-exports.editPage = async (req, res) => {
+// REVIEW PAGE 
+exports.reviewPage = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      setMessage(req, "error", "Invalid campaign ID");
-      return res.redirect('/admin/campaigns');
-    }
-
-    const campaign = await Campaign.findById(req.params.id);
+    const campaign = await Campaign.findById(req.params.id)
+      .populate('createdBy', 'name role');
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
       return res.redirect('/admin/campaigns');
     }
 
-    res.render('admin/campaigns/edit', { campaign });
+    res.render('admin/campaigns/review', { campaign });
 
   } catch (err) {
     console.error(err);
     setMessage(req, "error", "Error loading campaign");
-    return res.redirect('/admin/campaigns');
+    res.redirect('/admin/campaigns');
   }
 };
 
-// Edit the campaign
-exports.updateCampaign = async (req, res) => {
-  try {
-    //  Invalid ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      setMessage(req, "error", "Invalid campaign ID");
-      return res.redirect('/admin/campaigns');
-    }
 
-    const campaign = await Campaign.findById(req.params.id);
-
-    // Not found
-    if (!campaign) {
-      setMessage(req, "error", "Campaign not found");
-      return res.redirect('/admin/campaigns');
-    }
-
-    // User is NOT owner AND NOT admin → block access
-    if ( campaign.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).send("Not authorized to edit this campaign");
-    }
-
-    // STATUS CHECK (prevent editing active campaigns) ONLY ADMIN CAN
-    if (campaign.status !== 'draft' && req.user.role !== 'admin') {
-      setMessage(req, "error", "Approved campaigns cannot be edited");
-      return res.redirect('/admin/campaigns');
-    }
-
-
-    const { name, description, goal } = req.body;
-
-    // Validation errors
-    if (!name || !description || !goal) {
-      setMessage(req, "error", "All fields are required");
-      return res.redirect(`/admin/campaigns/edit/${req.params.id}`);
-    }
-
-    if (isNaN(goal) || Number(goal) <= 0) {
-      setMessage(req, "error", "Goal must be a positive number");
-      return res.redirect(`/admin/campaigns/edit/${req.params.id}`);
-    }
-
-    // Update fields
-    campaign.name = name;
-    campaign.description = description;
-    campaign.goal = goal;
-
-    // SAFE IMAGE HANDLING
-    const oldImage = campaign.image;
-
-    if (req.file) {
-      if (oldImage) {
-        const oldPath = path.join(__dirname, '..', oldImage);
-        fs.unlink(oldPath, (err) => {
-          if (err) console.log("Old image delete error:", err.message);
-        });
-      }
-
-      campaign.image = `/uploads/${req.file.filename}`;
-    }
-
-    await campaign.save();
-
-    // Success message
-    setMessage(req, "success", "Campaign updated successfully");
-    return res.redirect('/admin/campaigns');
-
-  } catch (err) {
-    console.error(err);
-
-    // Server error 
-    setMessage(req, "error", "Something went wrong while updating campaign");
-    return res.redirect('/admin/campaigns');
-  }
-};
 
 // __________________All controls are handled by the admin_______________
 // Delete Campaign 
