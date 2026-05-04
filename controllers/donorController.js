@@ -1,13 +1,14 @@
-const User = require('../models/user'); // If you want to fetch additional user info
+const User = require('../models/user');
 const Donor = require('../models/donor');
 const Campaign = require('../models/campaign');
 const mongoose = require('mongoose');
 
-// Donor's Dashboard
+// Donor Dashboard
 exports.getDonorDashboard = async (req, res) => {
   try {
 
-    const userId = req.user.id;
+    // 🔥 FIX: use _id instead of id
+    const userId = req.user._id;
 
     const totalDonations = await Donor.countDocuments({ userId });
 
@@ -21,7 +22,7 @@ exports.getDonorDashboard = async (req, res) => {
       status: 'completed'
     });
 
-    const activeCampaigns = await Campaign.countDocuments();
+    const activeCampaigns = await Campaign.countDocuments({ status: 'active' });
 
     const stats = {
       totalDonations,
@@ -31,7 +32,11 @@ exports.getDonorDashboard = async (req, res) => {
     };
 
     res.render('donor/donorDashboard', {
-      user: req.user,
+      user: {
+        _id: req.user._id,
+        role: req.user.role,
+        name: req.user.name
+      },
       stats
     });
 
@@ -41,18 +46,23 @@ exports.getDonorDashboard = async (req, res) => {
   }
 };
 
-// Showing the campaignList
+
+// Campaign list
 exports.campaignsList = async (req, res) => {
   try {
-    const campaigns = await Campaign.find();
+    const campaigns = await Campaign.find({ status: 'active' })
+      .sort({ createdAt: -1 });
+
     res.render('donor/campaigns-list', { campaigns });
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 };
 
-// Donation Form Page 
+
+// Donation Form
 exports.donationForm = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.campaignId);
@@ -69,25 +79,23 @@ exports.donationForm = async (req, res) => {
   }
 };
 
+
 // Add Donation
 exports.addDonation = async (req, res) => {
   try {
     const { campaignId, amount, description } = req.body;
     const amountNumber = Number(amount);
 
-    // Validate input
     if (!campaignId || !amountNumber || amountNumber <= 0) {
       return res.status(400).send("Invalid donation");
     }
 
-    // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(campaignId)) {
       return res.send("Invalid campaign ID");
     }
 
-    // Save donation
     const donation = new Donor({
-      userId: req.user.id,
+      userId: req.user._id, // 🔥 FIX HERE
       campaignId,
       amount: amountNumber,
       description
@@ -95,7 +103,6 @@ exports.addDonation = async (req, res) => {
 
     await donation.save();
 
-    // Update campaign raised amount
     await Campaign.findByIdAndUpdate(campaignId, {
       $inc: { raised: amountNumber }
     });

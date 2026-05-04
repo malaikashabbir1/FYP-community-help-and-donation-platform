@@ -4,11 +4,15 @@ const Campaign = require('../models/campaign');
 const liveCampaigns = async (req, res) => {
   try {
     const campaigns = await Campaign.find({ status: 'active' })
-      .populate('createdBy', 'name')
+      .populate('createdBy', 'name _id') // ensure _id consistency
       .sort({ createdAt: -1 });
 
     res.render('campaigns/live', {
-      user: req.user,
+      user: {
+        _id: req.user._id,
+        role: req.user.role,
+        name: req.user.name
+      },
       campaigns
     });
 

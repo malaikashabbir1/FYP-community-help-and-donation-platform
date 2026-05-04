@@ -1,71 +1,59 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const ActivityLog = require('../models/activityLog'); // Add this line
+const ActivityLog = require('../models/activityLog');
 
-//____________SIGNUP ___________
+// ============== SIGNUP ==============
 exports.signup = async (req, res) => {
   const { name, email, password, role } = req.body;
   const errors = {};
 
   try {
-    // Validate all fields
+    // Validation
     if (!name || name.trim() === '') errors.name = 'Name is required';
     if (!email || email.trim() === '') errors.email = 'Email is required';
     if (!password || password.length < 6) errors.password = 'Password must be at least 6 characters';
     if (!role) errors.role = 'Role is required';
 
-    // Check duplicate email
     const existingUser = await User.findOne({ email });
     if (existingUser) errors.email = 'Email already exists';
 
-    // --- Single admin restriction 
+    // Single admin restriction
     if (role === 'admin') {
-    const existingAdmin = await User.findOne({ role: 'admin' });
-    if (existingAdmin) {
+      const existingAdmin = await User.findOne({ role: 'admin' });
+      if (existingAdmin) {
         errors.role = 'Admin already exists. Only one admin allowed.';
-        return res.render('auth/register', { 
-            errors, 
-            oldInput: { name, email, role } 
-        });
-    }
+      }
     }
 
-    // If any other errors
-    if (Object.keys(errors).length > 0) {
-        return res.render('auth/register', {
-        errors,
-        oldInput: { name, email, role }
-    });
-    }
-
-
-    // If any errors, re-render with previous input
     if (Object.keys(errors).length > 0) {
       return res.render('auth/register', {
         errors,
-        oldInput: req.body
+        oldInput: { name, email, role }
       });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create and save user
-    const newUser = new User({ name, email, password: hashedPassword, role });
-    await newUser.save();
-    console.log('User saved successfully:', newUser);
-
-    // --- Add ActivityLog entry for admin dashboard
-    await ActivityLog.create({
-    type: 'user',                     // Type of activity
-    refId: newUser._id,               // Reference to the new user
-    userId: newUser._id,              // Actor (the user themselves)
-    description: `${newUser.name} registered as ${newUser.role}`,
-    createdAt: new Date()             // optional; timestamps handled automatically if schema has timestamps
+    // Create user
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role
     });
 
-    // Redirect to login after success
+    await newUser.save();
+
+    // Activity log (fixed _id consistency)
+    await ActivityLog.create({
+      type: 'user',
+      refId: newUser._id,
+      userId: newUser._id,
+      description: `${newUser.name} registered as ${newUser.role}`
+    });
+
     res.redirect('/auth/login');
 
   } catch (err) {
@@ -75,75 +63,73 @@ exports.signup = async (req, res) => {
 };
 
 
-// _________ LOGIN _____________
+// ============== LOGIN ==============
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    try {
-        //  Find user in DB
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).render('auth/login', { 
-                errors: { email: 'Email not found' }, 
-                oldInput: { email, password }  // Pass old input
-            });
-        }
+  try {
+    const user = await User.findOne({ email });
 
-        //  Compare password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).render('auth/login',  { 
-                errors: { password: 'Incorrect password' }, 
-                oldInput: { email, password }  // Pass old input
-            });
-        }
-
-        //   Generate JWT
-        const token = jwt.sign(
-            {
-                userId: user._id,
-                role: user.role,
-                name: user.name 
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        //  Set JWT in HTTP-only cookie
-        res.cookie('token', token, { httpOnly: true /*, secure: true in production */ });
-
-        //  Redirect based on role
-        switch (user.role) {
-            case 'admin':
-                return res.redirect('/admin/dashboard');
-            case 'donor':
-                return res.redirect('/donor/dashboard');
-            case 'volunteer':
-                return res.redirect('/volunteer/dashboard');
-            default:
-                return res.redirect('/auth/login');
-        }
-
-    } catch (err) {
-        console.error('Login error:', err);
-        return res.status(500).render('auth/login', { 
-            errors: { general: 'Server error' }, 
-            oldInput: { email, password }  // Pass old input
-        });
+    if (!user) {
+      return res.status(400).render('auth/login', {
+        errors: { email: 'Email not found' },
+        oldInput: { email }
+      });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).render('auth/login', {
+        errors: { password: 'Incorrect password' },
+        oldInput: { email }
+      });
+    }
+
+    // 🔥 FIX: use _id instead of userId
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        role: user.role,
+        name: user.name
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict'
+    });
+
+    switch (user.role) {
+      case 'admin':
+        return res.redirect('/admin/dashboard');
+      case 'donor':
+        return res.redirect('/donor/dashboard');
+      case 'volunteer':
+        return res.redirect('/volunteer/dashboard');
+      default:
+        return res.redirect('/auth/login');
+    }
+
+  } catch (err) {
+    console.error('Login error:', err);
+    return res.status(500).render('auth/login', {
+      errors: { general: 'Server error' },
+      oldInput: { email }
+    });
+  }
 };
 
 
-// _______________ LOGOUT ________________________
+// ============== LOGOUT ==============
 exports.logoutUser = (req, res) => {
-    // Clear JWT cookie
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/'
-    });
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'strict',
+    path: '/'
+  });
 
-    // Redirect to login page
-    res.redirect('/auth/login');
+  res.redirect('/auth/login');
 };
