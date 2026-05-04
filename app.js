@@ -8,6 +8,10 @@ const apiAuthRoutes = require('./routes/api/authApi');
 const adminRoutes = require('./routes/adminRoutes');
 const donorRoutes = require('./routes/donorRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
+const campaignRoutes = require('./routes/campaignRoutes');
+
+const path = require('path');
+const session = require('express-session');
 
 // for JWT
 const cookieParser = require('cookie-parser');
@@ -23,8 +27,30 @@ connectDB();
 app.use(express.urlencoded({ extended: true })); // to read form data from POST
 app.use(express.json()); // parse JSON request body from backend (for API)
 
+//  _________________ FLASH MESSAGE ______________________
+app.use(session({
+  secret: 'yourSecretKey',   // use ONLY ONE secret
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // set true only in HTTPS production
+    maxAge: 1000 * 60 * 30 // 30 mins
+  }
+}));
+
+app.use((req, res, next) => {
+  res.locals.message = req.session.message || null;
+  delete req.session.message;
+  next();
+});
+
+
+//________Upload  (Makes /uploads folder publicly accessible)
+app.use('/uploads', express.static('uploads'));
+
 // _______Tailwind
 app.use(express.static("public"));
+
 
 // _________Routes
 app.use('/auth', pageAuthRoutes);      // Page routes
@@ -72,10 +98,14 @@ app.get("/register", (req, res) => {
   res.render("auth/register");
 });
 
+
+
 // ____________ Roles Routes for Dashboards ______________
 app.use('/admin', adminRoutes);
 app.use('/donor', donorRoutes);
 app.use('/volunteer', volunteerRoutes);
+app.use('/campaigns', campaignRoutes);
+
 
 
 // ___________Coming-Soon Functionality _____________
