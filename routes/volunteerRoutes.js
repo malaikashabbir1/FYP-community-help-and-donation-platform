@@ -74,8 +74,15 @@ router.post(
   '/campaigns/edit/:id',
   authenticateToken,
   authorizeRole('volunteer'),
-   upload.single('image'),
+  upload.single('image'),
   volunteerCampaignController.updateCampaign
+);
+
+router.post(
+  '/campaigns/:id/resubmit',
+  authenticateToken,
+   authorizeRole('volunteer'),
+  volunteerCampaignController.resubmitCampaign
 );
 
 module.exports = router;
