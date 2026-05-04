@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,205 +16,203 @@
 <div class="max-w-7xl mx-auto py-6 sm:py-10 px-3 sm:px-4">
 
   <!-- HEADER -->
-  <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
 
+  <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
     <h1 class="text-2xl sm:text-3xl font-bold">Campaigns</h1>
 
-    <% if (user.role === 'volunteer') { %>
-      <a href="/volunteer/campaigns/create"
-        class="w-full sm:w-auto text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-        + Create Campaign
-      </a>
-    <% } %>
+<% if (user.role === 'volunteer') { %>
+  <a href="/volunteer/campaigns/create"
+    class="w-full sm:w-auto text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+    + Create Campaign
+  </a>
+<% } %>
+
 
   </div>
 
   <!-- FLASH MESSAGE -->
-  <% if (message) { %>
-    <div id="alertBox"
-      class="mb-6 px-4 py-3 rounded-lg shadow-sm flex justify-between items-center
-      <%= message.type === 'success'
-          ? 'bg-green-100 text-green-700 border border-green-300'
-          : 'bg-red-100 text-red-700 border border-red-300' %>">
 
-      <span class="text-sm font-medium"><%= message.text %></span>
+<% if (message) { %> <div id="alertBox"
+   class="mb-6 px-4 py-3 rounded-lg shadow-sm flex justify-between items-center
+   <%= message.type === 'success'
+       ? 'bg-green-100 text-green-700 border border-green-300'
+       : 'bg-red-100 text-red-700 border border-red-300' %>">
 
-      <button onclick="document.getElementById('alertBox').remove()"
-        class="text-lg font-bold px-2">&times;</button>
-    </div>
-  <% } %>
+
+  <span class="text-sm font-medium"><%= message.text %></span>
+
+  <button onclick="document.getElementById('alertBox').remove()"
+    class="text-lg font-bold px-2">&times;</button>
+</div>
+
+
+<% } %>
 
   <!-- SEARCH + FILTER -->
+
   <form method="GET" action="/admin/campaigns" class="mb-6 flex flex-col sm:flex-row gap-3">
 
-    <input 
-      type="text"
-      name="search"
-      placeholder="Search campaign..."
-      class="w-full sm:w-1/2 px-3 py-2 border rounded-lg"
-      value="<%= search || '' %>"
-    />
 
-    <select name="status" class="w-full sm:w-1/4 px-3 py-2 border rounded-lg">
-      <option value="">All Status</option>
-      <option value="draft" <%= status === 'draft' ? 'selected' : '' %>>Draft</option>
-      <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
-      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
-      <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>Rejected</option>
-      <option value="completed" <%= status === 'completed' ? 'selected' : '' %>>Completed</option>
-    </select>
+<input 
+  type="text"
+  name="search"
+  placeholder="Search campaign..."
+  class="w-full sm:w-1/2 px-3 py-2 border rounded-lg"
+  value="<%= search || '' %>"
+/>
 
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
-      Apply
-    </button>
+<select name="status" class="w-full sm:w-1/4 px-3 py-2 border rounded-lg">
+  <option value="">All Status</option>
+  <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+  <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+  <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+  <option value="completed" <%= status === 'completed' ? 'selected' : '' %>>Completed</option>
+</select>
+
+<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+  Apply
+</button>
+
 
   </form>
 
   <!-- GRID -->
-  <% if (campaigns.length === 0) { %>
 
-    <div class="text-center py-20">
-      <h2 class="text-xl font-semibold text-gray-600">No campaigns found</h2>
-      <p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
-    </div>
+<% if (campaigns.length === 0) { %>
 
-  <% } else { %>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+<div class="text-center py-20">
+  <h2 class="text-xl font-semibold text-gray-600">No campaigns found</h2>
+  <p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
+</div>
 
-      <% campaigns.forEach(c => { %>
 
-        <div class="bg-white rounded-xl shadow hover:shadow-xl transition flex flex-col overflow-hidden">
+<% } else { %>
 
-          <!-- IMAGE -->
-          <% if (c.image) { %>
-            <img src="<%= c.image %>" class="h-40 sm:h-48 w-full object-cover">
-          <% } else { %>
-            <div class="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-              No Image
-            </div>
-          <% } %>
 
-          <div class="p-4 sm:p-5 flex flex-col flex-1">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
 
-            <!-- TITLE -->
-            <h2 class="text-lg sm:text-xl font-semibold"><%= c.name %></h2>
+  <% campaigns.forEach(c => { %>
 
-            <!-- CREATED BY -->
-            <p class="text-xs text-gray-500 mt-1">
-              Created By: <%= c.createdBy?.name || 'Unknown' %>
-              (<%= c.createdBy?.role || 'N/A' %>)
-            </p>
+    <div class="bg-white rounded-xl shadow hover:shadow-xl transition flex flex-col h-full overflow-hidden">
 
-            <!-- DESCRIPTION -->
-            <p class="text-gray-600 text-sm mt-1 mb-4">
-              <%= c.description %>
-            </p>
+      <!-- IMAGE -->
+      <% if (c.image) { %>
+        <img src="<%= c.image %>" class="h-40 sm:h-48 w-full object-cover">
+      <% } else { %>
+        <div class="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+          No Image
+        </div>
+      <% } %>
 
-            <!-- PROGRESS -->
-            <%
-              let progress = 0;
-              if (c.goal > 0) {
-                progress = Math.min((c.raised / c.goal) * 100, 100);
-              }
-            %>
+      <!-- BODY -->
+      <div class="p-4 sm:p-5 flex flex-col flex-1">
 
-            <div class="flex justify-between text-xs sm:text-sm mb-1">
-              <span>Raised: Rs.<%= c.raised %></span>
-              <span>Goal: Rs.<%= c.goal %></span>
-            </div>
+        <!-- TITLE -->
+        <h2 class="text-lg sm:text-xl font-semibold leading-snug line-clamp-2 min-h-[48px]">
+          <%= c.name %>
+        </h2>
 
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-green-500 h-2 rounded-full"
-                   style="width:<%= progress + '%' %>"></div>
-            </div>
+        <!-- CREATED BY -->
+        <p class="text-gray-500 text-xs mt-1">
+          Created By: <%= c.createdBy?.name || 'Unknown' %>
+          (<%= c.createdBy?.role || 'N/A' %>)
+        </p>
 
-            <!-- STATUS + BUTTONS (FIXED ROW) -->
-            <div class="mt-3 flex items-center justify-between gap-3">
+        <!-- DESCRIPTION -->
+        <p class="text-gray-600 text-sm mt-1 line-clamp-3 min-h-[30px]">
+          <%= c.description %>
+        </p>
 
-              <!-- STATUS -->
-              <div>
-                <% if (c.status === 'draft') { %>
-                  <span class="bg-yellow-100 text-yellow-700 px-2 py-1 text-xs rounded">🟡 Draft</span>
+        <!-- PUSH DOWN -->
+        <div class="flex-1"></div>
 
-                <% } else if (c.status === 'pending') { %>
-                  <span class="bg-orange-100 text-orange-700 px-2 py-1 text-xs rounded">🟠 Pending</span>
+        <!-- PROGRESS -->
+        <%
+          let progress = 0;
+          if (c.goal > 0) {
+            progress = Math.min((c.raised / c.goal) * 100, 100);
+          }
+        %>
 
-                <% } else if (c.status === 'active') { %>
-                  <span class="bg-green-100 text-green-700 px-2 py-1 text-xs rounded">🟢 Live</span>
+        <div class="mt-3">
+          <div class="flex justify-between text-xs sm:text-sm mb-1">
+            <span>Raised: Rs.<%= c.raised %></span>
+            <span>Goal: Rs.<%= c.goal %></span>
+          </div>
 
-                <% } else if (c.status === 'rejected') { %>
-                  <span class="bg-red-100 text-red-700 px-2 py-1 text-xs rounded">🔴 Rejected</span>
-
-                <% } else { %>
-                  <span class="bg-blue-100 text-blue-700 px-2 py-1 text-xs rounded">🔵 Completed</span>
-                <% } %>
-              </div>
-
-              <!-- ACTION BUTTONS -->
-              <div class="flex gap-2 flex-nowrap">
-
-                <% if (c.status === 'draft' || c.status === 'pending') { %>
-
-                  <button class="bg-green-600 text-white px-3 py-1  text-xs rounded whitespace-nowrap">
-                    Approve
-                  </button>
-
-                  <button class="bg-red-600 text-white px-3 py-1  text-xs rounded whitespace-nowrap">
-                    Reject
-                  </button>
-
-                <% } else if (c.status === 'active') { %>
-
-                  <button class="bg-blue-600 text-white px-3 py-1  text-xs rounded whitespace-nowrap">
-                    Complete
-                  </button>
-
-                <% } else { %>
-
-                  <button disabled class="bg-gray-300 text-gray-600 px-3 py-1 text-xs rounded cursor-not-allowed">
-                    No Actions
-                  </button>
-
-                <% } %>
-
-              </div>
-
-            </div>
-
-            <!-- Review / DELETE -->
-            <div class="mt-4 flex gap-2">
-
-              <a href="/admin/campaigns/<%= c._id %>/review"
-                class="w-full text-center bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600">
-                Review
-              </a>
-
-              <form action="/admin/campaigns/<%= c._id %>/delete" method="POST"
-                class="w-full">
-
-                <button class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">
-                  Delete
-                </button>
-
-              </form>
-
-            </div>
-
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full"
+                 style="width:<%= progress + '%' %>"></div>
           </div>
         </div>
 
-      <% }) %>
+        <!-- STATUS -->
+        <div class="mt-3">
+          <% if (c.status === 'pending') { %>
+            <span class="bg-orange-100 text-orange-700 px-2 py-1 text-xs rounded">🟠 Pending</span>
 
+          <% } else if (c.status === 'active') { %>
+            <span class="bg-green-100 text-green-700 px-2 py-1 text-xs rounded">🟢 Live</span>
+
+          <% } else if (c.status === 'rejected') { %>
+            <span class="bg-red-100 text-red-700 px-2 py-1 text-xs rounded">🔴 Rejected</span>
+
+          <% } else { %>
+            <span class="bg-blue-100 text-blue-700 px-2 py-1 text-xs rounded">🔵 Completed</span>
+          <% } %>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="mt-4 flex gap-2">
+
+          <!-- REVIEW -->
+          <% if (c.status === 'pending' || c.status === 'rejected') { %>
+            <a href="/admin/campaigns/<%= c._id %>/review"
+              class="flex-1 text-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium">
+              Review
+            </a>
+          <% } %>
+
+          <!-- COMPLETE -->
+          <% if (c.status === 'active') { %>
+            <form action="/admin/campaigns/<%= c._id %>/complete" method="POST" class="flex-1">
+              <button
+                onclick="return confirm('Are you sure you want to mark this campaign as completed?')"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">
+                Complete
+              </button>
+            </form>
+          <% } %>
+
+          <!-- DELETE -->
+          <form action="/admin/campaigns/<%= c._id %>/delete" method="POST" class="flex-1">
+            <button
+              onclick="return confirm('Are you sure you want to delete this campaign?')"
+              class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-medium">
+              Delete
+            </button>
+          </form>
+
+        </div>
+
+      </div>
     </div>
 
-  <% } %>
+  <% }) %>
+
+</div>
+
+
+<% } %>
 
 </div>
 
 </main>
 
 <%- include('../../partials/footer') %>
+
+<!-- FLASH AUTO FADE -->
 
 <script>
   setTimeout(() => {
@@ -223,7 +222,8 @@
       alertBox.style.opacity = "0";
       setTimeout(() => alertBox.remove(), 500);
     }
-  }, 3000); // disappears after 3 seconds
+  }, 3000);
 </script>
+
 </body>
 </html>
