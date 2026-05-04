@@ -141,8 +141,7 @@ exports.joinCampaign = async (req, res) => {
   }
 };
 
-
-// ================= EDIT PAGE =================
+// EDIT PAGE 
 exports.editPage = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id);
@@ -156,12 +155,15 @@ exports.editPage = async (req, res) => {
       return res.status(403).send("Not authorized");
     }
 
-    if (campaign.status !== 'draft') {
-      setMessage(req, "error", "Only draft campaigns can be edited");
+    // allow edit for draft + rejected only
+    if (campaign.status !== "draft" && campaign.status !== "rejected") {
+      setMessage(req, "error", "You cannot edit this campaign");
       return res.redirect('/volunteer/campaigns/my');
     }
 
-    res.render('volunteer/campaigns/edit', { campaign });
+    return res.render('volunteer/campaigns/edit', {
+      campaign
+    });
 
   } catch (err) {
     console.error(err);
@@ -171,14 +173,10 @@ exports.editPage = async (req, res) => {
 };
 
 
-// ================= UPDATE CAMPAIGN =================
+
+// update Campaign
 exports.updateCampaign = async (req, res) => {
   try {
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      setMessage(req, "error", "Invalid campaign ID");
-      return res.redirect('/volunteer/campaigns/my');
-    }
 
     const campaign = await Campaign.findById(req.params.id);
 
@@ -191,11 +189,6 @@ exports.updateCampaign = async (req, res) => {
       return res.status(403).send("Not authorized");
     }
 
-    if (campaign.status !== 'draft') {
-      setMessage(req, "error", "Only draft campaigns can be edited");
-      return res.redirect('/volunteer/campaigns/my');
-    }
-
     const { name, description, goal } = req.body;
 
     if (!name || !description || !goal) {
@@ -203,8 +196,15 @@ exports.updateCampaign = async (req, res) => {
       return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
     }
 
-    if (isNaN(goal) || Number(goal) <= 0) {
-      setMessage(req, "error", "Goal must be a positive number");
+    //prevent useless update ________________ when no change is made 
+    const noChange =
+      campaign.name === name &&
+      campaign.description === description &&
+      Number(campaign.goal) === Number(goal) &&
+      !req.file;
+
+    if (noChange) {
+      setMessage(req, "error", "No changes detected.");
       return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
     }
 
@@ -216,6 +216,13 @@ exports.updateCampaign = async (req, res) => {
       campaign.image = `/uploads/${req.file.filename}`;
     }
 
+    // ✔ ONLY RESUBMIT LOGIC
+    if (campaign.status === "rejected") {
+      campaign.status = "pending";
+      campaign.rejectionReason = "";
+      campaign.reviewedAt = null;
+    }
+
     await campaign.save();
 
     setMessage(req, "success", "Campaign updated successfully");
@@ -223,8 +230,7 @@ exports.updateCampaign = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    setMessage(req, "error", "Something went wrong while updating campaign");
+    setMessage(req, "error", "Something went wrong");
     return res.redirect('/volunteer/campaigns/my');
   }
 };
-
