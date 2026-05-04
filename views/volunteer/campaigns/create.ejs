@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Campaign</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-grow">
+
+<div class="max-w-xl mx-auto px-4 py-8">
+
+  <h1 class="text-xl sm:text-3xl font-bold mb-6">
+    Create Campaign
+  </h1>
+
+  <div class="bg-white p-4 sm:p-6 rounded-xl shadow">
+
+    <form action="/volunteer/campaigns/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+
+      <input type="text" name="name" placeholder="Campaign Name"
+        class="w-full border p-3 rounded text-sm sm:text-base"
+        required>
+
+      <textarea name="description" placeholder="Description"
+        class="w-full border p-3 rounded text-sm sm:text-base"></textarea>
+
+      <input type="number" name="goal" min="100" max="10000000" step="1"  placeholder="Goal Amount" 
+        class="w-full border p-3 rounded text-sm sm:text-base"
+        required>
+
+      <input type="file" name="image" placeholder="Image URL"
+        class="w-full border p-3 rounded text-sm sm:text-base"
+         accept="image/*">
+
+      <button type="submit"
+        class="w-full bg-green-600 text-white py-3 rounded-lg">
+        Create Campaign
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+</main>
+
+<%- include('../../partials/footer') %>
+</body>
+</html>
