@@ -24,78 +24,90 @@
   </p>
 </div>
 
-<!-- USER OVERVIEW -->
+<!-- ================= USER OVERVIEW ================= -->
 <div class="max-w-7xl mx-auto mb-10 bg-slate-50/80 backdrop-blur rounded-2xl shadow-md p-6 border border-slate-200">
 
   <h2 class="text-xl font-bold text-slate-900 mb-5">User Overview</h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-    <div class="bg-blue-100/70 hover:bg-blue-100/90 border-l-4 border-blue-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <div class="bg-blue-100/70 border-l-4 border-blue-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Total Users</h3>
+        <p class="text-sm text-slate-600">Total Users</p>
         <p class="text-2xl font-bold text-blue-700"><%= totalUsers %></p>
       </div>
-      <i class="fas fa-users text-3xl text-blue-600"></i>
+      <i class="fas fa-users text-2xl text-blue-600"></i>
     </div>
 
-    <div class="bg-green-100/70 hover:bg-green-100/90 border-l-4 border-green-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <div class="bg-green-100/70 border-l-4 border-green-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Donors</h3>
+        <p class="text-sm text-slate-600">Donors</p>
         <p class="text-2xl font-bold text-green-700"><%= donors %></p>
       </div>
-      <i class="fas fa-hand-holding-heart text-3xl text-green-600"></i>
+      <i class="fas fa-hand-holding-heart text-2xl text-green-600"></i>
     </div>
 
-    <div class="bg-purple-100/70 hover:bg-purple-100/90 border-l-4 border-purple-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <div class="bg-purple-100/70 border-l-4 border-purple-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Volunteers</h3>
+        <p class="text-sm text-slate-600">Volunteers</p>
         <p class="text-2xl font-bold text-purple-700"><%= volunteers %></p>
       </div>
-      <i class="fas fa-user-friends text-3xl text-purple-600"></i>
+      <i class="fas fa-user-friends text-2xl text-purple-600"></i>
     </div>
 
   </div>
 </div>
 
-
-<!-- CAMPAIGN OVERVIEW -->
+<!-- ================= CAMPAIGN OVERVIEW ================= -->
 <div class="max-w-7xl mx-auto mb-10 bg-slate-50/80 backdrop-blur rounded-2xl shadow-md p-6 border border-slate-200">
 
   <h2 class="text-xl font-bold text-slate-900 mb-5">Campaign Overview</h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
 
-    <div class="bg-slate-200/70 hover:bg-slate-200/90 border-l-4 border-slate-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <!-- TOTAL -->
+    <div class="bg-slate-200/70 border-l-4 border-slate-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Total Campaigns</h3>
+        <p class="text-sm text-slate-600">Total Campaigns</p>
         <p class="text-2xl font-bold text-slate-800"><%= totalCampaigns %></p>
       </div>
-      <i class="fas fa-bullhorn text-3xl text-slate-600"></i>
+      <i class="fas fa-bullhorn text-2xl text-slate-600"></i>
     </div>
 
-    <div class="bg-amber-100/70 hover:bg-amber-100/90 border-l-4 border-amber-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <!-- PENDING -->
+    <div class="bg-amber-100/70 border-l-4 border-amber-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Draft</h3>
-        <p class="text-2xl font-bold text-amber-700"><%= draftCampaigns %></p>
+        <p class="text-sm text-slate-600">Pending</p>
+        <p class="text-2xl font-bold text-amber-700"><%= pendingCampaigns %></p>
       </div>
-      <i class="fas fa-pencil-alt text-3xl text-amber-600"></i>
+      <i class="fas fa-pencil-alt text-2xl text-amber-600"></i>
     </div>
 
-    <div class="bg-blue-100/70 hover:bg-blue-100/90 border-l-4 border-blue-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <!-- ACTIVE -->
+    <div class="bg-blue-100/70 border-l-4 border-blue-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Active</h3>
+        <p class="text-sm text-slate-600">Active</p>
         <p class="text-2xl font-bold text-blue-700"><%= activeCampaigns %></p>
       </div>
-      <i class="fas fa-bolt text-3xl text-blue-600"></i>
+      <i class="fas fa-bolt text-2xl text-blue-600"></i>
     </div>
 
-    <div class="bg-emerald-100/70 hover:bg-emerald-100/90 border-l-4 border-emerald-600 rounded-xl p-6 flex items-center justify-between shadow-sm hover:shadow-md transition">
+    <!-- COMPLETED -->
+    <div class="bg-emerald-100/70 border-l-4 border-emerald-600 rounded-xl p-6 flex justify-between">
       <div>
-        <h3 class="text-sm text-slate-600">Completed</h3>
+        <p class="text-sm text-slate-600">Completed</p>
         <p class="text-2xl font-bold text-emerald-700"><%= completedCampaigns %></p>
       </div>
-      <i class="fas fa-check-circle text-3xl text-emerald-600"></i>
+      <i class="fas fa-check-circle text-2xl text-emerald-600"></i>
+    </div>
+
+    <!-- REJECTED -->
+    <div class="bg-red-100/70 border-l-4 border-red-600 rounded-xl p-6 flex justify-between">
+      <div>
+        <p class="text-sm text-slate-600">Rejected</p>
+        <p class="text-2xl font-bold text-red-700"><%= rejectedCampaigns %></p>
+      </div>
+      <i class="fas fa-times-circle text-2xl text-red-600"></i>
     </div>
 
   </div>
@@ -109,25 +121,25 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
     <a href="/coming-soon/users"
-      class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center transition shadow-md">
+      class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-users text-2xl"></i>
       <p class="mt-2 font-semibold">Manage Users</p>
     </a>
 
     <a href="/coming-soon/donations"
-      class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 text-center transition shadow-md">
+      class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-hand-holding-heart text-2xl"></i>
       <p class="mt-2 font-semibold">Donations</p>
     </a>
 
     <a href="/coming-soon/requests"
-      class="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-6 text-center transition shadow-md">
+      class="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-envelope text-2xl"></i>
       <p class="mt-2 font-semibold">Requests</p>
     </a>
 
     <a href="/admin/campaigns"
-      class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center transition shadow-md">
+      class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-bullhorn text-2xl"></i>
       <p class="mt-2 font-semibold">Campaigns</p>
     </a>
@@ -135,7 +147,7 @@
   </div>
 </div>
 
-<!-- ================= RECENT USERS ================= -->
+<!-- ================= RECENT USERS (YOUR VERSION) ================= -->
 <div class="max-w-7xl mx-auto bg-slate-50 rounded-2xl shadow-md p-6 border border-slate-200">
 
   <h2 class="text-lg font-bold text-slate-800 mb-4">Recent Registrations</h2>
