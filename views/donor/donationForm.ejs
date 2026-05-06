@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donate to <%= campaign.name %></title>
+
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<!-- NAVBAR -->
+<header class="bg-blue-600 text-white shadow">
+  <div class="max-w-6xl mx-auto px-4 py-3">
+    <div class="flex items-center justify-between">
+
+      <h1 class="text-sm sm:text-lg font-bold text-emerald-300">
+        Donor Panel
+      </h1>
+
+      <a href="/donor/dashboard" class="text-xs sm:text-sm hover:underline">
+        Back to Dashboard
+      </a>
+
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="flex-grow px-4 py-10 flex justify-center">
+
+  <div class="w-full max-w-3xl">
+
+    <!-- CARD -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="bg-blue-600 text-white p-5">
+        <h2 class="text-lg sm:text-2xl font-bold">
+          Donate to Campaign
+        </h2>
+        <p class="text-sm text-blue-100 mt-1">
+          Your contribution makes a difference
+        </p>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="p-5 sm:p-6 space-y-6">
+
+        <!-- CAMPAIGN INFO -->
+        <div class="bg-gray-50 border rounded-lg p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800">
+            <%= campaign.name %>
+          </h3>
+
+          <p class="text-sm text-gray-600 mt-1">
+            <%= campaign.description || "No description available" %>
+          </p>
+
+          <div class="mt-3 text-sm text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6">
+            <span>Goal: <b>Rs <%= campaign.goal %></b></span>
+            <span>Raised: <b>Rs <%= campaign.raised %></b></span>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <form action="/donor/donate" method="POST" class="space-y-5">
+
+          <input type="hidden" name="campaignId" value="<%= campaign._id %>">
+
+          <!-- QUICK SELECT -->
+          <div>
+            <label class="block text-gray-700 text-sm font-medium mb-2">
+              Quick Select
+            </label>
+
+            <div class="flex gap-2">
+              <button type="button" onclick="setAmount(100, this)"
+                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                100
+              </button>
+
+              <button type="button" onclick="setAmount(500, this)"
+                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                500
+              </button>
+
+              <button type="button" onclick="setAmount(1000, this)"
+                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                1000
+              </button>
+            </div>
+          </div>
+
+          <!-- AMOUNT INPUT -->
+          <div>
+            <label class="block text-gray-700 text-sm font-medium mb-1">
+              Amount
+            </label>
+
+            <div class="flex items-center border rounded-md overflow-hidden">
+
+              <span class="bg-gray-100 px-3 py-2 text-sm text-gray-600 border-r">
+                Rs.
+              </span>
+
+              <input id="amountInput" type="number" name="amount" required min="1"
+                placeholder="Enter amount"
+                class="w-full px-3 py-2 text-sm focus:outline-none">
+
+            </div>
+          </div>
+
+          <!-- NOTE -->
+          <div>
+            <label class="block text-gray-700 text-sm font-medium mb-1">
+              Note (Optional)
+            </label>
+
+            <textarea name="description" rows="3"
+              class="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Write a message..."></textarea>
+          </div>
+
+          <!-- SUBMIT -->
+          <button type="button"
+            onclick="openModal()"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md text-sm font-semibold transition">
+            Confirm Donation
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>
+
+<!-- MODAL (FIXED) -->
+<div id="donationModal"
+  class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+
+  <div class="bg-white rounded-lg shadow-lg w-80 p-5 text-center">
+
+    <h2 class="text-lg font-semibold mb-3">Confirm Donation</h2>
+
+    <p class="text-sm text-gray-600 mb-5">
+      Are you sure you want to proceed with this donation?
+    </p>
+
+    <div class="flex gap-3">
+
+      <!-- CANCEL -->
+      <button type="button"
+        onclick="closeModal()"
+        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded-md text-sm transition duration-200">
+        Cancel
+      </button>
+
+      <!-- CONFIRM -->
+      <button type="button"
+        onclick="submitDonation()"
+        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm transition duration-200">
+        Confirm
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+  function setAmount(value, btn) {
+    document.getElementById("amountInput").value = value;
+
+    document.querySelectorAll(".amount-btn").forEach(b => {
+      b.classList.remove("bg-blue-600", "text-white");
+    });
+
+    btn.classList.add("bg-blue-600", "text-white");
+  }
+
+  document.getElementById("amountInput").addEventListener("input", () => {
+    document.querySelectorAll(".amount-btn").forEach(b => {
+      b.classList.remove("bg-blue-600", "text-white");
+    });
+  });
+
+  function openModal() {
+    document.getElementById("donationModal").classList.remove("hidden");
+  }
+
+  function closeModal() {
+    document.getElementById("donationModal").classList.add("hidden");
+  }
+
+  function submitDonation() {
+    document.querySelector("form").submit();
+  }
+</script>
+
+</body>
+</html>
