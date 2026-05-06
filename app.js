@@ -10,6 +10,8 @@ const donorRoutes = require('./routes/donorRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 
+const volunteerController = require('./controllers/volunteerController');
+
 const path = require('path');
 const session = require('express-session');
 
@@ -106,6 +108,8 @@ app.use('/donor', donorRoutes);
 app.use('/volunteer', volunteerRoutes);
 app.use('/campaigns', campaignRoutes);
 
+// ______________________ profile ______________________
+app.get('/profile', authenticateToken, volunteerController.getProfile);
 
 
 // ___________Coming-Soon Functionality _____________
