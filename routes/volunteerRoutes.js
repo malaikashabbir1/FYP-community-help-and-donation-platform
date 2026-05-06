@@ -46,13 +46,6 @@ router.get(
   volunteerCampaignController.myCampaigns
 );
 
-// // submission for approval
-// router.post(
-//   '/campaigns/:id/submit',
-//   authenticateToken,
-//   authorizeRole('volunteer'),
-//   volunteerCampaignController.submitForApproval
-// );
 
 router.post(
   '/campaigns/:id/submit',
@@ -78,11 +71,14 @@ router.post(
   volunteerCampaignController.updateCampaign
 );
 
-router.post(
-  '/campaigns/:id/resubmit',
-  authenticateToken,
-   authorizeRole('volunteer'),
-  volunteerCampaignController.resubmitCampaign
-);
+router.get('/campaigns/myCampaigns', (req, res) => {
+  res.send('Route working');
+});
+
+//__________ Nav bar ______________
+router.get('/campaigns/create', volunteerCampaignController.createCampaign);
+router.get('/campaigns/my', volunteerCampaignController.myCampaigns);
+
+
 
 module.exports = router;

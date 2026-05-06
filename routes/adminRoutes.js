@@ -74,4 +74,7 @@ router.post(
   adminCampaignController.rejectCampaign
 );
 
+// adminRoutes.js __________ nav bar
+router.get('/campaigns/list', adminCampaignController.getAllCampaigns);
+
 module.exports = router;
