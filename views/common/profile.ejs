@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- NAVBAR -->
+  <%- include('../partials/navbar') %>
+
+  <main class="flex-grow">
+
+    <!-- PROFILE CARD -->
+    <div class="max-w-3xl mx-auto mt-8 bg-white shadow-lg rounded-2xl overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white text-center">
+
+        <!-- AVATAR -->
+        <div class="w-16 h-16 mx-auto rounded-full bg-white text-blue-600 flex items-center justify-center text-lg font-bold shadow-md">
+          <%= (user.name || 'U').toUpperCase() %>
+        </div>
+
+      </div>
+
+      <!-- DETAILS -->
+      <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-500">Email</p>
+          <p class="font-semibold"><%= user.email || 'N/A' %></p>
+        </div>
+
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-500">Role</p>
+          <p class="font-semibold capitalize"><%= user.role || 'User' %></p>
+        </div>
+
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-500">User ID</p>
+          <p class="font-semibold"><%= user._id || 'N/A' %></p>
+        </div>
+
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-gray-500">Status</p>
+          <p class="font-semibold text-green-600">Active</p>
+        </div>
+
+      </div>
+
+      <!-- ROLE BASED ACTION BUTTONS -->
+      <div class="p-5 border-t">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <!-- ADMIN -->
+          <% if (user.role === 'admin') { %>
+
+            <a href="/admin/campaigns/list"
+               class="bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-bullhorn"></i>
+              Campaigns
+            </a>
+
+            <a href="/admin/users"
+               class="bg-purple-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-purple-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-users"></i>
+              Users
+            </a>
+
+          <% } %>
+
+          <!-- DONOR -->
+          <% if (user.role === 'donor') { %>
+
+            <a href="/campaigns/live"
+               class="bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-bolt"></i>
+              Live Campaigns
+            </a>
+
+            <a href="/donor/donations"
+               class="bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-hand-holding-heart"></i>
+              My Donations
+            </a>
+
+          <% } %>
+
+          <!-- VOLUNTEER -->
+          <% if (user.role === 'volunteer') { %>
+
+            <a href="/campaigns/live"
+               class="bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-bolt"></i>
+              Opportunities
+            </a>
+
+            <a href="/volunteer/campaigns/my"
+               class="bg-purple-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-purple-700 transition flex items-center justify-center gap-2">
+
+              <i class="fas fa-folder-open"></i>
+              My Campaigns
+            </a>
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <%- include('../partials/footer') %>
+
+</body>
+</html>
