@@ -17,22 +17,21 @@
         <a href="/coming-soon/users" class="hover:text-gray-200">Users</a>
         <a href="/coming-soon/donations" class="hover:text-gray-200">Donations</a>
         <a href="/coming-soon/requests" class="hover:text-gray-200">Requests</a>
-        <a href="/coming-soon/reports" class="hover:text-gray-200">Reports</a>
+        <a href="/admin/campaigns/list" class="hover:text-gray-200">Campaigns</a>
       <% } %>
 
       <% if (user.role === 'donor') { %>
-        <a href="/coming-soon/donate" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Donate</a>
+        <a href="/campaigns/live" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Live Campaigns</a>
         <a href="/coming-soon/my-donations" class="hover:text-gray-200">My Donations</a>
-        <a href="/coming-soon/donor-requests" class="hover:text-gray-200">Requests</a>
       <% } %>
 
       <% if (user.role === 'volunteer') { %>
-        <a href="/coming-soon/volunteer-requests" class="hover:text-gray-200">Requests</a>
-        <a href="/coming-soon/my-tasks" class="hover:text-gray-200">My Tasks</a>
-        <a href="/coming-soon/opportunities" class="hover:text-gray-200">Opportunities</a>
+        <a href="/volunteer/campaigns/my" class="hover:text-gray-200">MyCampaigns</a>
+        <a href="/volunteer/campaigns/create" class="hover:text-gray-200">Create</a>
+        <a href="/campaigns/live" class="hover:text-gray-200">Opportunities</a>
       <% } %>
 
-      <a href="/coming-soon/profile" class="hover:text-gray-200">Profile</a>
+      <a href="/profile" class="hover:text-gray-200">Profile</a>
       <a href="/" class="bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">Home</a>
       <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Logout</a>
     </div>
