@@ -33,12 +33,24 @@ const campaignSchema = new mongoose.Schema({
     default: 'draft'
   },
 
-   // CAMPAIGN OWNERSHIP
+   
+
+  rejectionReason: {
+    type: String,
+    default: ""
+  },
+
+  reviewedAt: {
+    type: Date,
+    default: null
+  },
+  
+  // CAMPAIGN OWNERSHIP
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
 
 
 }, { timestamps: true });
