@@ -12,18 +12,14 @@
 
 <!-- NAVBAR -->
 <header class="bg-blue-600 text-white shadow">
-  <div class="max-w-6xl mx-auto px-4 py-3">
-    <div class="flex items-center justify-between">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <h1 class="font-bold text-emerald-300 text-sm sm:text-lg">
+      Donor Panel
+    </h1>
 
-      <h1 class="text-sm sm:text-lg font-bold text-emerald-300">
-        Donor Panel
-      </h1>
-
-      <a href="/donor/dashboard" class="text-xs sm:text-sm hover:underline">
-        Back to Dashboard
-      </a>
-
-    </div>
+    <a href="/donor/dashboard" class="text-xs sm:text-sm hover:underline">
+      Back to Dashboard
+    </a>
   </div>
 </header>
 
@@ -32,7 +28,6 @@
 
   <div class="w-full max-w-3xl">
 
-    <!-- CARD -->
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
 
       <!-- HEADER -->
@@ -45,12 +40,12 @@
         </p>
       </div>
 
-      <!-- CONTENT -->
-      <div class="p-5 sm:p-6 space-y-6">
+      <div class="p-5 space-y-6">
 
         <!-- CAMPAIGN INFO -->
         <div class="bg-gray-50 border rounded-lg p-4">
-          <h3 class="text-base sm:text-lg font-semibold text-gray-800">
+
+          <h3 class="text-lg font-semibold text-gray-800">
             <%= campaign.name %>
           </h3>
 
@@ -58,76 +53,94 @@
             <%= campaign.description || "No description available" %>
           </p>
 
-          <div class="mt-3 text-sm text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6">
-            <span>Goal: <b>Rs <%= campaign.goal %></b></span>
-            <span>Raised: <b>Rs <%= campaign.raised %></b></span>
+          <!-- STATS -->
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+
+            <div class="bg-blue-50 border border-blue-200 px-4 py-3 rounded-lg">
+              <p class="text-blue-600 font-medium">Goal</p>
+              <p class="text-blue-900 font-bold text-base">Rs <%= campaign.goal %></p>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 px-4 py-3 rounded-lg">
+              <p class="text-green-600 font-medium">Raised</p>
+              <p class="text-green-900 font-bold text-base">Rs <%= campaign.raised %></p>
+            </div>
+
+            <div class="bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
+              <p class="text-red-600 font-medium">Remaining</p>
+              <p class="text-red-900 font-bold text-base">Rs <%= campaign.remaining %></p>
+            </div>
+
           </div>
         </div>
 
+        <!-- FULLY FUNDED -->
+        <% if (campaign.remaining === 0) { %>
+          <div class="bg-green-100 text-green-700 p-2 rounded text-center text-sm">
+            🎉 This campaign is fully funded
+          </div>
+        <% } %>
+
         <!-- FORM -->
-        <form action="/donor/donate" method="POST" class="space-y-5">
+        <form action="/donor/donate" method="POST" class="space-y-4">
 
           <input type="hidden" name="campaignId" value="<%= campaign._id %>">
 
-          <!-- QUICK SELECT -->
+          <!-- QUICK AMOUNT -->
           <div>
-            <label class="block text-gray-700 text-sm font-medium mb-2">
-              Quick Select
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Quick Amount
             </label>
 
             <div class="flex gap-2">
               <button type="button" onclick="setAmount(100, this)"
-                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                class="amount-btn flex-1 border rounded py-2 text-sm hover:bg-gray-100">
                 100
               </button>
 
               <button type="button" onclick="setAmount(500, this)"
-                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                class="amount-btn flex-1 border rounded py-2 text-sm hover:bg-gray-100">
                 500
               </button>
 
               <button type="button" onclick="setAmount(1000, this)"
-                class="amount-btn flex-1 border rounded-md py-2 text-sm hover:bg-gray-100">
+                class="amount-btn flex-1 border rounded py-2 text-sm hover:bg-gray-100">
                 1000
               </button>
             </div>
           </div>
 
-          <!-- AMOUNT INPUT -->
+          <!-- AMOUNT -->
           <div>
-            <label class="block text-gray-700 text-sm font-medium mb-1">
-              Amount
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Donation Amount
             </label>
 
-            <div class="flex items-center border rounded-md overflow-hidden">
+            <div class="flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-400">
+              <span class="bg-gray-100 px-3 py-2 text-sm border-r">Rs</span>
 
-              <span class="bg-gray-100 px-3 py-2 text-sm text-gray-600 border-r">
-                Rs.
-              </span>
-
-              <input id="amountInput" type="number" name="amount" required min="1"
-                placeholder="Enter amount"
-                class="w-full px-3 py-2 text-sm focus:outline-none">
-
+              <input id="amountInput"
+                     type="number"
+                     name="amount"
+                     min="1"
+                     placeholder="Enter amount"
+                     class="w-full px-3 py-2 text-sm outline-none">
             </div>
+
+            <p id="amountError" class="text-red-600 text-sm mt-2 hidden"></p>
           </div>
 
-          <!-- NOTE -->
-          <div>
-            <label class="block text-gray-700 text-sm font-medium mb-1">
-              Note (Optional)
-            </label>
-
-            <textarea name="description" rows="3"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Write a message..."></textarea>
-          </div>
-
-          <!-- SUBMIT -->
+          <!-- BUTTON -->
           <button type="button"
-            onclick="openModal()"
-            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md text-sm font-semibold transition">
-            Confirm Donation
+                  onclick="openModal()"
+                  <%= campaign.remaining === 0 ? 'disabled' : '' %>
+                  class="w-full py-3 rounded text-sm font-semibold
+                  <%= campaign.remaining === 0
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 hover:bg-green-700 text-white' %>">
+
+            <%= campaign.remaining === 0 ? 'Fully Funded' : 'Confirm Donation' %>
+
           </button>
 
         </form>
@@ -139,9 +152,7 @@
 
 </main>
 
-<%- include('../partials/footer') %>
-
-<!-- MODAL (FIXED) -->
+<!-- MODAL -->
 <div id="donationModal"
   class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
 
@@ -155,45 +166,77 @@
 
     <div class="flex gap-3">
 
-      <!-- CANCEL -->
       <button type="button"
         onclick="closeModal()"
-        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded-md text-sm transition duration-200">
+        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded-md text-sm">
         Cancel
       </button>
 
-      <!-- CONFIRM -->
       <button type="button"
         onclick="submitDonation()"
-        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm transition duration-200">
+        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm">
         Confirm
       </button>
 
     </div>
 
   </div>
-
 </div>
+
+<%- include('../partials/footer') %>
 
 <!-- SCRIPT -->
 <script>
+  const remaining = Number("<%= campaign.remaining || 0 %>");
+
   function setAmount(value, btn) {
     document.getElementById("amountInput").value = value;
 
+    // reset all buttons
     document.querySelectorAll(".amount-btn").forEach(b => {
       b.classList.remove("bg-blue-600", "text-white");
     });
 
+    // activate selected
     btn.classList.add("bg-blue-600", "text-white");
+
+    hideError();
   }
 
-  document.getElementById("amountInput").addEventListener("input", () => {
+  // 🟢 FIX ADDED HERE
+  document.getElementById("amountInput").addEventListener("input", function () {
+
+    // clear all selected quick buttons
     document.querySelectorAll(".amount-btn").forEach(b => {
       b.classList.remove("bg-blue-600", "text-white");
     });
+
+    hideError();
   });
 
   function openModal() {
+    const amount = Number(document.getElementById("amountInput").value);
+
+    if (!amount) {
+      showError("Please enter amount");
+      return;
+    }
+
+    if (amount < 50) {
+      showError("Minimum donation is 50");
+      return;
+    }
+
+    if (amount > remaining) {
+      showError(`Maximum allowed is Rs ${remaining}`);
+      return;
+    }
+
+    if (remaining <= 0) {
+      showError("Campaign already fully funded");
+      return;
+    }
+
     document.getElementById("donationModal").classList.remove("hidden");
   }
 
@@ -203,6 +246,18 @@
 
   function submitDonation() {
     document.querySelector("form").submit();
+  }
+
+  function showError(msg) {
+    const err = document.getElementById("amountError");
+    err.textContent = msg;
+    err.classList.remove("hidden");
+  }
+
+  function hideError() {
+    const err = document.getElementById("amountError");
+    err.textContent = "";
+    err.classList.add("hidden");
   }
 </script>
 

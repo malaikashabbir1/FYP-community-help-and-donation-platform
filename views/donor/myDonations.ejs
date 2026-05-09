@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Donations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100">
+
+<%- include('../partials/navbar') %>
+
+<!-- WRAPPER -->
+<div class="max-w-4xl mx-auto px-4 py-6">
+
+  <!-- HEADER -->
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">My Donations</h1>
+    <p class="text-sm text-gray-500">Overview of your contributions</p>
+  </div>
+
+  <!-- SUMMARY CARDS (balanced size + spacing) -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+
+    <div class="bg-green-500 text-white rounded-xl shadow p-5 text-center">
+      <p class="text-xs opacity-80">Total Donated</p>
+      <p class="text-2xl font-bold">Rs <%= totalDonated || 0 %></p>
+    </div>
+
+    <div class="bg-blue-500 text-white rounded-xl shadow p-5 text-center">
+      <p class="text-xs opacity-80">Donations</p>
+      <p class="text-2xl font-bold"><%= donations.length %></p>
+    </div>
+
+    <div class="bg-purple-600 text-white rounded-xl shadow p-5 text-center">
+      <p class="text-xs opacity-80">Status</p>
+      <p class="text-lg font-bold">
+        <%= donations.length > 0 ? "Donor" : "New Donor" %>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- DONATIONS LIST -->
+  <div class="space-y-4">
+
+    <% if (donations.length === 0) { %>
+      <div class="bg-white p-6 rounded-xl shadow text-center text-gray-500">
+        No donations found yet.
+      </div>
+    <% } %>
+
+    <% donations.forEach(d => { %>
+
+      <div class="bg-white rounded-xl shadow p-5 border border-gray-100 hover:shadow-md transition">
+
+        <!-- HEADER -->
+        <div class="flex justify-between items-start">
+          <h3 class="text-base font-semibold text-gray-800">
+            <%= d.campaign?.name %>
+          </h3>
+
+          <span class="text-green-600 font-bold text-base">
+            Rs <%= d.amount %>
+          </span>
+        </div>
+
+        <!-- DATE -->
+        <p class="text-xs text-gray-400 mt-1">
+          <%= d.createdAt.toDateString() %>
+        </p>
+
+        <!-- DESCRIPTION -->
+        <% if (d.description) { %>
+          <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg mt-3">
+            <%= d.description %>
+          </p>
+        <% } %>
+
+        <!-- GOAL & RAISED (CLEAN STRIP) -->
+        <div class="flex justify-between text-sm text-gray-800 mt-4 border-t pt-3">
+
+          <span>
+            <span class="font-medium">Goal:</span> Rs <%= d.campaign?.goal %>
+          </span>
+
+          <span>
+            <span class="font-medium">Raised:</span> Rs <%= d.campaign?.raised %>
+          </span>
+
+        </div>
+
+        <!-- SAFE PERCENT -->
+        <%
+          let goal = d.campaign?.goal || 0;
+          let raised = d.campaign?.raised || 0;
+
+          let percent = goal > 0 ? (raised / goal) * 100 : 0;
+          percent = Math.min(percent, 100);
+        %>
+
+        <p class="text-xs text-right text-gray-500 mt-2 font-medium">
+          <%= percent.toFixed(1) %>% funded
+        </p>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>
+
+</body>
+</html>
