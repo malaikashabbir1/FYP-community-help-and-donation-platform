@@ -9,8 +9,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const donorRoutes = require('./routes/donorRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
-const volunteerController = require('./controllers/volunteerController');
 
 const path = require('path');
 const session = require('express-session');
@@ -107,9 +107,7 @@ app.use('/admin', adminRoutes);
 app.use('/donor', donorRoutes);
 app.use('/volunteer', volunteerRoutes);
 app.use('/campaigns', campaignRoutes);
-
-// ______________________ profile ______________________
-app.get('/profile', authenticateToken, volunteerController.getProfile);
+app.use('/profile', profileRoutes);
 
 
 // ___________Coming-Soon Functionality _____________
