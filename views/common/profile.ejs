@@ -7,125 +7,167 @@
 
   <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<!-- IMPORTANT: full height layout fix -->
+<body class="bg-slate-100 min-h-screen flex flex-col font-[Inter]">
 
-  <!-- NAVBAR -->
-  <%- include('../partials/navbar') %>
+<!-- HEADER -->
+<header class="bg-blue-600 text-white shadow">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
 
-  <main class="flex-grow">
+    <a href="/" class="flex items-center space-x-3">
+      <img src="/images/logo.PNG" class="w-10 h-10 rounded-full object-contain border-2 border-white" />
+      <span class="font-bold text-emerald-300 text-lg">HelpingHands</span>
+    </a>
+
+    <a href="<%= dashboardUrl || '/' %>" class="text-sm hover:underline">
+      <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+    </a>
+
+  </div>
+</header>
+
+<!-- MAIN (CENTER FIX) -->
+<main class="flex-grow flex items-center justify-center px-4 py-10">
+
+  <div class="w-full max-w-3xl">
 
     <!-- PROFILE CARD -->
-    <div class="max-w-3xl mx-auto mt-8 bg-white shadow-lg rounded-2xl overflow-hidden">
+    <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
 
       <!-- HEADER -->
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white text-center">
+      <div class="bg-blue-600 text-white p-6 flex items-center gap-4">
 
-        <!-- AVATAR -->
-        <div class="w-16 h-16 mx-auto rounded-full bg-white text-blue-600 flex items-center justify-center text-lg font-bold shadow-md">
-          <%= (user.name || 'U').toUpperCase() %>
+        <!-- ICON (FIXED: NO "A", PROPER USER ICON) -->
+        <div class="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center shadow-inner border border-blue-200">
+          <i class="fas fa-user text-blue-700 text-3xl"></i>
+        </div>
+
+        <!-- NAME + ROLE -->
+        <div>
+          <h2 class="text-lg font-bold">
+            <%= user.name || 'User' %>
+          </h2>
+
+          <p class="text-sm text-white/80 capitalize">
+            <i class="fas fa-user-tag mr-1"></i>
+            <%= user.role || 'User' %>
+          </p>
         </div>
 
       </div>
 
       <!-- DETAILS -->
-      <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-500">Email</p>
-          <p class="font-semibold"><%= user.email || 'N/A' %></p>
+        <!-- EMAIL -->
+        <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
+          <i class="fas fa-envelope text-blue-600 mt-1"></i>
+          <div>
+            <p class="text-xs text-slate-500">Email</p>
+            <p class="font-semibold text-slate-800 text-sm break-all">
+              <%= user.email || 'N/A' %>
+            </p>
+          </div>
         </div>
 
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-500">Role</p>
-          <p class="font-semibold capitalize"><%= user.role || 'User' %></p>
+        <!-- ROLE -->
+        <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
+          <i class="fas fa-id-badge text-purple-600 mt-1"></i>
+          <div>
+            <p class="text-xs text-slate-500">Role</p>
+            <p class="font-semibold capitalize text-slate-800 text-sm">
+              <%= user.role || 'User' %>
+            </p>
+          </div>
         </div>
 
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-500">User ID</p>
-          <p class="font-semibold"><%= user._id || 'N/A' %></p>
+        <!-- STATUS -->
+        <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
+          <i class="fas fa-circle-check text-green-600 mt-1"></i>
+          <div>
+            <p class="text-xs text-slate-500">Status</p>
+            <p class="font-semibold text-green-600 text-sm">Active</p>
+          </div>
         </div>
 
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-gray-500">Status</p>
-          <p class="font-semibold text-green-600">Active</p>
+        <!-- USER ID -->
+        <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
+          <i class="fas fa-fingerprint text-slate-600 mt-1"></i>
+          <div>
+            <p class="text-xs text-slate-500">User ID</p>
+            <p class="font-semibold text-slate-800 text-xs break-all">
+              <%= user._id || 'N/A' %>
+            </p>
+          </div>
         </div>
 
       </div>
 
-      <!-- ROLE BASED ACTION BUTTONS -->
-      <div class="p-5 border-t">
+      <!-- ACTIONS -->
+      <div class="p-6 flex flex-col sm:flex-row gap-4">
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- EDIT -->
+        <a href="/profile/edit"
+           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-center py-2 rounded-xl font-semibold text-sm transition">
 
-          <!-- ADMIN -->
-          <% if (user.role === 'admin') { %>
+          <i class="fas fa-pen mr-2"></i>
+          Edit Profile
 
-            <a href="/admin/campaigns/list"
-               class="bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+        </a>
 
-              <i class="fas fa-bullhorn"></i>
-              Campaigns
-            </a>
+        <!-- ROLE ACTION -->
+        <% if (user.role === 'donor') { %>
 
-            <a href="/admin/users"
-               class="bg-purple-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-purple-700 transition flex items-center justify-center gap-2">
+          <a href="/donor/my-donations"
+             class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
 
-              <i class="fas fa-users"></i>
-              Users
-            </a>
+            <i class="fas fa-hand-holding-heart mr-2"></i>
+            My Donations
 
-          <% } %>
+          </a>
 
-          <!-- DONOR -->
-          <% if (user.role === 'donor') { %>
+        <% } %>
 
-            <a href="/campaigns/live"
-               class="bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+        <% if (user.role === 'admin') { %>
 
-              <i class="fas fa-bolt"></i>
-              Live Campaigns
-            </a>
+          <a href="/admin/users"
+             class="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
 
-            <a href="/donor/donations"
-               class="bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+            <i class="fas fa-users mr-2"></i>
+            Manage Users
 
-              <i class="fas fa-hand-holding-heart"></i>
-              My Donations
-            </a>
+          </a>
 
-          <% } %>
+        <% } %>
 
-          <!-- VOLUNTEER -->
-          <% if (user.role === 'volunteer') { %>
+        <% if (user.role === 'volunteer') { %>
 
-            <a href="/campaigns/live"
-               class="bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+          <a href="/volunteer/campaigns/my"
+             class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
 
-              <i class="fas fa-bolt"></i>
-              Opportunities
-            </a>
+            <i class="fas fa-folder-open mr-2"></i>
+            My Campaigns
 
-            <a href="/volunteer/campaigns/my"
-               class="bg-purple-600 text-white py-2 px-3 rounded-lg text-sm font-semibold shadow hover:bg-purple-700 transition flex items-center justify-center gap-2">
+          </a>
 
-              <i class="fas fa-folder-open"></i>
-              My Campaigns
-            </a>
-
-          <% } %>
-
-        </div>
+        <% } %>
 
       </div>
 
     </div>
 
-  </main>
+  </div>
 
-  <!-- FOOTER -->
+</main>
+
+<!-- FOOTER FIX -->
+<footer class="mt-auto">
   <%- include('../partials/footer') %>
+</footer>
 
 </body>
 </html>
