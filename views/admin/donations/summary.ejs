@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campaign Donation Summary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-slate-100 flex flex-col min-h-screen">
+
+<%- include('../../partials/navbar') %>
+
+<!-- MAIN CONTENT WRAPPER -->
+<main class="flex-grow">
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+
+    <!-- HEADER -->
+    <h1 class="text-2xl font-bold text-center mb-2 text-slate-800">
+      Campaign Performance & Donation Insights
+    </h1>
+
+    <p class="text-center text-sm text-slate-500 mb-8">
+      Real-time overview of campaign funding progress, donor activity, and goal achievement across all campaigns.
+    </p>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <% summary.forEach(c => { %>
+
+        <div class="bg-white rounded-xl shadow p-5 border border-slate-100">
+
+          <!-- Campaign Name -->
+          <h2 class="text-lg font-semibold text-slate-800">
+            <%= c.name %>
+          </h2>
+
+          <!-- Raised -->
+          <p class="mt-2 text-green-600 font-bold">
+            Total Raised: Rs <%= c.raised %>
+          </p>
+
+          <!-- Donors -->
+          <p class="text-sm text-slate-600">
+            Donors: <%= c.donorCount || 0 %>
+          </p>
+
+          <!-- Goal -->
+          <p class="text-sm text-slate-600">
+            Goal: Rs <%= c.goal %>
+          </p>
+
+          <!-- PROGRESS -->
+          <%
+            let percent = c.goal > 0 ? (c.raised / c.goal) * 100 : 0;
+            percent = Math.min(percent, 100);
+          %>
+
+          <div class="mt-3 bg-slate-200 rounded-full h-2 overflow-hidden">
+            <div
+              class="bg-green-500 h-2 rounded-full"
+              style="width: <%= percent %>%"
+            ></div>
+          </div>
+
+          <p class="text-xs text-right mt-1 text-slate-500">
+            <%= percent.toFixed(1) %>% funded
+          </p>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('../../partials/footer') %>
+
+</body>
+</html>

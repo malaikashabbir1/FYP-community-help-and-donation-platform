@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Donations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-slate-100">
+
+<%- include('../../partials/navbar') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- HEADER -->
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Donations Management</h1>
+    <p class="text-sm text-slate-500">Track all donations in the system</p>
+  </div>
+
+  <!-- 🔍 SEARCH + SUMMARY -->
+  <form method="GET" action="/admin/donations" class="mb-6 flex justify-center">
+
+    <div class="flex w-full max-w-md gap-2 items-center">
+
+      <!-- SEARCH INPUT -->
+      <input
+        type="text"
+        name="search"
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+        placeholder="Search donor or campaign..."
+        class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none"
+      />
+
+      <!-- SEARCH BUTTON -->
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+
+      <!-- SUMMARY BUTTON -->
+      <a href="/admin/donations/summary"
+         class="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
+
+        <i class="fas fa-chart-pie"></i>
+        <span class="hidden sm:inline">Summary</span>
+
+      </a>
+
+    </div>
+
+  </form>
+
+  <!-- SEARCH RESULT INFO -->
+  <% if (typeof search !== 'undefined' && search) { %>
+    <p class="text-center text-sm text-slate-600 mb-4">
+      Results for: <span class="font-semibold"><%= search %></span>
+    </p>
+  <% } %>
+
+  <!-- STATS -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+      <p class="text-sm text-slate-500">Total Donations</p>
+      <p class="text-2xl font-bold text-green-600">
+        Rs <%= totalDonations || 0 %>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+      <p class="text-sm text-slate-500">Total Donors</p>
+      <p class="text-2xl font-bold text-blue-600">
+        <%= totalDonors || 0 %>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+      <p class="text-sm text-slate-500">Average Donation</p>
+      <p class="text-2xl font-bold text-purple-600">
+        Rs <%= avgDonation ? avgDonation.toFixed(0) : 0 %>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- CONTAINER -->
+  <div id="donations-container"></div>
+
+</div>
+
+<%- include('../../partials/footer') %>
+
+<script>
+  const donations = <%- JSON.stringify(typeof donations !== 'undefined' ? donations : []) %>;
+  const container = document.getElementById("donations-container");
+
+  function render() {
+
+    if (!donations || donations.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-10 text-slate-500">
+          No donations found.
+        </div>
+      `;
+      return;
+    }
+
+    if (window.innerWidth < 768) {
+      renderCards();
+    } else {
+      renderTable();
+    }
+  }
+
+  // ================= MOBILE CARDS =================
+  function renderCards() {
+    container.innerHTML = `
+      <div class="space-y-4">
+
+        ${donations.map(d => `
+          <div class="bg-white rounded-xl shadow p-4">
+
+            <div class="flex justify-between items-center">
+              <p class="font-semibold text-slate-800">
+                ${d.donor?.name || "Unknown"}
+              </p>
+
+              <span class="text-green-600 font-bold">
+                Rs ${d.amount}
+              </span>
+            </div>
+
+            <p class="text-sm text-slate-600 mt-1">
+              Campaign: ${d.campaign?.name || "-"}
+            </p>
+
+            <p class="text-xs text-slate-500 mt-1">
+              ${new Date(d.createdAt).toDateString()}
+            </p>
+
+            <a href="/admin/donations/${d._id}"
+               class="text-blue-600 font-medium inline-block mt-2">
+              View Details →
+            </a>
+
+          </div>
+        `).join("")}
+
+      </div>
+    `;
+  }
+
+  // ================= DESKTOP TABLE =================
+  function renderTable() {
+    container.innerHTML = `
+      <div class="bg-white rounded-xl shadow overflow-x-auto">
+
+        <table class="w-full min-w-[700px] text-sm text-left">
+
+          <thead class="bg-slate-200 text-slate-700">
+            <tr>
+              <th class="p-3">Donor</th>
+              <th class="p-3">Campaign</th>
+              <th class="p-3">Amount</th>
+              <th class="p-3">Date</th>
+              <th class="p-3">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+
+            ${donations.map(d => `
+              <tr class="hover:bg-slate-50">
+
+                <td class="p-3 font-medium text-slate-700">
+                  ${d.donor?.name || "Unknown"}
+                </td>
+
+                <td class="p-3 text-slate-600">
+                  ${d.campaign?.name || "-"}
+                </td>
+
+                <td class="p-3 text-green-600 font-semibold">
+                  Rs ${d.amount}
+                </td>
+
+                <td class="p-3 text-slate-500 whitespace-nowrap">
+                  ${new Date(d.createdAt).toDateString()}
+                </td>
+
+                <td class="p-3">
+                  <a href="/admin/donations/${d._id}"
+                     class="text-blue-600 hover:underline">
+                    View
+                  </a>
+                </td>
+
+              </tr>
+            `).join("")}
+
+          </tbody>
+
+        </table>
+
+      </div>
+    `;
+  }
+
+  render();
+
+  let timeout;
+  window.addEventListener("resize", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(render, 150);
+  });
+
+</script>
+
+</body>
+</html>
