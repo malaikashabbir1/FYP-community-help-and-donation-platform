@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved'],
     default: 'pending'
+  },
+  isActive: {
+  type: Boolean,
+  default: true
   }
 },
    { timestamps: true }); //automatically adds createdAt and updatedAt (date&time)

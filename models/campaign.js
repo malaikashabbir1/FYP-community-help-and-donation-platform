@@ -33,8 +33,6 @@ const campaignSchema = new mongoose.Schema({
     default: 'draft'
   },
 
-   
-
   rejectionReason: {
     type: String,
     default: ""
@@ -52,6 +50,29 @@ const campaignSchema = new mongoose.Schema({
     required: true
   },
 
+  // volunteers
+  requiredVolunteers: {
+  type: Number,
+  default: 0
+},
+
+volunteers: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User'
+}],
+
+location: String,
+
+urgency: {
+  type: String,
+  enum: ['low', 'medium', 'high', 'emergency'],
+  default: 'medium'
+},
+
+updates: [{
+  text: String,
+  createdAt: { type: Date, default: Date.now }
+}]
 
 }, { timestamps: true });
 
