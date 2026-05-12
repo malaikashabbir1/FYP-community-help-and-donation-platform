@@ -3,7 +3,7 @@ const User = require('../models/user');
 
 exports.getVolunteerDashboard = async (req, res) => {
   try {
-     const userId = req.user._id; // ✅ correct `_id` usage
+     const userId = req.user._id; // correct `_id` usage
 
     // PERSONAL CAMPAIGN STATS
     const totalCampaigns = await Campaign.countDocuments({ createdBy: userId });
@@ -28,9 +28,8 @@ exports.getVolunteerDashboard = async (req, res) => {
       status: 'completed'
     });
 
-    const rejected = await Campaign.countDocuments({
-      createdBy: userId,
-      status: 'rejected'
+    const joinedCampaigns = await Campaign.countDocuments({
+      volunteers: userId
     });
 
     // PLATFORM-WIDE STATS
@@ -52,8 +51,8 @@ exports.getVolunteerDashboard = async (req, res) => {
         drafts,
         pending,
         active,
-        completed,   
-        rejected  
+        completed, 
+        joinedCampaigns 
       },
       platformStats: {
         liveCampaigns,
@@ -72,3 +71,4 @@ exports.getVolunteerDashboard = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
