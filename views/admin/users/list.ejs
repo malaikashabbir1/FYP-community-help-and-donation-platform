@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Users</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/output.css">
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-slate-100">
+
+<%- include('../../partials/navbar') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- HEADER -->
+  <div class="text-center mb-6">
+
+    <h1 class="text-3xl font-bold text-slate-800">
+      Manage Users
+    </h1>
+
+    <p class="text-sm text-slate-500 mt-1">
+      Donors & Volunteers
+    </p>
+
+  </div>
+
+  <!-- SEARCH -->
+  <form method="GET"
+        action="/admin/users"
+        class="flex justify-center mb-5">
+
+    <div class="flex w-full max-w-md gap-2">
+
+      <input
+        type="text"
+        name="search"
+        value="<%= search || '' %>"
+        placeholder="Search by name or email..."
+        class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+
+      <!-- KEEP ROLE IN SEARCH -->
+      <input
+        type="hidden"
+        name="role"
+        value="<%= role || 'all' %>"
+      >
+
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+
+    </div>
+
+  </form>
+
+  <!-- FILTER BUTTONS -->
+  <div class="flex justify-center gap-3 flex-wrap mb-8">
+
+    <!-- ALL -->
+    <a href="/admin/users"
+       class="px-4 py-2 rounded-lg shadow transition
+       <%= role === 'all'
+          ? 'bg-blue-600 text-white'
+          : 'bg-white text-slate-700 hover:bg-slate-100' %>">
+
+      All Users
+
+    </a>
+
+    <!-- DONORS -->
+    <a href="/admin/users?role=donor"
+       class="px-4 py-2 rounded-lg shadow transition
+       <%= role === 'donor'
+          ? 'bg-green-600 text-white'
+          : 'bg-white text-slate-700 hover:bg-slate-100' %>">
+
+      Donors
+
+    </a>
+
+    <!-- VOLUNTEERS -->
+    <a href="/admin/users?role=volunteer"
+       class="px-4 py-2 rounded-lg shadow transition
+       <%= role === 'volunteer'
+          ? 'bg-purple-600 text-white'
+          : 'bg-white text-slate-700 hover:bg-slate-100' %>">
+
+      Volunteers
+
+    </a>
+
+  </div>
+
+  <!-- SEARCH RESULT -->
+  <% if (search) { %>
+
+    <p class="text-center text-sm text-slate-600 mb-5">
+
+      Results for:
+      <span class="font-semibold">
+        <%= search %>
+      </span>
+
+    </p>
+
+  <% } %>
+
+  <!-- STATS -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+
+    <!-- TOTAL -->
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+
+      <p class="text-sm text-slate-500">
+        Total Users
+      </p>
+
+      <p class="text-2xl font-bold text-blue-600">
+        <%= counts?.all || 0 %>
+      </p>
+
+    </div>
+
+    <!-- DONORS -->
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+
+      <p class="text-sm text-slate-500">
+        Donors
+      </p>
+
+      <p class="text-2xl font-bold text-green-600">
+        <%= counts?.donor || 0 %>
+      </p>
+
+    </div>
+
+    <!-- VOLUNTEERS -->
+    <div class="bg-white rounded-xl shadow p-5 text-center">
+
+      <p class="text-sm text-slate-500">
+        Volunteers
+      </p>
+
+      <p class="text-2xl font-bold text-purple-600">
+        <%= counts?.volunteer || 0 %>
+      </p>
+
+    </div>
+
+  </div>
+
+  <!-- USERS CONTAINER -->
+  <div id="users-container"></div>
+
+</div>
+
+<%- include('../../partials/footer') %>
+
+<script>
+
+  const users = <%- JSON.stringify(users || []) %>;
+
+  const container = document.getElementById("users-container");
+
+  // ================= MAIN RENDER =================
+  function render() {
+
+    if (!users || users.length === 0) {
+
+      container.innerHTML = `
+        <div class="bg-white rounded-xl shadow p-10 text-center">
+
+          <i class="fas fa-users text-4xl text-slate-300 mb-4"></i>
+
+          <p class="text-slate-500 text-lg">
+            No users found
+          </p>
+
+        </div>
+      `;
+
+      return;
+    }
+
+    if (window.innerWidth < 768) {
+      renderCards();
+    } else {
+      renderTable();
+    }
+  }
+
+  // ================= MOBILE CARDS =================
+  function renderCards() {
+
+    container.innerHTML = `
+
+      <div class="space-y-4">
+
+        ${users.map(u => `
+
+          <div class="bg-white rounded-xl shadow p-5 hover:shadow-lg transition">
+
+            <!-- TOP -->
+            <div class="flex justify-between items-start gap-3">
+
+              <div class="flex-1">
+
+                <h2 class="font-semibold text-lg text-slate-800">
+                  ${u.name || "Unknown"}
+                </h2>
+
+                <p class="text-sm text-slate-500 break-all mt-1">
+                  ${u.email || "-"}
+                </p>
+
+              </div>
+
+              <span class="
+                text-xs px-3 py-1 rounded-full capitalize
+
+                ${u.role === 'donor'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-purple-100 text-purple-700'}
+              ">
+
+                ${u.role || "-"}
+
+              </span>
+
+            </div>
+
+            <!-- DATE -->
+            <p class="text-xs text-slate-500 mt-3">
+
+              Joined:
+              ${u.createdAt
+                ? new Date(u.createdAt).toDateString()
+                : "N/A"}
+
+            </p>
+
+            <!-- ACTION -->
+            <a href="/admin/users/${u._id}"
+               class="inline-block mt-3 text-blue-600 hover:underline font-medium">
+
+              View Details →
+
+            </a>
+
+          </div>
+
+        `).join("")}
+
+      </div>
+    `;
+  }
+
+  // ================= DESKTOP TABLE =================
+  function renderTable() {
+
+    container.innerHTML = `
+
+      <div class="bg-white rounded-xl shadow overflow-x-auto">
+
+        <table class="w-full min-w-[750px] text-sm text-left">
+
+          <!-- HEAD -->
+          <thead class="bg-slate-200 text-slate-700">
+
+            <tr>
+
+              <th class="p-4">Name</th>
+
+              <th class="p-4">Email</th>
+
+              <th class="p-4">Role</th>
+
+              <th class="p-4">Joined</th>
+
+              <th class="p-4">Action</th>
+
+            </tr>
+
+          </thead>
+
+          <!-- BODY -->
+          <tbody class="divide-y divide-slate-100">
+
+            ${users.map(u => `
+
+              <tr class="hover:bg-slate-50 transition">
+
+                <!-- NAME -->
+                <td class="p-4 font-medium text-slate-800">
+
+                  ${u.name || "-"}
+
+                </td>
+
+                <!-- EMAIL -->
+                <td class="p-4 text-slate-600">
+
+                  ${u.email || "-"}
+
+                </td>
+
+                <!-- ROLE -->
+                <td class="p-4">
+
+                  <span class="
+                    text-xs px-3 py-1 rounded-full capitalize
+
+                    ${u.role === 'donor'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-purple-100 text-purple-700'}
+                  ">
+
+                    ${u.role || "-"}
+
+                  </span>
+
+                </td>
+
+                <!-- DATE -->
+                <td class="p-4 text-slate-500 whitespace-nowrap">
+
+                  ${u.createdAt
+                    ? new Date(u.createdAt).toDateString()
+                    : "N/A"}
+
+                </td>
+
+                <!-- ACTION -->
+                <td class="p-4">
+
+                  <a href="/admin/users/${u._id}"
+                     class="text-blue-600 hover:underline">
+
+                    View
+
+                  </a>
+
+                </td>
+
+              </tr>
+
+            `).join("")}
+
+          </tbody>
+
+        </table>
+
+      </div>
+    `;
+  }
+
+  // INITIAL RENDER
+  render();
+
+  // RESPONSIVE RE-RENDER
+  let timeout;
+
+  window.addEventListener("resize", () => {
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(render, 150);
+
+  });
+
+</script>
+
+</body>
+</html>

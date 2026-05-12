@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+  <!-- NAVBAR -->
+  <nav class="bg-blue-600 text-white shadow-md">
+
+    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3">
+
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+
+          <img
+            src="/images/logo.PNG"
+            alt="HelpingHands Logo"
+            class="w-full h-full object-cover"
+          />
+
+        </div>
+
+        <span class="text-lg sm:text-xl font-bold text-emerald-300 leading-none">
+          HelpingHands
+        </span>
+
+      </a>
+
+      <!-- Back Button -->
+      <a
+        href="/admin/users"
+        class="text-white hover:underline text-sm whitespace-nowrap"
+      >
+        ← Back to Users
+      </a>
+
+    </div>
+
+  </nav>
+
+  <!-- PAGE CONTENT -->
+  <div class="flex-1 flex flex-col justify-center px-4 py-10">
+
+    <!-- PAGE HEADER -->
+    <section class="max-w-2xl mx-auto w-full mb-8 text-center">
+
+      <h1 class="text-3xl font-bold text-slate-800">
+        User Details
+      </h1>
+
+      <p class="text-slate-500 mt-2">
+        View complete information about the selected user.
+      </p>
+
+    </section>
+
+    <!-- CARD -->
+    <div class="max-w-2xl mx-auto w-full">
+
+      <div class="bg-white rounded-2xl shadow-lg p-8 sm:p-10">
+
+       
+        <!-- DETAILS -->
+        <div class="space-y-6">
+
+          <!-- Name -->
+          <div class="flex flex-col sm:flex-row sm:justify-between border-b pb-3 gap-1">
+
+            <span class="text-slate-500">
+              Name
+            </span>
+
+            <span class="font-semibold text-slate-800 sm:text-right">
+              <%= user.name %>
+            </span>
+
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col sm:flex-row sm:justify-between border-b pb-3 gap-1">
+
+            <span class="text-slate-500">
+              Email
+            </span>
+
+            <span class="font-semibold text-slate-800 break-all sm:text-right">
+              <%= user.email %>
+            </span>
+
+          </div>
+
+          <!-- Role -->
+          <div class="flex flex-col sm:flex-row sm:justify-between border-b pb-3 gap-1">
+
+            <span class="text-slate-500">
+              Role
+            </span>
+
+            <span class="font-semibold text-slate-800 sm:text-right">
+              <%= user.role %>
+            </span>
+
+          </div>
+
+          <!-- Joined -->
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-1">
+
+            <span class="text-slate-500">
+              Joined
+            </span>
+
+            <span class="font-semibold text-slate-800 sm:text-right">
+              <%= user.createdAt.toDateString() %>
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto">
+    <%- include('../../partials/footer') %>
+  </footer>
+
+</body>
+</html>
