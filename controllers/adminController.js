@@ -59,3 +59,112 @@ exports.getAdminDashboard = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+
+
+// ______________ Manage Users __________________________
+exports.getAllUsers = async (req, res) => {
+  try {
+
+    const { search = '', role = 'all' } = req.query;
+
+    // EXCLUDE ADMIN
+    let query = {
+      role: { $ne: 'admin' }
+    };
+
+    // ROLE FILTER
+    if (role !== 'all') {
+      query.role = role;
+    }
+
+    // SEARCH FILTER
+    if (search) {
+
+      query.$or = [
+        {
+          name: {
+            $regex: search,
+            $options: 'i'
+          }
+        },
+        {
+          email: {
+            $regex: search,
+            $options: 'i'
+          }
+        }
+      ];
+    }
+
+    // USERS
+    const users = await User.find(query)
+      .sort({ createdAt: -1 });
+
+    // COUNTS (WITHOUT ADMIN)
+    const counts = {
+      all: await User.countDocuments({
+        role: { $ne: 'admin' }
+      }),
+
+      donor: await User.countDocuments({
+        role: 'donor'
+      }),
+
+      volunteer: await User.countDocuments({
+        role: 'volunteer'
+      })
+    };
+
+    res.render('admin/users/list', {
+      users,
+      search,
+      role,
+      counts
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.send("Error loading users");
+  }
+};
+
+
+// GET USER DETAILS
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.redirect('/admin/users');
+    }
+
+    res.render('admin/users/details', { user });
+
+  } catch (err) {
+    console.log(err);
+    res.redirect('/admin/users');
+  }
+};
+
+// TOGGLE USER STATUS
+exports.toggleUserStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.redirect('/admin/users');
+
+    if (user.role === 'admin') {
+      return res.status(403).send("Admin cannot be changed");
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.redirect('/admin/users');
+
+  } catch (err) {
+    console.log(err);
+    res.redirect('/admin/users');
+  }
+};

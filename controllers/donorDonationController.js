@@ -2,13 +2,13 @@ const Donation = require('../models/donation');
 const Campaign = require('../models/campaign');
 const mongoose = require('mongoose');
 const { setMessage } = require('../utils/flashMessage');
-
+const { checkAndCompleteCampaign } = require('../services/campaignService');
 
 
 // ADD DONATION (FULL LOGIC)
-
 exports.addDonation = async (req, res) => {
   try {
+
     const { campaignId, amount, description } = req.body;
     const amountNumber = Number(amount);
 
@@ -42,7 +42,7 @@ exports.addDonation = async (req, res) => {
       return res.redirect('/donor/dashboard');
     }
 
-    // 🥈 STEP 2 — VALIDATION
+    // 🥈 Donation validation
     const remaining = Math.max(0, campaign.goal - campaign.raised);
 
     if (amountNumber < 50) {
@@ -63,27 +63,25 @@ exports.addDonation = async (req, res) => {
       description
     });
 
-    // 4️⃣ Update campaign
+    // 4️⃣ Update campaign donation progress
     campaign.raised += amountNumber;
 
-    // 🥉 STEP 3 — STATUS UPDATE
-    if (campaign.raised >= campaign.goal) {
-      campaign.raised = campaign.goal; 
-      campaign.status = "completed";
-    }
-
     await campaign.save();
+
+    // 5️⃣ Auto completion check
+    await checkAndCompleteCampaign(campaignId);
 
     setMessage(req, "success", "Donation successfully completed.");
     return res.redirect('/donor/dashboard');
 
   } catch (err) {
+
     console.error(err);
+
     setMessage(req, "error", "Something went wrong. Please try again.");
     return res.redirect('/donor/dashboard');
   }
 };
-
 
 exports.getMyDonations = async (req, res) => {
   try {

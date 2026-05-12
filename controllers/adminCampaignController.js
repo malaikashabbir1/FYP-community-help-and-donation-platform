@@ -3,11 +3,9 @@ const { canChangeStatus } = require('../utils/campaignRules');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const { setMessage } = require('../utils/flashMessage');
+const { canCompleteCampaign } = require('../utils/campaignStatus');
 
-// Notification Messages
-const setMessage = (req, type, text) => {
-  req.session.message = { type, text };
-};
 
 // Show all campaigns
 exports.getAllCampaigns = async (req, res) => {
@@ -163,34 +161,43 @@ exports.approveCampaign = async (req, res) => {
 exports.completeCampaign = async (req, res) => {
   try {
 
-    const _id = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-      setMessage(req, "error", "Invalid campaign ID");
-      return res.redirect('/admin/campaigns');
-    }
-
-    const campaign = await Campaign.findById(_id);
+    const campaign = await Campaign.findById(req.params.id);
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
       return res.redirect('/admin/campaigns');
     }
 
+    // 1️⃣ STATUS TRANSITION CHECK
     if (!canChangeStatus(campaign.status, 'completed')) {
       setMessage(req, "error", `Cannot complete a ${campaign.status} campaign`);
       return res.redirect('/admin/campaigns');
     }
 
-    campaign.status = 'completed';
+    // 2️⃣ REQUIREMENTS CHECK
+    if (!canCompleteCampaign(campaign)) {
+      setMessage(req, "error", "Requirements not met (funding or volunteers missing)");
+      return res.redirect('/admin/campaigns');
+    }
+
+    // 3️⃣ COMPLETE CAMPAIGN
+    campaign.status = "completed";
+
+    // ensure exact completion state
+    campaign.raised = campaign.goal;
+
     await campaign.save();
 
     setMessage(req, "success", "Campaign marked as completed");
+
     return res.redirect('/admin/campaigns');
 
-  } catch (error) {
-    console.error(error);
-    setMessage(req, "error", "Server error while completing campaign");
+  } catch (err) {
+
+    console.error(err);
+
+    setMessage(req, "error", "Server error");
+
     return res.redirect('/admin/campaigns');
   }
 };
