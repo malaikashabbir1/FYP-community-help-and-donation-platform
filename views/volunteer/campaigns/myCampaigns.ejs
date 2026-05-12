@@ -3,7 +3,9 @@
 <head>
   <title>My Campaigns</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -16,14 +18,14 @@
 
   <!-- HEADER -->
   <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
-    
+
     <div>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">My Campaigns</h1>
-      <p class="text-sm text-gray-500">Manage your campaigns easily</p>
+      <p class="text-sm text-gray-500">Manage and track your campaigns</p>
     </div>
 
     <a href="/volunteer/campaigns/create"
-      class="w-full sm:w-auto text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+      class="w-full sm:w-auto text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
       + Create Campaign
     </a>
 
@@ -31,8 +33,9 @@
 
   <!-- FLASH -->
   <% if (message) { %>
+
     <div id="alertBox"
-      class="mb-6 px-4 py-3 rounded-lg shadow-sm flex justify-between items-center
+      class="mb-6 px-4 py-3 rounded-lg shadow flex justify-between items-center
       <%= message.type === 'success'
         ? 'bg-green-100 text-green-700 border border-green-300'
         : 'bg-red-100 text-red-700 border border-red-300' %>">
@@ -41,7 +44,9 @@
 
       <button onclick="document.getElementById('alertBox').remove()"
         class="text-lg font-bold px-2">&times;</button>
+
     </div>
+
   <% } %>
 
   <!-- EMPTY -->
@@ -49,62 +54,71 @@
 
     <div class="text-center py-20">
       <h2 class="text-xl font-semibold text-gray-600">No campaigns yet</h2>
-      <p class="text-gray-500 mt-2">Create your first campaign</p>
+      <p class="text-gray-500 mt-2">Create your first campaign to get started</p>
     </div>
 
   <% } else { %>
 
   <!-- GRID -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
     <% campaigns.forEach(c => { %>
 
-      <div class="bg-white rounded-xl shadow hover:shadow-xl transition flex flex-col h-full overflow-hidden">
+      <div class="bg-white rounded-xl shadow hover:shadow-xl transition flex flex-col overflow-hidden">
 
         <!-- IMAGE -->
         <% if (c.image) { %>
           <img src="<%= c.image %>" class="h-40 sm:h-48 w-full object-cover">
         <% } else { %>
-          <div class="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+          <div class="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500">
             No Image
           </div>
         <% } %>
 
-        <!-- BODY -->
+        <!-- CONTENT -->
         <div class="p-4 sm:p-5 flex flex-col flex-1">
 
-          <!-- TITLE -->
-          <h2 class="text-lg sm:text-xl font-semibold leading-snug line-clamp-2 min-h-[48px]">
+          <h2 class="text-lg font-semibold line-clamp-2 text-gray-800">
             <%= c.name %>
           </h2>
 
-          <!-- DESCRIPTION -->
-          <p class="text-gray-600 text-sm mt-1 line-clamp-3 min-h-[40px]">
+          <p class="text-sm text-gray-600 mt-1 line-clamp-3">
             <%= c.description %>
           </p>
 
-          <!-- STATUS + REASON -->
-          <div class="mt-3 space-y-2">
+          <!-- META -->
+          <div class="mt-3 text-xs text-gray-500 space-y-1">
 
+            <% if (c.location) { %>
+              <p><i class="fa-solid fa-location-dot mr-1"></i> <%= c.location %></p>
+            <% } %>
+
+            <p><i class="fa-solid fa-bolt mr-1"></i> <%= c.urgency %></p>
+
+            <p><i class="fa-solid fa-users mr-1"></i>
+              <%= c.volunteers?.length || 0 %> / <%= c.requiredVolunteers || 0 %>
+            </p>
+
+            <p><i class="fa-solid fa-calendar mr-1"></i>
+              <%= new Date(c.createdAt).toLocaleDateString() %>
+            </p>
+
+          </div>
+
+          <!-- STATUS -->
+          <div class="mt-3">
             <% if (c.status === 'draft') { %>
               <span class="bg-yellow-100 text-yellow-700 px-2 py-1 text-xs rounded">Draft</span>
-
             <% } else if (c.status === 'pending') { %>
               <span class="bg-orange-100 text-orange-700 px-2 py-1 text-xs rounded">Pending</span>
-
             <% } else if (c.status === 'active') { %>
               <span class="bg-green-100 text-green-700 px-2 py-1 text-xs rounded">Active</span>
-
             <% } else if (c.status === 'rejected') { %>
               <span class="bg-red-100 text-red-700 px-2 py-1 text-xs rounded">Rejected</span>
             <% } else { %>
               <span class="bg-blue-100 text-blue-700 px-2 py-1 text-xs rounded">Completed</span>
             <% } %>
-
           </div>
-
-          <!-- PUSH CONTENT DOWN -->
-          <div class="flex-1"></div>
 
           <!-- PROGRESS -->
           <%
@@ -112,14 +126,14 @@
           %>
 
           <div class="mt-3">
-            <div class="flex justify-between text-xs sm:text-sm mb-1">
+            <div class="flex justify-between text-xs mb-1">
               <span>Rs. <%= c.raised %></span>
               <span>Rs. <%= c.goal %></span>
             </div>
 
             <div class="w-full bg-gray-200 h-2 rounded-full">
               <div class="bg-green-500 h-2 rounded-full"
-                   style="width:<%= progress + '%' %>"></div>
+                style="width:<%= progress + '%' %>"></div>
             </div>
           </div>
 
@@ -133,10 +147,19 @@
                 Edit
               </a>
 
-              <form method="POST" action="/volunteer/campaigns/<%= c._id %>/submit" class="flex-1">
-                <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm">
+              <form id="submitForm-<%= c._id %>"
+                method="POST"
+                action="/volunteer/campaigns/<%= c._id %>/submit"
+                class="flex-1">
+
+                <button type="button"
+                  onclick="openModal('submitForm-<%= c._id %>', 'Submit Campaign', 'Are you sure you want to submit this campaign for review?')"
+                  class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm">
+
                   Submit
+
                 </button>
+
               </form>
 
             <% } else if (c.status === 'rejected') { %>
@@ -163,7 +186,6 @@
           </div>
 
         </div>
-
       </div>
 
     <% }) %>
@@ -178,15 +200,103 @@
 
 <%- include('../../partials/footer') %>
 
+<!-- MODAL -->
+<div id="confirmModal"
+  class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50 px-4">
+
+  <div id="modalCard"
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center scale-95 opacity-0 transition">
+
+    <div class="flex justify-center mb-3">
+      <div class="h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
+        <i class="fa-solid fa-circle-info text-blue-600 text-xl"></i>
+      </div>
+    </div>
+
+    <h2 id="modalTitle" class="text-xl font-bold mb-2 text-gray-800"></h2>
+
+    <p id="modalMessage" class="text-sm text-gray-600 mb-6"></p>
+
+    <div class="flex gap-4">
+
+      <button onclick="closeModal()"
+        class="flex-1 bg-gray-200 hover:bg-gray-300 py-3 rounded-lg font-semibold">
+
+        Cancel
+
+      </button>
+
+      <button id="confirmBtn"
+        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+
+        Confirm
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SCRIPT -->
 <script>
-  setTimeout(() => {
-    const alertBox = document.getElementById('alertBox');
-    if (alertBox) {
-      alertBox.style.transition = "opacity 0.5s ease";
-      alertBox.style.opacity = "0";
-      setTimeout(() => alertBox.remove(), 500);
+
+  let currentForm = null;
+
+  function openModal(formId, title, message) {
+
+    currentForm = formId;
+
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalMessage").innerText = message;
+
+    const modal = document.getElementById("confirmModal");
+    const card = document.getElementById("modalCard");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    setTimeout(() => {
+      card.classList.remove("scale-95", "opacity-0");
+      card.classList.add("scale-100", "opacity-100");
+    }, 10);
+
+  }
+
+  function closeModal() {
+
+    const modal = document.getElementById("confirmModal");
+    const card = document.getElementById("modalCard");
+
+    card.classList.add("scale-95", "opacity-0");
+    card.classList.remove("scale-100", "opacity-100");
+
+    setTimeout(() => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }, 200);
+
+    currentForm = null;
+  }
+
+  document.getElementById("confirmBtn").addEventListener("click", () => {
+    if (currentForm) {
+      document.getElementById(currentForm).submit();
     }
-  }, 3000);
+  });
+
+  
+  // Flash Message FADE OUT 
+  setTimeout(() => {
+      const alertBox = document.getElementById('alertBox');
+      if (alertBox) {
+        alertBox.style.transition = "opacity 0.5s ease";
+        alertBox.style.opacity = "0";
+        setTimeout(() => alertBox.remove(), 500);
+      }
+    }, 3000);
+
 </script>
 
 </body>

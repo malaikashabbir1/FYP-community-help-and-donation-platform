@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col font-[Inter]">
+
+<!-- HEADER -->
+<header class="bg-blue-600 text-white shadow">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
+    <a href="/" class="flex items-center gap-3">
+      <img src="/images/logo.PNG" class="w-10 h-10 rounded-full object-contain border-2 border-white" />
+      <span class="font-bold text-emerald-300 text-lg">HelpingHands</span>
+    </a>
+
+    <a href="/profile" class="text-sm hover:underline">
+      <i class="fas fa-arrow-left mr-1"></i> Back to Profile
+    </a>
+
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="flex-grow flex items-center justify-center px-4 py-10">
+
+  <div class="w-full max-w-2xl bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+
+    <!-- TOP HEADER -->
+    <div class="bg-blue-600 text-white text-center p-8">
+
+      <div class="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center shadow-md border-4 border-blue-100">
+        <i class="fas fa-user-edit text-blue-600 text-3xl"></i>
+      </div>
+
+      <h2 class="mt-4 text-2xl font-bold">Edit Profile</h2>
+      <p class="text-sm text-blue-100 mt-1">Update your account details</p>
+
+    </div>
+
+    <!-- FORM -->
+    <form action="/profile/edit" method="POST" class="p-6 space-y-6">
+
+      <!-- GENERAL ERROR -->
+      <% if (errors && errors.general) { %>
+        <p class="text-sm text-red-600 font-semibold text-center bg-red-50 border border-red-200 rounded-lg py-2">
+          <%= errors.general %>
+        </p>
+      <% } %>
+
+      <!-- NAME -->
+      <div>
+        <label class="text-sm text-slate-600">Full Name</label>
+
+        <div class="mt-1 flex items-center gap-3 border rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+
+          <i class="fas fa-user text-slate-400"></i>
+
+          <input type="text"
+                 name="name"
+                 value="<%= user.name %>"
+                 class="w-full outline-none bg-transparent">
+
+        </div>
+
+        <% if (errors && errors.name) { %>
+          <p class="text-sm text-red-500 mt-1"><%= errors.name %></p>
+        <% } %>
+      </div>
+
+      <!-- EMAIL -->
+      <div>
+        <label class="text-sm text-slate-600">Email</label>
+
+        <div class="mt-1 flex items-center gap-3 border rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+
+          <i class="fas fa-envelope text-slate-400"></i>
+
+          <input type="email"
+                 name="email"
+                 value="<%= user.email %>"
+                 class="w-full outline-none bg-transparent">
+
+        </div>
+
+        <% if (errors && errors.email) { %>
+          <p class="text-sm text-red-500 mt-1"><%= errors.email %></p>
+        <% } %>
+      </div>
+
+      <!-- ROLE (READ ONLY) -->
+      <div>
+        <label class="text-sm text-slate-600">Role</label>
+
+        <div class="mt-1 flex items-center gap-3 border rounded-xl px-3 py-2 bg-slate-100">
+
+          <i class="fas fa-user-tag text-slate-400"></i>
+
+          <input type="text"
+                 value="<%= user.role %>"
+                 disabled
+                 class="w-full outline-none bg-transparent text-slate-600 cursor-not-allowed">
+
+        </div>
+
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
+
+        <button type="submit"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">
+
+          <i class="fas fa-save mr-2"></i>
+          Save Changes
+        </button>
+
+        <a href="/profile"
+           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-xl text-center font-semibold transition">
+
+          <i class="fas fa-xmark mr-2"></i>
+          Cancel
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</main>
+
+</body>
+</html>

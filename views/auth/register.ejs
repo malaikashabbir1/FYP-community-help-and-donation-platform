@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HelpingHands - Register</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 font-sans flex items-center justify-center min-h-screen">
@@ -35,13 +35,21 @@
           <p class="text-red-500 text-sm mt-1"><%= errors.email %></p>
         <% } %>
       </div>
-
+      
       <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" name="password" id="password" required
-               value="<%= oldInput && oldInput.password ? oldInput.password : '' %>"
-               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+        <div class="relative mt-1">
+          <input type="password" id="password" name="password" required
+          value="<%= oldInput && oldInput.password ? oldInput.password : '' %>"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+        <button type="button" id="togglePassword" class="absolute right-2 top-2 text-gray-500">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+        </div>
+
+
+        <!-- Show password validation error -->
         <% if (errors && errors.password) { %>
           <p class="text-red-500 text-sm mt-1"><%= errors.password %></p>
         <% } %>
@@ -51,16 +59,19 @@
       <div>
         <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
         <select name="role" id="role" required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
           <option value="">--Select Role--</option>
           <option value="donor" <%= oldInput && oldInput.role === 'donor' ? 'selected' : '' %>>Donor</option>
           <option value="volunteer" <%= oldInput && oldInput.role === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
           <option value="admin" <%= oldInput && oldInput.role === 'admin' ? 'selected' : '' %>>Admin</option>
         </select>
+
+        <!-- Inline role validation error -->
         <% if (errors && errors.role) { %>
           <p class="text-red-500 text-sm mt-1"><%= errors.role %></p>
         <% } %>
       </div>
+
 
       <!-- Submit -->
       <div>
@@ -77,6 +88,29 @@
       <a href="/auth/login" class="text-emerald-500 hover:underline">Login</a>
     </p>
   </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword'); // button must have this id
+    const icon = toggleBtn.querySelector('i');
+
+    toggleBtn.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';           // show password
+        icon.classList.remove('fa-eye');       // switch icon
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';       // hide password
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    });
+  });
+</script>
+
+ 
+
 
 </body>
 </html>

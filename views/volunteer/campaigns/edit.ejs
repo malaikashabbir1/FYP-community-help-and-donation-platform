@@ -3,7 +3,7 @@
 <head>
   <title>Edit Campaign</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/output.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -20,32 +20,120 @@
 
   <div class="bg-white p-4 sm:p-6 rounded-xl shadow">
 
-    <form action="/volunteer/campaigns/edit/<%= campaign._id %>" method="POST" enctype="multipart/form-data" class="space-y-4" >
+    <!-- FLASH MESSAGE -->
+    <% if (message) { %>
+      <div id="alertBox"
+        class="mb-6 px-4 py-3 rounded-lg shadow flex justify-between items-center
+        <%= message.type === 'success'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : 'bg-red-100 text-red-700 border border-red-300' %>">
 
-      <!-- Name -->
-      <input type="text" name="name"
-        value="<%= campaign.name %>"
-        class="w-full border p-3 rounded"
-        required>
+        <span><%= message.text %></span>
+        <button onclick="document.getElementById('alertBox').remove()"
+          class="font-bold text-lg">&times;</button>
+      </div>
+    <% } %>
 
-      <!-- Description -->
-      <textarea name="description"
-        class="w-full border p-3 rounded"><%= campaign.description %></textarea>
+    <!-- FORM -->
+    <form action="/volunteer/campaigns/edit/<%= campaign._id %>"
+          method="POST"
+          enctype="multipart/form-data"
+          class="space-y-5">
 
-      <!-- Goal -->
-      <input type="number" name="goal"
-        value="<%= campaign.goal %>"
-        class="w-full border p-3 rounded"
-        required>
+      <!-- REJECTION -->
+      <% if (campaign.status === 'rejected' && campaign.rejectionReason) { %>
+        <div class="p-3 bg-red-50 border border-red-300 text-red-700 rounded">
+          <p class="font-semibold">Admin Feedback:</p>
+          <p class="text-sm mt-1"><%= campaign.rejectionReason %></p>
+        </div>
+      <% } %>
 
-      <!-- Image -->
-      <input type="file" name="image" accept="image/*"
-        value="<%= campaign.image %>"
-        class="w-full border p-3 rounded">
+      <!-- NAME -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Campaign Name</label>
+        <input type="text" name="name"
+          value="<%= campaign.name %>"
+          class="w-full border p-3 rounded mt-1"
+          required>
+      </div>
 
-      <!-- Button -->
-      <button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+      <!-- DESCRIPTION -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Description</label>
+        <textarea name="description"
+          class="w-full border p-3 rounded mt-1"><%= campaign.description %></textarea>
+      </div>
+
+      <!-- GOAL -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Goal Amount</label>
+        <input type="number" name="goal"
+          value="<%= campaign.goal %>"
+          class="w-full border p-3 rounded mt-1"
+          required>
+      </div>
+
+      <!-- REQUIRED VOLUNTEERS -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Required Volunteers</label>
+        <input type="number" name="requiredVolunteers"
+          value="<%= campaign.requiredVolunteers %>"
+          class="w-full border p-3 rounded mt-1"
+          min="1"
+          required>
+      </div>
+
+      <!-- LOCATION -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Location</label>
+        <input type="text" name="location"
+          value="<%= campaign.location %>"
+          class="w-full border p-3 rounded mt-1"
+          required>
+      </div>
+
+      <!-- URGENCY -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Urgency Level</label>
+
+        <select name="urgency"
+          class="w-full border p-3 rounded mt-1">
+
+          <option value="low" <%= campaign.urgency === 'low' ? 'selected' : '' %>>Low Priority</option>
+          <option value="medium" <%= campaign.urgency === 'medium' ? 'selected' : '' %>>Medium Priority</option>
+          <option value="high" <%= campaign.urgency === 'high' ? 'selected' : '' %>>High Priority</option>
+          <option value="emergency" <%= campaign.urgency === 'emergency' ? 'selected' : '' %>>Emergency</option>
+
+        </select>
+      </div>
+
+      <!-- CURRENT IMAGE -->
+      <% if (campaign.image) { %>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Current Image</label>
+          <img src="<%= campaign.image %>"
+            class="h-28 w-full object-cover rounded border mt-1">
+        </div>
+      <% } %>
+
+      <!-- IMAGE -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Change Image</label>
+        <input type="file" name="image"
+          class="w-full border p-3 rounded mt-1"
+          accept="image/*">
+
+        <p class="text-xs text-gray-500 mt-1">
+          Leave empty if you don’t want to change image
+        </p>
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit"
+        class="w-full px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700">
+
         Update Campaign
+
       </button>
 
     </form>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Success Stories</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<%- include('../partials/navbar') %>
+
+<main class="bg-gray-100 min-h-screen">
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- HEADER -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Success Stories</h1>
+      <p class="text-gray-500">
+        Campaigns that successfully completed and created real impact.
+      </p>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <% if (!campaigns || campaigns.length === 0) { %>
+
+      <div class="bg-white p-6 rounded-xl shadow text-center text-gray-500">
+        No completed campaigns yet.
+      </div>
+
+    <% } else { %>
+
+    <!-- LIST -->
+    <div class="space-y-4">
+
+      <% campaigns.forEach(c => { %>
+
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition p-5">
+
+          <!-- TOP ROW -->
+          <div class="flex justify-between items-start gap-3">
+
+            <h2 class="text-base font-bold text-gray-800 line-clamp-2 leading-snug">
+              <%= c.name %>
+            </h2>
+
+            <span class="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full whitespace-nowrap">
+              ✔ Completed
+            </span>
+
+          </div>
+
+          <!-- DESCRIPTION -->
+          <% if (c.description) { %>
+            <p class="text-gray-600 text-sm mt-2 line-clamp-2">
+              <%= c.description %>
+            </p>
+          <% } %>
+
+          <!-- DETAILS GRID -->
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+
+            <!-- GOAL -->
+            <div class="bg-green-50 text-green-700 px-3 py-2 rounded-lg border border-green-100">
+              <i class="fas fa-bullseye"></i>
+              Goal: Rs <%= c.goal %>
+            </div>
+
+            <!-- RAISED -->
+            <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-100">
+              <i class="fas fa-hand-holding-dollar"></i>
+              Raised: Rs <%= c.raised %>
+            </div>
+
+            <!-- VOLUNTEERS -->
+            <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg border border-purple-100">
+              <i class="fas fa-users"></i>
+              Volunteers: <%= c.volunteers?.length || 0 %>
+            </div>
+
+            <!-- LOCATION -->
+            <% if (c.location) { %>
+              <div class="bg-gray-50 text-gray-700 px-3 py-2 rounded-lg border">
+                <i class="fas fa-map-marker-alt"></i>
+                <%= c.location %>
+              </div>
+            <% } %>
+
+            <!-- URGENCY -->
+            <% if (c.urgency) { %>
+              <div class="bg-red-50 text-red-600 px-3 py-2 rounded-lg border border-red-100">
+                <i class="fas fa-bolt"></i>
+                Urgency: <%= c.urgency %>
+              </div>
+            <% } %>
+
+          </div>
+
+          <!-- IMPACT FOOTER -->
+          <div class="mt-4 text-xs text-gray-500 flex justify-between items-center">
+
+            <span>
+              This campaign successfully completed all required goals
+            </span>
+
+            <a href="/campaigns/<%= c._id %>"
+               class="text-blue-600 hover:text-blue-800 font-medium">
+
+              View →
+            </a>
+
+          </div>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+
+    <% } %>
+
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>
+
+</body>
+</html>

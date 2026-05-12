@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
-<!-- IMPORTANT: full height layout fix -->
 <body class="bg-slate-100 min-h-screen flex flex-col font-[Inter]">
 
 <!-- HEADER -->
@@ -30,10 +29,31 @@
   </div>
 </header>
 
-<!-- MAIN (CENTER FIX) -->
+<!-- MAIN -->
 <main class="flex-grow flex items-center justify-center px-4 py-10">
 
   <div class="w-full max-w-3xl">
+
+    <!-- ✅ FLASH MESSAGE (FIXED) -->
+    <% if (message) { %>
+      <div id="alertBox"
+        class="mb-6 px-4 py-4 rounded-xl shadow-sm flex justify-between items-center
+        <%= message.type === 'success'
+            ? 'bg-green-100 text-green-700 border border-green-300'
+            : 'bg-red-100 text-red-700 border border-red-300' %>">
+
+        <span class="text-sm font-semibold">
+          <%= message.text %>
+        </span>
+
+        <button
+          onclick="document.getElementById('alertBox').remove()"
+          class="text-lg font-bold px-2">
+          &times;
+        </button>
+
+      </div>
+    <% } %>
 
     <!-- PROFILE CARD -->
     <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
@@ -41,12 +61,10 @@
       <!-- HEADER -->
       <div class="bg-blue-600 text-white p-6 flex items-center gap-4">
 
-        <!-- ICON (FIXED: NO "A", PROPER USER ICON) -->
         <div class="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center shadow-inner border border-blue-200">
           <i class="fas fa-user text-blue-700 text-3xl"></i>
         </div>
 
-        <!-- NAME + ROLE -->
         <div>
           <h2 class="text-lg font-bold">
             <%= user.name || 'User' %>
@@ -63,7 +81,6 @@
       <!-- DETAILS -->
       <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        <!-- EMAIL -->
         <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
           <i class="fas fa-envelope text-blue-600 mt-1"></i>
           <div>
@@ -74,7 +91,6 @@
           </div>
         </div>
 
-        <!-- ROLE -->
         <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
           <i class="fas fa-id-badge text-purple-600 mt-1"></i>
           <div>
@@ -85,7 +101,6 @@
           </div>
         </div>
 
-        <!-- STATUS -->
         <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
           <i class="fas fa-circle-check text-green-600 mt-1"></i>
           <div>
@@ -94,7 +109,6 @@
           </div>
         </div>
 
-        <!-- USER ID -->
         <div class="bg-slate-50 border rounded-2xl p-4 flex gap-3">
           <i class="fas fa-fingerprint text-slate-600 mt-1"></i>
           <div>
@@ -110,51 +124,16 @@
       <!-- ACTIONS -->
       <div class="p-6 flex flex-col sm:flex-row gap-4">
 
-        <!-- EDIT -->
         <a href="/profile/edit"
            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-center py-2 rounded-xl font-semibold text-sm transition">
-
           <i class="fas fa-pen mr-2"></i>
           Edit Profile
-
         </a>
 
-        <!-- ROLE ACTION -->
-        <% if (user.role === 'donor') { %>
-
-          <a href="/donor/my-donations"
-             class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
-
-            <i class="fas fa-hand-holding-heart mr-2"></i>
-            My Donations
-
-          </a>
-
-        <% } %>
-
-        <% if (user.role === 'admin') { %>
-
-          <a href="/admin/users"
-             class="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
-
-            <i class="fas fa-users mr-2"></i>
-            Manage Users
-
-          </a>
-
-        <% } %>
-
-        <% if (user.role === 'volunteer') { %>
-
-          <a href="/volunteer/campaigns/my"
-             class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-xl font-semibold text-sm transition">
-
-            <i class="fas fa-folder-open mr-2"></i>
-            My Campaigns
-
-          </a>
-
-        <% } %>
+        <a href="/profile/change-password"
+          class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded-xl font-semibold">
+          Change Password
+        </a>
 
       </div>
 
@@ -164,10 +143,22 @@
 
 </main>
 
-<!-- FOOTER FIX -->
+<!-- FOOTER -->
 <footer class="mt-auto">
   <%- include('../partials/footer') %>
 </footer>
+
+<!-- AUTO FADE -->
+<script>
+  setTimeout(() => {
+    const alertBox = document.getElementById('alertBox');
+    if (alertBox) {
+      alertBox.style.opacity = "0";
+      alertBox.style.transition = "0.5s";
+      setTimeout(() => alertBox.remove(), 500);
+    }
+  }, 3000);
+</script>
 
 </body>
 </html>
