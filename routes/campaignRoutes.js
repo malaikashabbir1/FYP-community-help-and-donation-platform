@@ -11,4 +11,20 @@ router.get(
   campaignController.liveCampaigns
 );
 
+
+// success stories 
+router.get('/campaigns/completed',
+    authenticateToken,
+    campaignController.completedCampaigns);
+
+// ================= CAMPAIGN DETAILS =================
+router.get(
+  '/:id',
+  authenticateToken, // optional but recommended
+  campaignController.getCampaignDetails
+);
+
+
+
+
 module.exports = router;

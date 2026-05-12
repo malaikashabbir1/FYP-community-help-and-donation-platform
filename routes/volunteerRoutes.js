@@ -7,6 +7,7 @@ const volunteerCampaignController = require('../controllers/volunteerCampaignCon
 const authenticateToken = require('../middlewares/authenticateToken');
 const authorizeRole = require('../middlewares/authorizeRole');
 const upload = require('../middlewares/upload'); // or your multer config file
+const campaignController = require('../controllers/campaignController');
 
 // Volunteer Dashboard Route
 router.get(
@@ -80,5 +81,16 @@ router.get('/campaigns/create', volunteerCampaignController.createCampaign);
 router.get('/campaigns/my', volunteerCampaignController.myCampaigns);
 
 
+
+// completed campaigns
+router.get('/campaigns/completed', campaignController.completedCampaigns);
+
+
+// JOIN CAMPAIGN ROUTE
+router.post(
+  '/campaigns/:id/join',
+  authenticateToken,
+  volunteerCampaignController.joinCampaign
+);
 
 module.exports = router;

@@ -18,8 +18,9 @@ router.post('/register', authController.signup);
 
 // Render login page
 router.get('/login', (req, res) => {
-    res.render('auth/login', { errors: {}, email: '' });
+    res.render('auth/login', { errors: {}, oldInput: {} });
 });
+
 
 // Handle login with JWT + role-based redirection
 router.post('/login', authController.loginUser);

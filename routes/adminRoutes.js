@@ -5,6 +5,9 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const adminCampaignController = require('../controllers/adminCampaignController');
 const upload = require('../middlewares/upload');
+const campaignController = require('../controllers/campaignController');
+const adminDonationController = require('../controllers/adminDonationController');
+
 
 // Import your middlewares
 const authenticateToken = require('../middlewares/authenticateToken');
@@ -77,4 +80,38 @@ router.post(
 // adminRoutes.js __________ nav bar
 router.get('/campaigns/list', adminCampaignController.getAllCampaigns);
 
+// success stories
+router.get('/campaigns/completed', campaignController.completedCampaigns);
+
+
+
+// ______________ Quick Action Donations _________________
+router.get(
+  '/donations',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminDonationController.getAllDonations
+);
+
+// _________ summary  ___________
+router.get(
+  '/donations/summary',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminDonationController.getDonationSummary
+);
+
+router.get(
+  '/donations/:id',
+  authenticateToken,
+  authorizeRole('admin'),
+  adminDonationController.getDonationDetails
+);
+ 
+// ________________ Manage Users _______________
+router.get('/users', adminController.getAllUsers);
+router.get('/users/:id', adminController.getUserDetails);
+
+
+router.get('/users/toggle/:id', adminController.toggleUserStatus);
 module.exports = router;
