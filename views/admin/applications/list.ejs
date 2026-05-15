@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applications Management</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-grow">
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+  <!-- HEADER -->
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Applications Management</h1>
+    <p class="text-sm text-gray-500">Review and manage volunteer applications</p>
+  </div>
+
+  <!-- FLASH MESSAGE -->
+  <% if (message) { %>
+    <div class="mb-6 px-4 py-3 rounded-lg shadow
+      <%= message.type === 'success'
+        ? 'bg-green-100 text-green-700 border border-green-300'
+        : 'bg-red-100 text-red-700 border border-red-300' %>">
+
+      <%= message.text %>
+    </div>
+  <% } %>
+
+  <!-- FILTERS -->
+  <div class="flex flex-wrap gap-2 mb-6 justify-center">
+
+    <a href="/admin/applications?status=all"
+      class="px-3 py-2 shadow rounded-lg text-sm
+      <%= status === 'all' ? 'bg-gray-800 text-white' : 'bg-white hover:bg-gray-50' %>">
+      All
+    </a>
+
+    <a href="/admin/applications?status=pending"
+      class="px-3 py-2 shadow rounded-lg text-sm
+      <%= status === 'pending' ? 'bg-yellow-500 text-white' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' %>">
+      Pending
+    </a>
+
+    <a href="/admin/applications?status=approved"
+      class="px-3 py-2 shadow rounded-lg text-sm
+      <%= status === 'approved' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200' %>">
+      Approved
+    </a>
+
+    <a href="/admin/applications?status=rejected"
+      class="px-3 py-2 shadow rounded-lg text-sm
+      <%= status === 'rejected' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700 hover:bg-red-200' %>">
+      Rejected
+    </a>
+
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <% if (applications && applications.length > 0) { %>
+
+      <% applications.forEach(app => { %>
+
+        <div class="bg-white rounded-xl shadow p-5">
+
+          <!-- USER -->
+          <div class="flex justify-between items-start mb-3">
+
+            <div>
+              <h2 class="text-lg font-bold text-gray-800">
+                <%= app.user?.name || "N/A" %>
+              </h2>
+              <p class="text-sm text-gray-500">
+                <%= app.user?.email || "N/A" %>
+              </p>
+            </div>
+
+            <span class="px-3 py-1 text-xs rounded-full text-white
+              <%= app.status === 'pending' ? 'bg-yellow-500' : '' %>
+              <%= app.status === 'approved' ? 'bg-green-500' : '' %>
+              <%= app.status === 'rejected' ? 'bg-red-500' : '' %>
+            ">
+              <%= app.status %>
+            </span>
+
+          </div>
+
+          <!-- CAMPAIGN -->
+          <div class="mb-2 text-sm text-gray-600">
+            <i class="fa-solid fa-bullhorn"></i>
+            <%= app.campaign?.name || "N/A" %>
+          </div>
+
+          <!-- DETAILS -->
+          <div class="text-sm text-gray-600 space-y-1">
+            <p><b>Phone:</b> <%= app.phone %></p>
+            <p><b>Skills:</b> <%= app.skills %></p>
+            <p><b>Availability:</b> <%= app.availability %></p>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-4">
+
+            <% if (app.status === "pending") { %>
+
+              <div class="flex gap-2">
+
+                <button
+                  onclick="openModal(
+                    'approve',
+                    'Approve Application',
+                    'Are you sure you want to approve this application?',
+                    '/admin/applications/approve/<%= app._id %>'
+                  )"
+                  class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm">
+                  Approve
+                </button>
+
+                <button
+                  onclick="openModal(
+                    'reject',
+                    'Reject Application',
+                    'Are you sure you want to reject this application?',
+                    '/admin/applications/reject/<%= app._id %>'
+                  )"
+                  class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm">
+                  Reject
+                </button>
+
+              </div>
+
+            <% } else { %>
+              <div class="text-center text-gray-400 text-sm">
+                No actions available
+              </div>
+            <% } %>
+
+          </div>
+
+        </div>
+
+      <% }) %>
+
+    <% } else { %>
+
+      <div class="col-span-2 text-center text-gray-500">
+        No applications found
+      </div>
+
+    <% } %>
+
+  </div>
+
+</div>
+
+</main>
+
+<!-- MODAL -->
+<div id="confirmModal"
+  class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50 px-4">
+
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center">
+
+    <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
+    <p id="modalMessage" class="text-gray-600 mb-6"></p>
+
+    <!-- IMPORTANT: POST FORM -->
+    <form id="confirmForm" method="POST">
+      <div class="flex gap-3 justify-center">
+
+        <button type="button" onclick="closeModal()"
+          class="px-4 py-2 bg-gray-300 rounded-lg">
+          Cancel
+        </button>
+
+        <button type="submit"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg">
+          Confirm
+        </button>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function openModal(type, title, message, url) {
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalMessage").innerText = message;
+
+    // SET POST ACTION
+    document.getElementById("confirmForm").action = url;
+
+    const modal = document.getElementById("confirmModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeModal() {
+    const modal = document.getElementById("confirmModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+</script>
+
+<%- include('../../partials/footer') %>
+
+</body>
+</html>
