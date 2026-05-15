@@ -49,7 +49,7 @@
             </h2>
 
             <span class="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full whitespace-nowrap">
-              ✔ Completed
+              <i class="fas fa-check-circle"></i> Completed
             </span>
 
           </div>
@@ -76,10 +76,10 @@
               Raised: Rs <%= c.raised %>
             </div>
 
-            <!-- VOLUNTEERS -->
+            <!-- VOLUNTEERS (FIXED) -->
             <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg border border-purple-100">
               <i class="fas fa-users"></i>
-              Volunteers: <%= c.volunteers?.length || 0 %>
+              Volunteers:  <%= c.approvedCount || 0 %> / <%= c.requiredVolunteers || 0 %>
             </div>
 
             <!-- LOCATION -->
@@ -100,7 +100,7 @@
 
           </div>
 
-          <!-- IMPACT FOOTER -->
+          <!-- FOOTER -->
           <div class="mt-4 text-xs text-gray-500 flex justify-between items-center">
 
             <span>
@@ -109,7 +109,6 @@
 
             <a href="/campaigns/<%= c._id %>"
                class="text-blue-600 hover:text-blue-800 font-medium">
-
               View →
             </a>
 

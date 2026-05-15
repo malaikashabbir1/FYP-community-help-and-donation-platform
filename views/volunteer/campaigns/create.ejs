@@ -20,6 +20,20 @@
 
   <div class="bg-white p-4 sm:p-6 rounded-xl shadow">
 
+    <!-- ✅ SIMPLE FLASH MESSAGE -->
+    <% if (message && message.type === 'error') { %>
+      <p class="text-red-600 text-sm mb-4 font-medium">
+        <%= message.text %>
+      </p>
+    <% } %>
+
+    <% if (message && message.type === 'success') { %>
+      <p class="text-green-600 text-sm mb-4 font-medium">
+        <%= message.text %>
+      </p>
+    <% } %>
+
+    <!-- FORM -->
     <form action="/volunteer/campaigns/create"
           method="POST"
           enctype="multipart/form-data"

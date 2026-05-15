@@ -96,7 +96,7 @@
             <p><i class="fa-solid fa-bolt mr-1"></i> <%= c.urgency %></p>
 
             <p><i class="fa-solid fa-users mr-1"></i>
-              <%= c.volunteers?.length || 0 %> / <%= c.requiredVolunteers || 0 %>
+              <%= c.approvedApplications || 0 %> / <%= c.requiredVolunteers || 0 %>
             </p>
 
             <p><i class="fa-solid fa-calendar mr-1"></i>
