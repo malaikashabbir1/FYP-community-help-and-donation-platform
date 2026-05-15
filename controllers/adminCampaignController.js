@@ -1,15 +1,17 @@
-const Campaign = require('../models/campaign');
+const Campaign = require('../models/Campaign');
+const Application = require('../models/Application');
 const { canChangeStatus } = require('../utils/campaignRules');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const { setMessage } = require('../utils/flashMessage');
-const { canCompleteCampaign } = require('../utils/campaignStatus');
+const { checkAndCompleteCampaign } = require('../services/campaignService');
 
 
-// Show all campaigns
+// ================= GET ALL CAMPAIGNS =================
 exports.getAllCampaigns = async (req, res) => {
   try {
+
     const { search = '', status = '' } = req.query;
 
     let filter = {};
@@ -33,8 +35,33 @@ exports.getAllCampaigns = async (req, res) => {
       .populate('createdBy', 'name role _id')
       .sort({ createdAt: -1 });
 
+    // 🔥 ADD APPROVED APPLICATION COUNT (FAST + CLEAN)
+    const Application = require('../models/Application');
+
+    const approvedCounts = await Application.aggregate([
+      { $match: { status: "approved" } },
+      {
+        $group: {
+          _id: "$campaign",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const countMap = {};
+    approvedCounts.forEach(item => {
+      countMap[item._id.toString()] = item.count;
+    });
+
+    // attach to campaigns
+    const campaignsWithStats = campaigns.map(c => {
+      const obj = c.toObject();
+      obj.approvedApplications = countMap[c._id.toString()] || 0;
+      return obj;
+    });
+
     res.render('admin/campaigns/list', {
-      campaigns,
+      campaigns: campaignsWithStats,
       search,
       status
     });
@@ -46,9 +73,10 @@ exports.getAllCampaigns = async (req, res) => {
 };
 
 
-// REVIEW PAGE
+// ================= REVIEW PAGE =================
 exports.reviewPage = async (req, res) => {
   try {
+
     const campaign = await Campaign.findById(req.params.id)
       .populate('createdBy', 'name role _id');
 
@@ -67,7 +95,7 @@ exports.reviewPage = async (req, res) => {
 };
 
 
-// DELETE CAMPAIGN
+// ================= DELETE CAMPAIGN =================
 exports.deleteCampaign = async (req, res) => {
   try {
 
@@ -87,18 +115,19 @@ exports.deleteCampaign = async (req, res) => {
       ? path.join(__dirname, "..", campaign.image)
       : null;
 
-    await Campaign.findByIdAndDelete(req.params.id);
+    await Application.deleteMany({ campaign: req.params.id });
 
     if (imagePath) {
       fs.access(imagePath, fs.constants.F_OK, (err) => {
         if (!err) {
           fs.unlink(imagePath, (err) => {
             if (err) console.log("Image delete error:", err.message);
-            else console.log("Image deleted successfully");
           });
         }
       });
     }
+
+    await Campaign.findByIdAndDelete(req.params.id);
 
     setMessage(req, "success", "Campaign deleted successfully");
     return res.redirect('/admin/campaigns');
@@ -110,7 +139,7 @@ exports.deleteCampaign = async (req, res) => {
 };
 
 
-// APPROVE CAMPAIGN
+// ================= APPROVE CAMPAIGN =================
 exports.approveCampaign = async (req, res) => {
   try {
 
@@ -118,14 +147,7 @@ exports.approveCampaign = async (req, res) => {
       return res.status(403).send("Unauthorized");
     }
 
-    const _id = req.params.id; 
-
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-      setMessage(req, "error", "Invalid campaign ID");
-      return res.redirect('/admin/campaigns');
-    }
-
-    const campaign = await Campaign.findById(_id);
+    const campaign = await Campaign.findById(req.params.id);
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
@@ -147,7 +169,6 @@ exports.approveCampaign = async (req, res) => {
 
     setMessage(req, "success", "Campaign approved and now live");
     return res.redirect('/admin/campaigns');
-    
 
   } catch (error) {
     console.error(error);
@@ -157,7 +178,8 @@ exports.approveCampaign = async (req, res) => {
 };
 
 
-// COMPLETE CAMPAIGN
+// ================= COMPLETE CAMPAIGN =================
+// ================= COMPLETE CAMPAIGN =================
 exports.completeCampaign = async (req, res) => {
   try {
 
@@ -168,42 +190,31 @@ exports.completeCampaign = async (req, res) => {
       return res.redirect('/admin/campaigns');
     }
 
-    // 1️⃣ STATUS TRANSITION CHECK
-    if (!canChangeStatus(campaign.status, 'completed')) {
-      setMessage(req, "error", `Cannot complete a ${campaign.status} campaign`);
+    // 🔥 SINGLE SOURCE OF TRUTH
+    const updatedCampaign = await checkAndCompleteCampaign(campaign._id);
+
+    // ❌ Not eligible
+    if (!updatedCampaign || updatedCampaign.status !== "completed") {
+      setMessage(
+        req,
+        "error",
+        "Requirements not met (funding or volunteers missing)"
+      );
       return res.redirect('/admin/campaigns');
     }
 
-    // 2️⃣ REQUIREMENTS CHECK
-    if (!canCompleteCampaign(campaign)) {
-      setMessage(req, "error", "Requirements not met (funding or volunteers missing)");
-      return res.redirect('/admin/campaigns');
-    }
-
-    // 3️⃣ COMPLETE CAMPAIGN
-    campaign.status = "completed";
-
-    // ensure exact completion state
-    campaign.raised = campaign.goal;
-
-    await campaign.save();
-
+    // ✔ success case
     setMessage(req, "success", "Campaign marked as completed");
-
     return res.redirect('/admin/campaigns');
 
   } catch (err) {
-
     console.error(err);
-
     setMessage(req, "error", "Server error");
-
     return res.redirect('/admin/campaigns');
   }
 };
 
-
-// REJECT CAMPAIGN
+// ================= REJECT CAMPAIGN =================
 exports.rejectCampaign = async (req, res) => {
   try {
 
@@ -211,8 +222,7 @@ exports.rejectCampaign = async (req, res) => {
       return res.status(403).send("Unauthorized");
     }
 
-    const _id = req.params.id;
-    const campaign = await Campaign.findById(_id);
+    const campaign = await Campaign.findById(req.params.id);
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
@@ -233,12 +243,11 @@ exports.rejectCampaign = async (req, res) => {
 
     if (!reason || !reason.trim()) {
       setMessage(req, "error", "Rejection reason is required");
-      return res.redirect(`/admin/campaigns/${_id}/review`);
+      return res.redirect(`/admin/campaigns/${req.params.id}/review`);
     }
 
     campaign.status = 'rejected';
     campaign.rejectionReason = reason.trim();
-
     campaign.reviewedAt = new Date();
 
     await campaign.save();
