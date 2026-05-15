@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+// __________________________________Stores system activities____________________________
 
 const activityLogSchema = new mongoose.Schema({
   type: { type: String, required: true },          // e.g., 'user', 'donation', 'volunteer'
