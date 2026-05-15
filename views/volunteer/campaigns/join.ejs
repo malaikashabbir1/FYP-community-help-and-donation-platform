@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Campaign</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-grow">
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+  <!-- HEADER -->
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl font-bold text-gray-800">Join Field Work</h1>
+    <p class="text-gray-500 text-sm">Apply to participate in this campaign</p>
+  </div>
+
+  <!-- FLASH MESSAGE -->
+  <% if (message) { %>
+    <div id="alertBox"
+      class="mb-6 px-4 py-3 rounded-lg shadow
+      <%= message.type === 'success'
+        ? 'bg-green-100 text-green-700 border border-green-300'
+        : 'bg-red-100 text-red-700 border border-red-300' %>">
+
+      <%= message.text %>
+    </div>
+  <% } %>
+
+  <!-- CAMPAIGN CARD -->
+  <div class="bg-white rounded-xl shadow p-5 mb-6">
+
+    <h2 class="text-xl font-bold text-gray-800">
+      <%= campaign.name %>
+    </h2>
+
+    <p class="text-sm text-gray-600 mt-2">
+      <%= campaign.description %>
+    </p>
+
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+
+      <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
+        Goal: Rs <%= campaign.goal %>
+      </div>
+
+      <div class="bg-green-50 text-green-700 px-3 py-2 rounded-lg">
+        Raised: Rs <%= campaign.raised %>
+      </div>
+
+      <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg">
+        Volunteers: <%= campaign.volunteers?.length || 0 %>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- IF ALREADY APPLIED -->
+  <% if (existingApplication) { %>
+
+    <div class="bg-yellow-100 border border-yellow-300 text-yellow-700 p-4 rounded-lg mb-4 text-center">
+      You have already applied for this campaign.
+      <br>
+      Status:
+      <b><%= existingApplication.status %></b>
+      <br>
+
+      <span class="text-xs text-gray-600">
+        Applied on: <%= new Date(existingApplication.createdAt).toDateString() %>
+      </span>
+    </div>
+
+    <button disabled
+      class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed">
+      Already Applied
+    </button>
+
+  <% } else { %>
+
+  <!-- FORM -->
+  <div class="bg-white rounded-xl shadow p-6">
+
+    <form
+      id="joinForm"
+      action="/volunteer/campaigns/<%= campaign._id %>/join"
+      method="POST"
+      class="space-y-5"
+    >
+
+      <!-- MESSAGE -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Why do you want to join?
+        </label>
+
+        <textarea
+          name="message"
+          rows="4"
+          required
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          placeholder="Write your motivation..."
+        ></textarea>
+      </div>
+
+      <!-- PHONE -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Phone Number
+        </label>
+
+        <input
+          type="tel"
+          name="phone"
+          required
+          pattern="03[0-9]{9}"
+          title="Enter valid Pakistani number like 03XXXXXXXXX"
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          placeholder="03XXXXXXXXX"
+        />
+      </div>
+
+      <!-- AVAILABILITY -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Availability
+        </label>
+
+        <select
+          name="availability" required
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        >
+          <option value="" disabled selected>Select your availability</option>
+          <option value="full-time">Full Time</option>
+          <option value="part-time">Part Time</option>
+          <option value="weekends">Weekends</option>
+        </select>
+      </div>
+
+      <!-- SKILLS -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Skills
+        </label>
+
+        <select
+          name="skills" required
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        >
+          <option value="" disabled selected>Select your skill</option>
+          <option value="communication">Communication</option>
+          <option value="teaching">Teaching</option>
+          <option value="driving">Driving</option>
+          <option value="medical">Medical Help</option>
+          <option value="technical">Technical Support</option>
+          <option value="management">Management</option>
+        </select>
+      </div>
+
+      <!-- SUBMIT BUTTON (NOW OPENS MODAL) -->
+      <button type="button"
+        onclick="openModal('joinForm','Confirm Application','Are you sure you want to submit this application?')"
+        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+        <i class="fas fa-paper-plane"></i> Submit Application
+      </button>
+
+    </form>
+
+  </div>
+
+  <% } %>
+
+</div>
+</main>
+
+<%- include('../../partials/footer') %>
+
+<!-- MODAL -->
+<div id="confirmModal"
+  class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50 px-4">
+
+  <div id="modalCard"
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center scale-95 opacity-0 transition">
+
+    <div class="flex justify-center mb-3">
+      <div class="h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
+        <i class="fa-solid fa-circle-info text-blue-600 text-xl"></i>
+      </div>
+    </div>
+
+    <h2 id="modalTitle" class="text-xl font-bold mb-2 text-gray-800"></h2>
+
+    <p id="modalMessage" class="text-sm text-gray-600 mb-6"></p>
+
+    <div class="flex gap-4">
+
+      <button onclick="closeModal()"
+        class="flex-1 bg-gray-200 hover:bg-gray-300 py-3 rounded-lg font-semibold">
+        Cancel
+      </button>
+
+      <button id="confirmBtn"
+        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+        Confirm
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script>
+  let currentForm = null;
+
+  function openModal(formId, title, message) {
+    currentForm = formId;
+
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalMessage").innerText = message;
+
+    const modal = document.getElementById("confirmModal");
+    const card = document.getElementById("modalCard");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    setTimeout(() => {
+      card.classList.remove("scale-95", "opacity-0");
+      card.classList.add("scale-100", "opacity-100");
+    }, 10);
+  }
+
+  function closeModal() {
+    const modal = document.getElementById("confirmModal");
+    const card = document.getElementById("modalCard");
+
+    card.classList.add("scale-95", "opacity-0");
+    card.classList.remove("scale-100", "opacity-100");
+
+    setTimeout(() => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }, 200);
+
+    currentForm = null;
+  }
+
+  document.getElementById("confirmBtn").addEventListener("click", () => {
+    if (currentForm) {
+      document.getElementById(currentForm).submit();
+    }
+  });
+
+  // Flash message auto hide
+  setTimeout(() => {
+    const alertBox = document.getElementById('alertBox');
+    if (alertBox) {
+      alertBox.style.transition = "opacity 0.5s ease";
+      alertBox.style.opacity = "0";
+      setTimeout(() => alertBox.remove(), 500);
+    }
+  }, 3000);
+</script>
+
+</body>
+</html>
