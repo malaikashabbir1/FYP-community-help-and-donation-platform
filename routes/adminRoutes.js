@@ -7,6 +7,7 @@ const adminCampaignController = require('../controllers/adminCampaignController'
 const upload = require('../middlewares/upload');
 const campaignController = require('../controllers/campaignController');
 const adminDonationController = require('../controllers/adminDonationController');
+const adminApplicationController =  require('../controllers/adminApplicationController');
 
 
 // Import your middlewares
@@ -111,6 +112,19 @@ router.get(
 // ________________ Manage Users _______________
 router.get('/users', adminController.getAllUsers);
 router.get('/users/:id', adminController.getUserDetails);
+
+
+// ================= APPLICATIONS =================
+
+// view all applications
+router.get('/applications', adminApplicationController.getAllApplications);
+
+// approve application
+router.post('/applications/approve/:id', adminApplicationController.approveApplication);
+
+// reject application
+router.post('/applications/reject/:id', adminApplicationController.rejectApplication);
+
 
 
 router.get('/users/toggle/:id', adminController.toggleUserStatus);
