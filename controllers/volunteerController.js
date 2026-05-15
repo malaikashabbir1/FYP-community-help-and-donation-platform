@@ -1,5 +1,6 @@
 const Campaign = require('../models/campaign');
 const User = require('../models/user');
+const Application = require('../models/application');
 
 exports.getVolunteerDashboard = async (req, res) => {
   try {
@@ -28,8 +29,9 @@ exports.getVolunteerDashboard = async (req, res) => {
       status: 'completed'
     });
 
-    const joinedCampaigns = await Campaign.countDocuments({
-      volunteers: userId
+    const joinedCampaigns = await Application.countDocuments({
+      user: userId,
+      status: "approved"
     });
 
     // PLATFORM-WIDE STATS

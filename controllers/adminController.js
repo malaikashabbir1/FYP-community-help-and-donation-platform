@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Campaign = require('../models/campaign');
 const ActivityLog = require('../models/activityLog');
+const Application = require('../models/application');
 
 // Admin Dashboard Controller
 exports.getAdminDashboard = async (req, res) => {
@@ -10,6 +11,7 @@ exports.getAdminDashboard = async (req, res) => {
     const totalUsers = await User.countDocuments({ role: { $ne: 'admin' } });
     const donors = await User.countDocuments({ role: 'donor' });
     const volunteers = await User.countDocuments({ role: 'volunteer' });
+    
 
     // ================= CAMPAIGN STATS =================
     const pendingCampaigns = await Campaign.countDocuments({ status: 'pending' });
@@ -22,6 +24,8 @@ exports.getAdminDashboard = async (req, res) => {
       pendingCampaigns +
       activeCampaigns +
       completedCampaigns;
+
+    const pendingApplications = await Application.countDocuments({ status: "pending" });
 
     // ================= ACTIVITY LOG =================
     const recentActivity = await ActivityLog.find()
@@ -45,6 +49,7 @@ exports.getAdminDashboard = async (req, res) => {
       activeCampaigns,
       completedCampaigns,
       rejectedCampaigns,
+      pendingApplications, 
       recentActivity,
       recentUsers,
       user: {

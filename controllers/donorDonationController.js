@@ -5,10 +5,9 @@ const { setMessage } = require('../utils/flashMessage');
 const { checkAndCompleteCampaign } = require('../services/campaignService');
 
 
-// ADD DONATION (FULL LOGIC)
+// ================= ADD DONATION =================
 exports.addDonation = async (req, res) => {
   try {
-
     const { campaignId, amount, description } = req.body;
     const amountNumber = Number(amount);
 
@@ -51,31 +50,34 @@ exports.addDonation = async (req, res) => {
     }
 
     if (amountNumber > remaining) {
-      setMessage(req, "error", `Donation exceeds remaining amount (${remaining}).`);
+      setMessage(
+        req,
+        "error",
+        `Donation exceeds remaining amount (${remaining}).`
+      );
       return res.redirect('/donor/donate/' + campaignId);
     }
 
     // 3️⃣ Save donation
     await Donation.create({
       donor: req.user._id,
-      campaign: campaignId,
+      campaign: campaign._id,
       amount: amountNumber,
       description
     });
 
     // 4️⃣ Update campaign donation progress
     campaign.raised += amountNumber;
-
     await campaign.save();
 
-    // 5️⃣ Auto completion check
-    await checkAndCompleteCampaign(campaignId);
+    // 5️⃣ IMPORTANT: check completion AFTER update
+    await checkAndCompleteCampaign(campaign._id);
 
+    // 6️⃣ Success response
     setMessage(req, "success", "Donation successfully completed.");
     return res.redirect('/donor/dashboard');
 
   } catch (err) {
-
     console.error(err);
 
     setMessage(req, "error", "Something went wrong. Please try again.");
@@ -83,6 +85,8 @@ exports.addDonation = async (req, res) => {
   }
 };
 
+
+// ================= MY DONATIONS =================
 exports.getMyDonations = async (req, res) => {
   try {
     const donorId = req.user._id;
