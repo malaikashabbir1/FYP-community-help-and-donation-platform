@@ -1,4 +1,5 @@
 const Campaign = require('../models/campaign');
+const Application = require('../models/application');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +9,6 @@ const { checkAndCompleteCampaign } = require('../services/campaignService');
 const setMessage = (req, type, text) => {
   req.session.message = { type, text };
 };
-
 
 // CREATE PAGE
 exports.createPage = (req, res) => {
@@ -21,15 +21,13 @@ exports.createCampaign = async (req, res) => {
   try {
     const { name, description, goal, requiredVolunteers, location, urgency } = req.body;
 
-    if (!req.user) {
-      return res.redirect('/auth/login');
-    }
+    if (!req.user) return res.redirect('/auth/login');
 
     if (req.user.role !== 'volunteer') {
       return res.status(403).send('Only volunteers can create campaigns');
     }
 
-    if (!name || !description || !goal) {
+    if (!name || !description || !goal || !requiredVolunteers || !location) {
       setMessage(req, "error", "All required fields must be filled");
       return res.redirect('/volunteer/campaigns/create');
     }
@@ -39,18 +37,19 @@ exports.createCampaign = async (req, res) => {
       return res.redirect('/volunteer/campaigns/create');
     }
 
-    // goal validation
-    if (isNaN(goal) || goal <= 0) {
+    const goalNum = Number(goal);
+    const volNum = Number(requiredVolunteers);
+
+    if (isNaN(goalNum) || goalNum <= 0) {
       setMessage(req, "error", "Goal must be a positive number");
       return res.redirect('/volunteer/campaigns/create');
     }
 
-    if (goal < 100 || goal > 10000000) {
+    if (goalNum < 100 || goalNum > 10000000) {
       setMessage(req, "error", "Goal must be between 100 and 10,000,000");
       return res.redirect('/volunteer/campaigns/create');
     }
 
-    // urgency validation
     const allowedUrgency = ['low', 'medium', 'high', 'emergency'];
     if (urgency && !allowedUrgency.includes(urgency)) {
       setMessage(req, "error", "Invalid urgency value");
@@ -60,9 +59,9 @@ exports.createCampaign = async (req, res) => {
     await Campaign.create({
       name,
       description,
-      goal: Number(goal),
-      requiredVolunteers: Number(requiredVolunteers) || 0,
-      location: location || "",
+      goal: goalNum,
+      requiredVolunteers: volNum,
+      location,
       urgency: urgency || "medium",
       image: `/uploads/${req.file.filename}`,
       status: 'draft',
@@ -77,6 +76,7 @@ exports.createCampaign = async (req, res) => {
   }
 };
 
+
 // ================= SUBMIT FOR APPROVAL =================
 exports.submitForApproval = async (req, res) => {
   try {
@@ -88,8 +88,7 @@ exports.submitForApproval = async (req, res) => {
     }
 
     if (campaign.createdBy.toString() !== req.user._id.toString()) {
-      setMessage(req, "error", "Not authorized");
-      return res.redirect('/volunteer/campaigns/my');
+      return res.status(403).send("Not authorized");
     }
 
     if (campaign.status !== 'draft') {
@@ -114,9 +113,8 @@ exports.submitForApproval = async (req, res) => {
 // ================= MY CAMPAIGNS =================
 exports.myCampaigns = async (req, res) => {
   try {
-    const campaigns = await Campaign.find({
-      createdBy: req.user._id 
-    }).sort({ createdAt: -1 });
+    const campaigns = await Campaign.find({ createdBy: req.user._id })
+      .sort({ createdAt: -1 });
 
     res.render('volunteer/campaigns/myCampaigns', {
       user: req.user,
@@ -130,44 +128,131 @@ exports.myCampaigns = async (req, res) => {
 };
 
 
-// ================= JOIN CAMPAIGN =================
-exports.joinCampaign = async (req, res) => {
+// ================= JOIN PAGE =================
+exports.joinPage = async (req, res) => {
   try {
-
     const campaign = await Campaign.findById(req.params.id);
 
     if (!campaign) {
-      return res.send("Campaign not found");
+      setMessage(req, "error", "Campaign not found");
+      return res.redirect('/campaigns/live');
     }
 
-    // prevent joining completed campaign
-    if (campaign.status === "completed") {
-      return res.send("Campaign already completed");
+    let existingApplication = null;
+
+    if (req.user) {
+      existingApplication = await Application.findOne({
+        user: req.user._id,
+        campaign: campaign._id
+      });
     }
 
-    // prevent duplicate joining
-    if (!campaign.volunteers.includes(req.user._id)) {
-
-      campaign.volunteers.push(req.user._id);
-
-      await campaign.save();
-
-      //AUTO COMPLETION CHECK
-      await checkAndCompleteCampaign(campaign._id);
-    }
-
-    res.redirect('/campaigns/' + campaign._id);
+    return res.render("volunteer/campaigns/join", {
+      campaign,
+      user: req.user,
+      existingApplication,
+      message: null
+    });
 
   } catch (err) {
-
     console.error(err);
-
-    res.status(500).send('Error joining campaign');
+    return res.status(500).send("Error loading join page");
   }
 };
 
 
-// ____________________EDIT PAGE 
+// ================= JOIN CAMPAIGN =================
+exports.joinCampaign = async (req, res) => {
+  try {
+
+    if (!req.user) return res.redirect('/auth/login');
+
+    const campaign = await Campaign.findById(req.params.id);
+
+    if (!campaign) {
+      return res.render("volunteer/campaigns/join", {
+        campaign: null,
+        message: { type: "error", text: "Campaign not found" },
+        existingApplication: null
+      });
+    }
+
+    if (campaign.status !== "active" && campaign.status !== "approved") {
+      return res.render("volunteer/campaigns/join", {
+        campaign,
+        message: { type: "error", text: "This campaign is not open for joining" },
+        existingApplication: null
+      });
+    }
+
+    const existing = await Application.findOne({
+      user: req.user._id,
+      campaign: campaign._id
+    });
+
+    if (existing) {
+      return res.render("volunteer/campaigns/join", {
+        campaign,
+        message: {
+          type: "error",
+          text: "You have already applied for this campaign."
+        },
+        existingApplication: existing
+      });
+    }
+
+    const phone = req.body.phone?.trim();
+    const message = req.body.message?.trim();
+    const skills = req.body.skills;
+    const availability = req.body.availability;
+
+    const phoneRegex = /^03\d{9}$/;
+
+    if (!message || !phone || !skills) {
+      return res.render("volunteer/campaigns/join", {
+        campaign,
+        message: { type: "error", text: "All required fields must be filled." },
+        existingApplication: null
+      });
+    }
+
+    if (!phoneRegex.test(phone)) {
+      return res.render("volunteer/campaigns/join", {
+        campaign,
+        message: { type: "error", text: "Invalid phone number format. Use 03XXXXXXXXX" },
+        existingApplication: null
+      });
+    }
+
+    await Application.create({
+      user: req.user._id,
+      campaign: campaign._id,
+      message,
+      phone,
+      availability,
+      skills,
+      status: "pending"
+    });
+
+    // 🔥 SAFE COMPLETION CHECK HOOK (NO LOGIC CHANGE)
+    await checkAndCompleteCampaign(campaign._id);
+
+    setMessage(req, "success", "Application submitted successfully and is pending approval");
+
+    return res.redirect('/campaigns/live');
+
+  } catch (err) {
+    console.error(err);
+    return res.render("volunteer/campaigns/join", {
+      campaign: null,
+      message: { type: "error", text: "Something went wrong while applying" },
+      existingApplication: null
+    });
+  }
+};
+
+
+// ================= EDIT PAGE =================
 exports.editPage = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id);
@@ -181,15 +266,12 @@ exports.editPage = async (req, res) => {
       return res.status(403).send("Not authorized");
     }
 
-    // allow edit for draft + rejected only
-    if (campaign.status !== "draft" && campaign.status !== "rejected") {
+    if (!["draft", "rejected"].includes(campaign.status)) {
       setMessage(req, "error", "You cannot edit this campaign");
       return res.redirect('/volunteer/campaigns/my');
     }
 
-    return res.render('volunteer/campaigns/edit', {
-      campaign
-    });
+    return res.render('volunteer/campaigns/edit', { campaign });
 
   } catch (err) {
     console.error(err);
@@ -199,11 +281,9 @@ exports.editPage = async (req, res) => {
 };
 
 
-
-// update Campaign
+// ================= UPDATE CAMPAIGN =================
 exports.updateCampaign = async (req, res) => {
   try {
-
     const campaign = await Campaign.findById(req.params.id);
 
     if (!campaign) {
@@ -222,14 +302,12 @@ exports.updateCampaign = async (req, res) => {
       return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
     }
 
-    // urgency validation
     const allowedUrgency = ['low', 'medium', 'high', 'emergency'];
     if (urgency && !allowedUrgency.includes(urgency)) {
       setMessage(req, "error", "Invalid urgency value");
       return res.redirect('back');
     }
 
-    // prevent useless update (NOW FULLY FIXED)
     const noChange =
       campaign.name === name &&
       campaign.description === description &&
@@ -244,11 +322,9 @@ exports.updateCampaign = async (req, res) => {
       return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
     }
 
-    // update fields
     campaign.name = name;
     campaign.description = description;
     campaign.goal = Number(goal);
-
     campaign.requiredVolunteers = Number(requiredVolunteers) || 0;
     campaign.location = location || "";
     campaign.urgency = urgency || campaign.urgency;
@@ -257,7 +333,6 @@ exports.updateCampaign = async (req, res) => {
       campaign.image = `/uploads/${req.file.filename}`;
     }
 
-    // resubmit logic
     if (campaign.status === "rejected") {
       campaign.status = "pending";
       campaign.rejectionReason = "";
@@ -276,14 +351,13 @@ exports.updateCampaign = async (req, res) => {
   }
 };
 
-// Post updates inside campaign timeline
+
+// ================= ADD UPDATE =================
 exports.addUpdate = async (req, res) => {
   try {
     const campaign = await Campaign.findById(req.params.id);
 
-    if (!campaign) {
-      return res.status(404).send("Campaign not found");
-    }
+    if (!campaign) return res.status(404).send("Campaign not found");
 
     if (campaign.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).send("Not authorized");
@@ -291,13 +365,9 @@ exports.addUpdate = async (req, res) => {
 
     const text = req.body.text?.trim();
 
-    if (!text) {
-      return res.status(400).send("Update text is required");
-    }
+    if (!text) return res.status(400).send("Update text is required");
 
-    if (!campaign.updates) {
-      campaign.updates = [];
-    }
+    campaign.updates = campaign.updates || [];
 
     campaign.updates.push({
       text,
