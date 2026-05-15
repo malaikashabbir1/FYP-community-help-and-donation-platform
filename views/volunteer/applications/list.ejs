@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My Applications</title>
+
+  <link rel="stylesheet" href="/css/output.css">
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%- include('../../partials/navbar') %>
+
+<main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+
+  <!-- HEADER -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">
+      My Applications
+    </h1>
+
+    <p class="text-gray-500 text-sm">
+      Track all your volunteer applications
+    </p>
+  </div>
+
+  <!-- FLASH MESSAGE -->
+  <% if (message) { %>
+
+    <div id="alertBox"
+      class="mb-6 px-4 py-3 rounded-lg shadow flex justify-between items-center
+      <%= message.type === 'success'
+        ? 'bg-green-100 text-green-700 border border-green-300'
+        : 'bg-red-100 text-red-700 border border-red-300' %>">
+
+      <span class="text-sm font-medium">
+        <%= message.text %>
+      </span>
+
+      <button
+        onclick="document.getElementById('alertBox').remove()"
+        class="font-bold text-lg px-2">
+
+        &times;
+
+      </button>
+
+    </div>
+
+  <% } %>
+
+  <!-- EMPTY STATE -->
+  <% if (applications.length === 0) { %>
+
+    <div class="bg-white rounded-xl shadow p-10 text-center">
+
+      <div class="mb-4">
+        <i class="fas fa-folder-open text-5xl text-gray-300"></i>
+      </div>
+
+      <h2 class="text-2xl font-bold text-gray-700">
+        No Applications Yet
+      </h2>
+
+      <p class="text-gray-500 mt-2">
+        You haven't applied to any campaigns yet.
+      </p>
+
+      <a href="/campaigns/live"
+        class="inline-block mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold">
+
+        Browse Campaigns
+
+      </a>
+
+    </div>
+
+  <% } else { %>
+
+    <!-- APPLICATION LIST -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <% applications.forEach(app => { %>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+
+          <!-- BODY -->
+          <div class="p-5">
+
+            <!-- TOP -->
+            <div class="flex items-start justify-between gap-4">
+
+              <div>
+
+                <h2 class="text-xl font-bold text-gray-800">
+                  <%= app.campaign?.name || 'Campaign Deleted' %>
+                </h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                  Applied on
+                  <%= new Date(app.createdAt).toDateString() %>
+                </p>
+
+              </div>
+
+              <!-- STATUS -->
+              <div>
+
+                <% if (app.status === 'approved') { %>
+
+                  <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                    Approved
+                  </span>
+
+                <% } else if (app.status === 'rejected') { %>
+
+                  <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                    Rejected
+                  </span>
+
+                <% } else { %>
+
+                  <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold">
+                    Pending
+                  </span>
+
+                <% } %>
+
+              </div>
+
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="mt-4">
+
+              <p class="text-sm text-gray-600 line-clamp-3">
+                <%= app.campaign?.description || 'No description available.' %>
+              </p>
+
+            </div>
+
+            <!-- INFO -->
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+
+              <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
+                Goal: Rs <%= app.campaign?.goal || 0 %>
+              </div>
+
+              <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg">
+                Required Volunteers:
+                <%= app.campaign?.requiredVolunteers || 0 %>
+              </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-5">
+
+              <a href="/campaigns/<%= app.campaign?._id %>"
+                class="w-full block text-center bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold">
+
+                <i class="fas fa-eye"></i>
+                View Campaign
+
+              </a>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+
+  <% } %>
+
+</main>
+
+<%- include('../../partials/footer') %>
+
+<script>
+
+  // auto hide flash
+  setTimeout(() => {
+
+    const alertBox = document.getElementById('alertBox');
+
+    if (alertBox) {
+
+      alertBox.style.transition = "opacity 0.5s ease";
+      alertBox.style.opacity = "0";
+
+      setTimeout(() => {
+        alertBox.remove();
+      }, 500);
+
+    }
+
+  }, 3000);
+
+</script>
+
+</body>
+</html>
