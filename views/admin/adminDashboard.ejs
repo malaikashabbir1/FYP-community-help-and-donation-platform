@@ -8,29 +8,28 @@
   <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- ✅ INTER FONT (GLOBAL IMPORT) -->
+  <!-- INTER FONT -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body class="flex flex-col min-h-screen bg-slate-100 font-[Inter]">
 
-<!-- Navbar -->
 <%- include('../partials/navbar') %>
 
 <main class="flex-grow px-6 py-10">
 
 <!-- HEADER -->
 <div class="max-w-7xl mx-auto text-center mb-10">
-  <h1 class="text-3xl font-bold text-slate-900 font-[Inter]">
+  <h1 class="text-3xl font-bold text-slate-900">
     Admin Dashboard
   </h1>
 
-  <p class="text-slate-600 mt-1 font-[Inter]">
-    Welcome, <span class="font-semibold text-slate-800"><%= user.name %></span>
+  <p class="text-slate-600 mt-1">
+    Welcome, <span class="font-semibold text-slate-800"><%= user?.name || "Admin" %></span>
   </p>
 </div>
 
-<!-- ================= USER OVERVIEW ================= -->
+<!-- USER OVERVIEW -->
 <div class="max-w-7xl mx-auto mb-10 bg-slate-50/80 backdrop-blur rounded-2xl shadow-md p-6 border border-slate-200">
 
   <h2 class="text-xl font-bold text-slate-900 mb-5">User Overview</h2>
@@ -40,7 +39,7 @@
     <div class="bg-blue-100/70 border-l-4 border-blue-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Total Users</p>
-        <p class="text-2xl font-bold text-blue-700"><%= totalUsers %></p>
+        <p class="text-2xl font-bold text-blue-700"><%= totalUsers || 0 %></p>
       </div>
       <i class="fas fa-users text-2xl text-blue-600"></i>
     </div>
@@ -48,7 +47,7 @@
     <div class="bg-green-100/70 border-l-4 border-green-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Donors</p>
-        <p class="text-2xl font-bold text-green-700"><%= donors %></p>
+        <p class="text-2xl font-bold text-green-700"><%= donors || 0 %></p>
       </div>
       <i class="fas fa-hand-holding-heart text-2xl text-green-600"></i>
     </div>
@@ -56,7 +55,7 @@
     <div class="bg-purple-100/70 border-l-4 border-purple-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Volunteers</p>
-        <p class="text-2xl font-bold text-purple-700"><%= volunteers %></p>
+        <p class="text-2xl font-bold text-purple-700"><%= volunteers || 0 %></p>
       </div>
       <i class="fas fa-user-friends text-2xl text-purple-600"></i>
     </div>
@@ -64,7 +63,7 @@
   </div>
 </div>
 
-<!-- ================= CAMPAIGN OVERVIEW ================= -->
+<!-- CAMPAIGN OVERVIEW -->
 <div class="max-w-7xl mx-auto mb-10 bg-slate-50/80 backdrop-blur rounded-2xl shadow-md p-6 border border-slate-200">
 
   <h2 class="text-xl font-bold text-slate-900 mb-5">Campaign Overview</h2>
@@ -74,7 +73,7 @@
     <div class="bg-slate-200/70 border-l-4 border-slate-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Total Campaigns</p>
-        <p class="text-2xl font-bold text-slate-800"><%= totalCampaigns %></p>
+        <p class="text-2xl font-bold text-slate-800"><%= totalCampaigns || 0 %></p>
       </div>
       <i class="fas fa-bullhorn text-2xl text-slate-600"></i>
     </div>
@@ -82,7 +81,7 @@
     <div class="bg-amber-100/70 border-l-4 border-amber-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Pending</p>
-        <p class="text-2xl font-bold text-amber-700"><%= pendingCampaigns %></p>
+        <p class="text-2xl font-bold text-amber-700"><%= pendingCampaigns || 0 %></p>
       </div>
       <i class="fas fa-pencil-alt text-2xl text-amber-600"></i>
     </div>
@@ -90,7 +89,7 @@
     <div class="bg-blue-100/70 border-l-4 border-blue-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Active</p>
-        <p class="text-2xl font-bold text-blue-700"><%= activeCampaigns %></p>
+        <p class="text-2xl font-bold text-blue-700"><%= activeCampaigns || 0 %></p>
       </div>
       <i class="fas fa-bolt text-2xl text-blue-600"></i>
     </div>
@@ -98,7 +97,7 @@
     <div class="bg-emerald-100/70 border-l-4 border-emerald-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Completed</p>
-        <p class="text-2xl font-bold text-emerald-700"><%= completedCampaigns %></p>
+        <p class="text-2xl font-bold text-emerald-700"><%= completedCampaigns || 0 %></p>
       </div>
       <i class="fas fa-check-circle text-2xl text-emerald-600"></i>
     </div>
@@ -106,7 +105,7 @@
     <div class="bg-red-100/70 border-l-4 border-red-600 rounded-xl p-6 flex justify-between">
       <div>
         <p class="text-sm text-slate-600">Rejected</p>
-        <p class="text-2xl font-bold text-red-700"><%= rejectedCampaigns %></p>
+        <p class="text-2xl font-bold text-red-700"><%= rejectedCampaigns || 0 %></p>
       </div>
       <i class="fas fa-times-circle text-2xl text-red-600"></i>
     </div>
@@ -114,21 +113,38 @@
   </div>
 </div>
 
-<!-- ================= QUICK ACTIONS ================= -->
+<!-- QUICK ACTIONS -->
 <div class="max-w-7xl mx-auto bg-slate-50 rounded-2xl shadow-md p-8 mb-10 border border-slate-200">
 
   <h2 class="text-lg font-bold text-slate-800 mb-6">Quick Actions</h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
 
-    <a href="/admin/users" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center shadow-md">
+    <a href="/admin/users"
+       class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-users text-2xl"></i>
       <p class="mt-2 font-semibold">Manage Users</p>
     </a>
 
-    <a href="/admin/donations" class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 text-center shadow-md">
+    <a href="/admin/donations"
+       class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-hand-holding-heart text-2xl"></i>
       <p class="mt-2 font-semibold">Donations</p>
+    </a>
+
+    <!-- ✅ VOLUNTEER APPLICATIONS (WITH COUNTER) -->
+    <a href="/admin/applications"
+       class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl p-6 text-center shadow-md relative">
+
+      <i class="fas fa-user-check text-2xl"></i>
+      <p class="mt-2 font-semibold">Volunteer Applications</p>
+
+      <% if (pendingApplications > 0) { %>
+        <span class="absolute top-2 right-2 bg-white text-indigo-600 px-2 py-0.5 rounded-full text-xs font-bold">
+          <%= pendingApplications %>
+        </span>
+      <% } %>
+
     </a>
 
     <a href="/admin/campaigns?status=pending"
@@ -137,16 +153,16 @@
       <i class="fas fa-clock text-2xl"></i>
       <p class="mt-2 font-semibold">Pending Approvals</p>
 
-      <!-- BADGE (positioned top-right like real dashboards) -->
       <% if (pendingCampaigns > 0) { %>
-        <span class = "bg-white text-purple-600 px-2 py-0.5 rounded-full text-xs font-bold">
+        <span class="absolute top-2 right-2 bg-white text-purple-600 px-2 py-0.5 rounded-full text-xs font-bold">
           <%= pendingCampaigns %>
         </span>
       <% } %>
 
     </a>
 
-    <a href="/admin/campaigns" class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center shadow-md">
+    <a href="/admin/campaigns"
+       class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-bullhorn text-2xl"></i>
       <p class="mt-2 font-semibold">Campaigns</p>
     </a>
@@ -159,7 +175,7 @@
 
   <h2 class="text-lg font-bold text-slate-800 mb-4">Recent Registrations</h2>
 
-  <% if(recentUsers.length === 0){ %>
+  <% if (!recentUsers || recentUsers.length === 0) { %>
     <p class="text-slate-500">No recent registrations.</p>
   <% } else { %>
 
@@ -169,17 +185,17 @@
         <li class="py-3 flex justify-between items-center hover:bg-slate-100 px-2 rounded transition">
 
           <div>
-            <p class="text-slate-800 font-medium"><%= user.name %></p>
+            <p class="text-slate-800 font-medium"><%= user.name || "Unknown" %></p>
             <p class="text-sm text-slate-600">
               Registered as
               <span class="px-2 py-1 text-xs rounded <%= user.role === 'donor' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700' %>">
-                <%= user.role %>
+                <%= user.role || "-" %>
               </span>
             </p>
           </div>
 
           <div class="text-sm text-slate-500">
-            <%= new Date(user.createdAt).toLocaleString() %>
+            <%= user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A" %>
           </div>
 
         </li>
@@ -195,13 +211,11 @@
 
 <%- include('../partials/footer') %>
 
-<!-- FLOATING ACTION BUTTONS -->
+<!-- FLOATING BUTTON -->
 <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
 
-  <!-- Donation Analytics -->
   <a href="/admin/donations/summary"
-     class="bg-indigo-600 text-white px-6 py-4 rounded-full shadow-lg 
-            flex items-center gap-2 hover:bg-indigo-700 transition cta-pulse">
+     class="bg-indigo-600 text-white px-6 py-4 rounded-full shadow-lg flex items-center gap-2 hover:bg-indigo-700 transition cta-pulse">
 
     <i class="fas fa-chart-pie"></i>
     <span class="hidden sm:inline font-semibold">Donation Analytics</span>
@@ -212,19 +226,10 @@
 
 <style>
 @keyframes softPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.2);
-  }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px 5px rgba(34, 197, 94, 0.2); }
 }
-
-.cta-pulse {
-  animation: softPulse 2.5s infinite;
-}
+.cta-pulse { animation: softPulse 2.5s infinite; }
 </style>
 
 </body>
