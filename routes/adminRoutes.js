@@ -14,15 +14,18 @@ const adminApplicationController =  require('../controllers/adminApplicationCont
 const authenticateToken = require('../middlewares/authenticateToken');
 const authorizeRole = require('../middlewares/authorizeRole');
 
+
+router.use(authenticateToken);
+router.use(authorizeRole('admin'));
+
 // Admin Dashboard route
 router.get( '/dashboard',
-  authenticateToken,        // Check if user is logged in
-  authorizeRole('admin'),   // Check if role is admin
   adminController.getAdminDashboard
 );
 
+
 // GET recent activity JSON
-router.get('/recent-activity-json', authenticateToken, authorizeRole('admin'), async (req, res) => {
+router.get('/recent-activity-json',  async (req, res) => {
   const recentActivity = await ActivityLog.find()
     .sort({ createdAt: -1 })
     .limit(10)
@@ -35,46 +38,34 @@ router.get('/recent-activity-json', authenticateToken, authorizeRole('admin'), a
 // Show all campaigns
 router.get(
   '/campaigns',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.getAllCampaigns
 );
 
 // Review Campaign 
 router.get(
   '/campaigns/:id/review',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.reviewPage
 );
 
 // delete the campaign
 router.post(
   '/campaigns/:id/delete',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.deleteCampaign
 );
 
 // approve campaign
 router.post('/campaigns/:id/approve',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.approveCampaign
 );
 
 // complete campaign
 router.post('/campaigns/:id/complete',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.completeCampaign
 );
 
 // reject campaign
 router.post(
   '/campaigns/:id/reject',
-  authenticateToken,
-  authorizeRole('admin'),
   adminCampaignController.rejectCampaign
 );
 
@@ -89,23 +80,17 @@ router.get('/campaigns/completed', campaignController.completedCampaigns);
 // ______________ Quick Action Donations _________________
 router.get(
   '/donations',
-  authenticateToken,
-  authorizeRole('admin'),
   adminDonationController.getAllDonations
 );
 
 // _________ summary  ___________
 router.get(
   '/donations/summary',
-  authenticateToken,
-  authorizeRole('admin'),
   adminDonationController.getDonationSummary
 );
 
 router.get(
   '/donations/:id',
-  authenticateToken,
-  authorizeRole('admin'),
   adminDonationController.getDonationDetails
 );
  
@@ -125,6 +110,17 @@ router.post('/applications/approve/:id', adminApplicationController.approveAppli
 // reject application
 router.post('/applications/reject/:id', adminApplicationController.rejectApplication);
 
+
+// ___________________________ Frauds __________________
+router.get(
+  "/fraud-alerts",
+  adminController.getFraudAlerts
+);
+
+
+router.post("/fraud/batch-scan", async (req, res) => {
+    await adminController.runFraudScan(req, res);
+});
 
 
 router.get('/users/toggle/:id', adminController.toggleUserStatus);
