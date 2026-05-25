@@ -10,6 +10,8 @@ const donorRoutes = require('./routes/donorRoutes');
 const volunteerRoutes = require('./routes/volunteerRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const notificationRoutes = require("./routes/notificationRoutes");
+
 
 
 const path = require('path');
@@ -108,6 +110,7 @@ app.use('/donor', donorRoutes);
 app.use('/volunteer', volunteerRoutes);
 app.use('/campaigns', campaignRoutes);
 app.use('/profile', profileRoutes);
+app.use("/notifications", notificationRoutes);
 
 
 // ___________Coming-Soon Functionality _____________
