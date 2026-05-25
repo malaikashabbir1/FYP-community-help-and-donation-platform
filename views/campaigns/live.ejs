@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Campaigns</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
 
   <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -37,8 +38,112 @@
     </div>
   <% } %>
 
-  <!-- GRID -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- RECOMMENDED -->
+  <% if (recommended && recommended.length > 0) { %>
+
+  <div class="mb-10">
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+        <i class="fas fa-star text-green-600"></i>
+        Recommended for You
+      </h2>
+
+      <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+        Personalized
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <% recommended.forEach(c => { %>
+
+        <div class="bg-white border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+
+          <div class="flex items-start justify-between">
+            <h3 class="font-bold text-gray-800 line-clamp-1 pr-2">
+              <%= c.name %>
+            </h3>
+
+            <i class="fas fa-thumbs-up text-green-500"></i>
+          </div>
+
+          <p class="text-sm text-gray-600 line-clamp-2 mt-2">
+            <%= c.description %>
+          </p>
+
+          <% if (c.category) { %>
+            <p class="text-xs text-green-600 mt-3 flex items-center gap-1">
+              <i class="fas fa-tag"></i>
+              <%= c.category %>
+            </p>
+          <% } %>
+
+          <a href="/campaigns/<%= c._id %>"
+             class="mt-4 inline-block w-full text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium">
+            <i class="fas fa-eye mr-1"></i> View Campaign
+          </a>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+  </div>
+
+  <% } %>
+
+  <!-- TRENDING -->
+  <% if (trending && trending.length > 0) { %>
+
+  <div class="mb-10">
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-orange-600 flex items-center gap-2">
+        <i class="fas fa-chart-line text-orange-500"></i>
+        Trending Campaigns
+      </h2>
+
+      <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">
+        Hot Right Now
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <% trending.forEach(c => { %>
+
+        <div class="bg-white border border-orange-200 rounded-xl p-5 shadow-sm hover:shadow-md transition relative">
+
+          <span class="absolute top-3 right-3 text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full flex items-center gap-1">
+            <i class="fas fa-fire"></i>
+            Trending
+          </span>
+
+          <h3 class="font-bold text-gray-800 line-clamp-1 pr-6">
+            <%= c.name %>
+          </h3>
+
+          <p class="text-sm text-gray-600 line-clamp-2 mt-2">
+            <%= c.description %>
+          </p>
+
+          <a href="/campaigns/<%= c._id %>"
+             class="mt-4 inline-block w-full text-center bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium">
+            <i class="fas fa-arrow-right mr-1"></i> Explore
+          </a>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+  </div>
+
+  <% } %>
+
+  <!-- MAIN GRID (UNCHANGED) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
     <% campaigns.forEach(c => { %>
 
@@ -59,7 +164,6 @@
 
       <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full">
 
-        <!-- IMAGE -->
         <div class="h-48 bg-gray-100">
           <% if (c.image) { %>
             <img src="<%= c.image %>" class="w-full h-full object-cover">
@@ -70,7 +174,6 @@
           <% } %>
         </div>
 
-        <!-- BODY -->
         <div class="p-5 flex flex-col flex-1">
 
           <h2 class="text-lg font-bold text-gray-800 line-clamp-2 min-h-[48px]">
@@ -81,7 +184,16 @@
             <%= c.description %>
           </p>
 
-          <!-- INFO -->
+          <% if (c.category) { %>
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-tag text-indigo-500"></i>
+              Category:
+              <%= c.category
+                .replaceAll('_',' ')
+                .replace(/\b\w/g, l => l.toUpperCase()) %>
+            </p>
+          <% } %>
+
           <div class="mt-3 text-sm text-gray-600 space-y-1">
 
             <p>
@@ -103,7 +215,6 @@
 
           <div class="flex-1"></div>
 
-          <!-- STATUS -->
           <div class="mt-3">
 
             <% if (c.status === 'active') { %>
@@ -126,7 +237,6 @@
 
           </div>
 
-          <!-- ACTIONS -->
           <div class="mt-6 space-y-3 pt-4">
 
             <a href="/campaigns/<%= c._id %>"
@@ -163,10 +273,20 @@
 
               <% } else { %>
 
-                <a href="/volunteer/campaigns/<%= c._id %>/join"
-                  class="w-full block text-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
-                  <i class="fas fa-user-plus"></i> Join Field Work
-                </a>
+                <% if (isFull) { %>
+
+                  <div class="w-full text-center bg-red-100 text-red-700 py-3 rounded-lg font-semibold">
+                    <i class="fas fa-ban"></i> No more volunteers required
+                  </div>
+
+                <% } else { %>
+
+                  <a href="/volunteer/campaigns/<%= c._id %>/join"
+                    class="w-full block text-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+                    <i class="fas fa-user-plus"></i> Join Field Work
+                  </a>
+
+                <% } %>
 
               <% } %>
 
