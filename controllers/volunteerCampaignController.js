@@ -1,11 +1,17 @@
 const Campaign = require('../models/campaign');
 const Application = require('../models/application');
+const FraudAlert = require("../models/fraudAlert");
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const logActivity = require('../utils/logActivity');
+const fraudService = require("../services/fraudDetectionService");
 const { checkAndCompleteCampaign } = require('../services/campaignService');
 
-// Notification Messages
+// 🔔 FIXED IMPORT (IMPORTANT)
+const { notifyAdmin, notifyUser } = require('../utils/notify');
+
+// ================= FLASH MESSAGE =================
 const setMessage = (req, type, text) => {
   req.session.message = { type, text };
 };
@@ -15,11 +21,19 @@ exports.createPage = (req, res) => {
   res.render('volunteer/campaigns/create');
 };
 
-
 // ================= CREATE CAMPAIGN =================
 exports.createCampaign = async (req, res) => {
   try {
-    const { name, description, goal, requiredVolunteers, location, urgency } = req.body;
+    const {
+      name,
+      description,
+      goal,
+      requiredVolunteers,
+      location,
+      urgency,
+      category,
+      subCategory
+    } = req.body;
 
     if (!req.user) return res.redirect('/auth/login');
 
@@ -27,7 +41,15 @@ exports.createCampaign = async (req, res) => {
       return res.status(403).send('Only volunteers can create campaigns');
     }
 
-    if (!name || !description || !goal || !requiredVolunteers || !location) {
+    if (
+      !name ||
+      !description ||
+      !goal ||
+      !requiredVolunteers ||
+      !location ||
+      !category ||
+      !subCategory
+    ) {
       setMessage(req, "error", "All required fields must be filled");
       return res.redirect('/volunteer/campaigns/create');
     }
@@ -56,17 +78,27 @@ exports.createCampaign = async (req, res) => {
       return res.redirect('/volunteer/campaigns/create');
     }
 
-    await Campaign.create({
+    const campaign = await Campaign.create({
       name,
       description,
       goal: goalNum,
       requiredVolunteers: volNum,
       location,
       urgency: urgency || "medium",
+      category,
+      subCategory,
       image: `/uploads/${req.file.filename}`,
       status: 'draft',
       createdBy: req.user._id
     });
+
+    // 🔔 FIXED
+    await notifyUser(
+      req.user._id,
+      `Campaign "${campaign.name}" created successfully`,
+      "/volunteer/campaigns/my",
+      "success"
+    );
 
     return res.redirect('/volunteer/campaigns/my');
 
@@ -75,7 +107,6 @@ exports.createCampaign = async (req, res) => {
     return res.status(500).send('Error creating campaign');
   }
 };
-
 
 // ================= SUBMIT FOR APPROVAL =================
 exports.submitForApproval = async (req, res) => {
@@ -99,6 +130,19 @@ exports.submitForApproval = async (req, res) => {
     campaign.status = 'pending';
     await campaign.save();
 
+    // 🔔 FIXED (ADMIN NOTIFICATION + USER NOTIFICATION)
+    await notifyAdmin(
+      `New campaign submitted: ${campaign.name}`,
+      `/admin/campaigns/${campaign._id}/review`
+    );
+
+    await notifyUser(
+      req.user._id,
+      `Campaign "${campaign.name}"submitted for approval`,
+      "/volunteer/campaigns/my",
+      "info"
+    );
+
     setMessage(req, "success", "Campaign submitted for approval");
     return res.redirect('/volunteer/campaigns/my');
 
@@ -109,16 +153,30 @@ exports.submitForApproval = async (req, res) => {
   }
 };
 
-
 // ================= MY CAMPAIGNS =================
 exports.myCampaigns = async (req, res) => {
   try {
     const campaigns = await Campaign.find({ createdBy: req.user._id })
       .sort({ createdAt: -1 });
 
+    const campaignIds = campaigns.map(c => c._id);
+
+    const approvedApplications = await Application.find({
+      campaign: { $in: campaignIds },
+      status: "approved"
+    }).lean();
+
+    const approvedCountMap = {};
+
+    approvedApplications.forEach(app => {
+      const id = app.campaign.toString();
+      approvedCountMap[id] = (approvedCountMap[id] || 0) + 1;
+    });
+
     res.render('volunteer/campaigns/myCampaigns', {
       user: req.user,
-      campaigns
+      campaigns,
+      approvedCountMap
     });
 
   } catch (err) {
@@ -126,7 +184,6 @@ exports.myCampaigns = async (req, res) => {
     res.status(500).send('Error loading campaigns');
   }
 };
-
 
 // ================= JOIN PAGE =================
 exports.joinPage = async (req, res) => {
@@ -160,11 +217,9 @@ exports.joinPage = async (req, res) => {
   }
 };
 
-
 // ================= JOIN CAMPAIGN =================
 exports.joinCampaign = async (req, res) => {
   try {
-
     if (!req.user) return res.redirect('/auth/login');
 
     const campaign = await Campaign.findById(req.params.id);
@@ -224,7 +279,7 @@ exports.joinCampaign = async (req, res) => {
       });
     }
 
-    await Application.create({
+    const application = await Application.create({
       user: req.user._id,
       campaign: campaign._id,
       message,
@@ -234,8 +289,64 @@ exports.joinCampaign = async (req, res) => {
       status: "pending"
     });
 
-    // 🔥 SAFE COMPLETION CHECK HOOK (NO LOGIC CHANGE)
+    
+// ================= FRAUD DETECTION (POST-SUBMISSION) =================
+
+const fraudResult = await fraudService.detectFraud(
+  req.user._id,
+  campaign._id,
+  0   // no donation amount for applications
+);
+
+// ================= SAVE FRAUD ALERT =================
+
+if (fraudResult.flags && fraudResult.flags.length > 0) {
+
+  await FraudAlert.create({
+    user: req.user._id,
+    campaign: campaign._id,
+    type: "excessive_applications",
+    message: fraudResult.flags.join(", "),
+    severity: fraudResult.isFraud ? 70 : 30,
+    source: "realtime", 
+    createdAt: new Date()
+  });
+
+}
+
+// ================= ADMIN NOTIFICATION (optional upgrade) =================
+
+if (fraudResult.isFraud) {
+
+  await notifyAdmin(
+    ` Suspicious volunteer application detected from ${req.user.name} for "${campaign.name}"`,
+    `/admin/applications/${application._id}`
+  );
+
+}
+    await logActivity({
+      type: "application",
+      refId: application._id,
+      userId: req.user._id,
+      description:  `${req.user.name} applied for "${campaign.name}" (pending approval)`
+    });
+
     await checkAndCompleteCampaign(campaign._id);
+
+    // 🔔 Notify Admin
+    await notifyAdmin(
+      `${req.user.name} submitted an application for "${campaign.name}"`,
+      `/admin/applications/${application._id}`,
+      "info"
+    );
+
+    // 🔔 Notify User
+    await notifyUser(
+      req.user._id,
+      `Application for "${campaign.name}" submitted and pending approval`,
+      "/volunteer/applications",
+      "success"
+    );
 
     setMessage(req, "success", "Application submitted successfully and is pending approval");
 
@@ -250,7 +361,6 @@ exports.joinCampaign = async (req, res) => {
     });
   }
 };
-
 
 // ================= EDIT PAGE =================
 exports.editPage = async (req, res) => {
@@ -280,7 +390,6 @@ exports.editPage = async (req, res) => {
   }
 };
 
-
 // ================= UPDATE CAMPAIGN =================
 exports.updateCampaign = async (req, res) => {
   try {
@@ -295,18 +404,15 @@ exports.updateCampaign = async (req, res) => {
       return res.status(403).send("Not authorized");
     }
 
-    const { name, description, goal, requiredVolunteers, location, urgency } = req.body;
-
-    if (!name || !description || !goal) {
-      setMessage(req, "error", "All required fields must be filled");
-      return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
-    }
-
-    const allowedUrgency = ['low', 'medium', 'high', 'emergency'];
-    if (urgency && !allowedUrgency.includes(urgency)) {
-      setMessage(req, "error", "Invalid urgency value");
-      return res.redirect('back');
-    }
+    const {
+      name,
+      description,
+      goal,
+      requiredVolunteers,
+      location,
+      urgency,
+      resubmit
+    } = req.body;
 
     const noChange =
       campaign.name === name &&
@@ -322,6 +428,7 @@ exports.updateCampaign = async (req, res) => {
       return res.redirect(`/volunteer/campaigns/edit/${req.params.id}`);
     }
 
+    // ✅ Update fields
     campaign.name = name;
     campaign.description = description;
     campaign.goal = Number(goal);
@@ -333,7 +440,10 @@ exports.updateCampaign = async (req, res) => {
       campaign.image = `/uploads/${req.file.filename}`;
     }
 
-    if (campaign.status === "rejected") {
+    // ✅ IMPORTANT: handle resubmission
+    const isResubmit = resubmit === "true";
+
+    if (isResubmit && campaign.status === "rejected") {
       campaign.status = "pending";
       campaign.rejectionReason = "";
       campaign.reviewedAt = null;
@@ -341,7 +451,30 @@ exports.updateCampaign = async (req, res) => {
 
     await campaign.save();
 
-    setMessage(req, "success", "Campaign updated successfully");
+    // 🔔 Notifications only if resubmitted
+    if (isResubmit && campaign.status === "pending") {
+      await notifyAdmin(
+        `Campaign resubmitted: ${campaign.name}`,
+        `/admin/campaigns/${campaign._id}/review`,
+        "info"
+      );
+
+      await notifyUser(
+        req.user._id,
+        `Your campaign "${campaign.name}" has been resubmitted`,
+        "/volunteer/campaigns/my",
+        "success"
+      );
+    }
+
+    setMessage(
+      req,
+      "success",
+      isResubmit
+        ? "Campaign updated & resubmitted successfully"
+        : "Campaign updated successfully"
+    );
+
     return res.redirect('/volunteer/campaigns/my');
 
   } catch (err) {
@@ -350,7 +483,6 @@ exports.updateCampaign = async (req, res) => {
     return res.redirect('/volunteer/campaigns/my');
   }
 };
-
 
 // ================= ADD UPDATE =================
 exports.addUpdate = async (req, res) => {
@@ -375,6 +507,14 @@ exports.addUpdate = async (req, res) => {
     });
 
     await campaign.save();
+
+    // 🔔 FIXED
+    await notifyUser(
+      req.user._id,
+      "Campaign update added successfully",
+      `/campaigns/${req.params.id}`,
+      "info"
+    );
 
     return res.redirect('/campaigns/' + req.params.id);
 
