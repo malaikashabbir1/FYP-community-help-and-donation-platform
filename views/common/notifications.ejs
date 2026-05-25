@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/output.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+
+  <!-- NAVBAR (if you use partial) -->
+  <%- include('../partials/navbar') %>
+
+  <div class="max-w-3xl mx-auto mt-10 px-4">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-bell text-yellow-500"></i>
+        Notifications
+      </h1>
+
+      <button type="button"
+        onclick="markAllAsRead()"
+        class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+        Mark all as read
+      </button>
+    </div>
+
+    <!-- NOTIFICATIONS LIST -->
+    <% if (!notifications || notifications.length === 0) { %>
+
+      <div class="bg-white p-6 rounded shadow text-center text-gray-500">
+        No notifications yet
+      </div>
+
+    <% } else { %>
+
+      <div class="space-y-3">
+
+        <% notifications.forEach(n => { %>
+
+          <a href="<%= n.link %>"
+             class="block p-4 rounded transition hover:shadow-md hover:scale-[1.01]
+              <%= n.isRead? 'bg-white shadow':'bg-blue-100 border-l-4 border-blue-600 shadow-md'%>" >
+
+            <div class="flex justify-between items-start">
+
+              <!-- MESSAGE -->
+              <div>
+                <p class="text-gray-800 font-medium">
+                  <%= n.message %>
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">
+                  <%= new Date(n.createdAt).toLocaleString() %>
+                </p>
+              </div>
+
+              <!-- TYPE BADGE -->
+              <div>
+                <% if (n.type === "success") { %>
+                  <span class="text-green-600 text-xs font-bold">SUCCESS</span>
+                <% } else if (n.type === "error") { %>
+                  <span class="text-red-600 text-xs font-bold">ERROR</span>
+                <% } else { %>
+                  <span class="text-blue-600 text-xs font-bold">INFO</span>
+                <% } %>
+              </div>
+
+            </div>
+
+          </a>
+
+        <% }) %>
+
+      </div>
+
+    <% } %>
+
+  </div>
+
+</body>
+</html>
