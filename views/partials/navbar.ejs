@@ -3,25 +3,31 @@
 
     <!-- Logo -->
     <a href="/" class="flex items-center space-x-3">
-      <img src="/images/logo.PNG" alt="HelpingHands Logo" class="w-10 h-10 object-contain rounded-full" />
-      <span class="text-lg sm:text-xl font-bold leading-tight text-emerald-300">
+      <img src="/images/logo.PNG" alt="HelpingHands Logo"
+        class="w-10 h-10 object-contain rounded-full" />
+
+      <span class="text-lg sm:text-xl font-bold text-emerald-300">
         HelpingHands <br class="hidden sm:block">
       </span>
     </a>
 
     <!-- Desktop Menu -->
     <div class="hidden md:flex space-x-6 items-center">
+
       <a href="/<%= user.role %>/dashboard" class="hover:text-gray-200">Dashboard</a>
 
       <% if (user.role === 'admin') { %>
-        <a href="/admin/users" class="hover:text-gray-200">Users</a>
         <a href="/admin/donations" class="hover:text-gray-200">Donations</a>
+        <a href="/admin/applications" class="hover:text-gray-200">Applications</a>
         <a href="/admin/campaigns?status=pending" class="hover:text-gray-200">Requests</a>
         <a href="/admin/campaigns/list" class="hover:text-gray-200">Campaigns</a>
+        <a href="/admin/fraud-alerts" class="hover:text-gray-200">Frauds Alerts</a>
       <% } %>
 
       <% if (user.role === 'donor') { %>
-        <a href="/campaigns/live" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Live Campaigns</a>
+        <a href="/campaigns/live" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">
+          Live Campaigns
+        </a>
         <a href="/donor/my-donations" class="hover:text-gray-200">My Donations</a>
       <% } %>
 
@@ -31,25 +37,57 @@
         <a href="/campaigns/live" class="hover:text-gray-200">Opportunities</a>
       <% } %>
 
-      <a href="/<%= user.role %>/campaigns/completed" class="hover:text-gray-200">Success Stories</a>
+      <a href="/<%= user.role %>/campaigns/completed" class="hover:text-gray-200">
+        Success Stories
+      </a>
+
+      <!-- 🔔 Notification -->
+      <a href="/notifications" class="relative inline-flex items-center">
+
+        <!-- Bell -->
+        <i id="notifBell" class="fas fa-bell text-xl leading-none"></i>
+
+        <!-- Badge -->
+        <span
+          id="notifCount"
+          class="absolute -top-1 -right-1
+                 bg-red-500 text-white text-[10px] font-bold
+                 min-w-[18px] h-[18px] px-[5px]
+                 flex items-center justify-center
+                 rounded-full shadow-md leading-none">
+          0
+        </span>
+
+      </a>
+
       <a href="/profile" class="hover:text-gray-200">Profile</a>
-      <a href="/" class="bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">Home</a>
-      <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">Logout</a>
+
+      <a href="/" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Home</a>
+
+      <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">
+        Logout
+      </a>
+
     </div>
 
     <!-- Mobile Button -->
-    <button id="mobileBtn" class="md:hidden">☰</button>
+    <button id="mobileBtn" class="md:hidden text-2xl">
+      ☰
+    </button>
+
   </div>
 
   <!-- Mobile Menu -->
   <div id="mobileMenu" class="hidden md:hidden bg-blue-500 px-4 py-3 space-y-2">
+
     <a href="/<%= user.role %>/dashboard" class="block">Dashboard</a>
 
     <% if (user.role === 'admin') { %>
-      <a href="/admin/users" class="block">Users</a>
       <a href="/admin/donations" class="block">Donations</a>
       <a href="/admin/campaigns?status=pending" class="block">Requests</a>
-      <a href="/admin/campaigns/list" class="block" >Campaigns</a>
+      <a href="/admin/applications" class="block">Applications</a>
+      <a href="/admin/campaigns/list" class="block">Campaigns</a>
+      <a href="/admin/fraud-alerts" class="block">Frauds Alerts</a>
     <% } %>
 
     <% if (user.role === 'donor') { %>
@@ -63,14 +101,61 @@
       <a href="/campaigns/live" class="block">Opportunities</a>
     <% } %>
 
+    <!-- Mobile Notification -->
+    <a href="/notifications" class="flex items-center gap-2 text-white">
+
+      <i class="fas fa-bell"></i>
+
+      <span>Notifications</span>
+
+      <span
+        id="notifCountMobile"
+        class="bg-red-500 text-white text-xs font-bold
+               min-w-[18px] h-[18px] px-[5px]
+               flex items-center justify-center
+               rounded-full leading-none">
+        0
+      </span>
+
+    </a>
+
     <a href="/profile" class="block">Profile</a>
-    <a href="/" class=" inline-block bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">Home</a>
-    <a href="/auth/logout" class="inline-block bg-emerald-600 px-3 py-2 rounded">Logout</a>
+
+    <a href="/" class="inline-block bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">
+      Home
+    </a>
+
+    <a href="/auth/logout" class="inline-block bg-emerald-600 px-3 py-2 rounded">
+      Logout
+    </a>
+
   </div>
 </nav>
 
+<!-- Mobile Toggle -->
 <script>
-  document.getElementById("mobileBtn").addEventListener("click", () => {
-    document.getElementById("mobileMenu").classList.toggle("hidden");
-  });
+  document.getElementById("mobileBtn")
+    .addEventListener("click", () => {
+      document.getElementById("mobileMenu").classList.toggle("hidden");
+    });
 </script>
+
+<!-- Notification Logic (safe load) -->
+<script defer src="/js/notifications.js"></script>
+
+<!-- Bell animation -->
+<style>
+@keyframes ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(15deg); }
+  30% { transform: rotate(-15deg); }
+  45% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  75% { transform: rotate(5deg); }
+  100% { transform: rotate(0); }
+}
+
+.bell-ring {
+  animation: ring 0.7s ease;
+}
+</style>
