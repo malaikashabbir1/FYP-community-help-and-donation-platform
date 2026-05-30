@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>My Campaigns</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="/css/output.css">
@@ -86,24 +87,49 @@
             <%= c.description %>
           </p>
 
-          <!-- META -->
-          <div class="mt-3 text-xs text-gray-500 space-y-1">
+        <!-- META -->
+<div class="mt-3 text-xs text-gray-500 space-y-1">
 
-            <% if (c.location) { %>
-              <p><i class="fa-solid fa-location-dot mr-1"></i> <%= c.location %></p>
-            <% } %>
+  <% if (c.location) { %>
+    <p>
+      <i class="fa-solid fa-location-dot mr-1"></i>
+      <%= c.location %>
+    </p>
+  <% } %>
 
-            <p><i class="fa-solid fa-bolt mr-1"></i> <%= c.urgency %></p>
+  <!-- CATEGORY (NEW) -->
+  <% if (c.category) { %>
+    <p>
+      <i class="fa-solid fa-tag mr-1"></i>
 
-            <p><i class="fa-solid fa-users mr-1"></i>
-              <%= c.approvedApplications || 0 %> / <%= c.requiredVolunteers || 0 %>
-            </p>
+      <%= c.category
+        .replaceAll('_',' ')
+        .replace(/\b\w/g, l => l.toUpperCase()) %>
 
-            <p><i class="fa-solid fa-calendar mr-1"></i>
-              <%= new Date(c.createdAt).toLocaleDateString() %>
-            </p>
+    </p>
+  <% } %>
 
-          </div>
+  <!-- URGENCY -->
+  <p>
+    <i class="fa-solid fa-bolt mr-1"></i>
+
+    <%= c.urgency.charAt(0).toUpperCase() +
+        c.urgency.slice(1) %> Priority
+
+  </p>
+
+  <p>
+    <i class="fa-solid fa-users mr-1"></i>
+    <%= approvedCountMap[c._id.toString()] || 0 %> /
+    <%= c.requiredVolunteers || 0 %>
+  </p>
+
+  <p>
+    <i class="fa-solid fa-calendar mr-1"></i>
+    <%= new Date(c.createdAt).toLocaleDateString() %>
+  </p>
+
+</div>
 
           <!-- STATUS -->
           <div class="mt-3">

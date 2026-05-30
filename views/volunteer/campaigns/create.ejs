@@ -3,7 +3,9 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Campaign</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
   <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -20,7 +22,7 @@
 
   <div class="bg-white p-4 sm:p-6 rounded-xl shadow">
 
-    <!-- ✅ SIMPLE FLASH MESSAGE -->
+    <!-- FLASH MESSAGE -->
     <% if (message && message.type === 'error') { %>
       <p class="text-red-600 text-sm mb-4 font-medium">
         <%= message.text %>
@@ -66,6 +68,66 @@
         placeholder="Location (e.g. Karachi)"
         class="w-full border p-3 rounded text-sm sm:text-base"
         required>
+
+      <!-- ================= AI LAYER (ADDED) ================= -->
+
+      <!-- CATEGORY -->
+      <select name="category"
+        class="w-full border p-3 rounded text-sm sm:text-base"
+        required>
+
+        <option value="">Select Category</option>
+        <option value="healthcare">Healthcare</option>
+        <option value="education">Education</option>
+        <option value="emergency">Emergency</option>
+        <option value="social">Social</option>
+        <option value="animal_welfare">Animal Welfare</option>
+        <option value="charity">Charity</option>
+
+      </select>
+
+      <!-- SUB CATEGORY -->
+      <select name="subCategory"
+        class="w-full border p-3 rounded text-sm sm:text-base"
+        required>
+
+        <option value="">Select Sub Category</option>
+
+        <!-- Healthcare -->
+        <option value="cancer_treatment">Cancer Treatment</option>
+        <option value="surgery">Surgery</option>
+        <option value="emergency_care">Emergency Care</option>
+        <option value="chronic_illness">Chronic Illness</option>
+        <option value="medical_equipment">Medical Equipment</option>
+
+        <!-- Education -->
+        <option value="scholarship">Scholarship</option>
+        <option value="school_funding">School Funding</option>
+        <option value="skill_training">Skill Training</option>
+
+        <!-- Emergency -->
+        <option value="flood_relief">Flood Relief</option>
+        <option value="earthquake_relief">Earthquake Relief</option>
+        <option value="fire_relief">Fire Relief</option>
+
+        <!-- Social -->
+        <option value="poverty_relief">Poverty Relief</option>
+        <option value="orphan_support">Orphan Support</option>
+        <option value="elderly_care">Elderly Care</option>
+        <option value="clean_water_project">Clean Water Project</option>
+        <option value="clothing_distribution">Clothing Distribution</option>
+        <option value="basic_needs_support">Basic Needs Support</option>
+        <option value="tree_plantation">Tree Plantation</option>
+        <option value="community_development">Community Development</option>
+
+        <!-- Animal -->
+        <option value="animal_rescue">Animal Rescue</option>
+
+        <option value="other">Other</option>
+
+      </select>
+
+      <!-- ================= END AI LAYER ================= -->
 
       <!-- URGENCY -->
       <select name="urgency"

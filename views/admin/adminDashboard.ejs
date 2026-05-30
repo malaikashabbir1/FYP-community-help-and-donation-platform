@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
 
   <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -61,7 +62,7 @@
     </div>
 
   </div>
-</div>
+</div> 
 
 <!-- CAMPAIGN OVERVIEW -->
 <div class="max-w-7xl mx-auto mb-10 bg-slate-50/80 backdrop-blur rounded-2xl shadow-md p-6 border border-slate-200">
@@ -118,7 +119,7 @@
 
   <h2 class="text-lg font-bold text-slate-800 mb-6">Quick Actions</h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
 
     <a href="/admin/users"
        class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center shadow-md">
@@ -161,8 +162,16 @@
 
     </a>
 
+    <a href="/admin/fraud-alerts"
+      class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center shadow-md">
+
+      <i class="fas fa-shield-alt text-2xl"></i>
+      <p class="mt-2 font-semibold">Fraud Alerts</p>
+
+    </a>
+
     <a href="/admin/campaigns"
-       class="bg-red-600 hover:bg-red-700 text-white rounded-xl p-6 text-center shadow-md">
+       class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl p-6 text-center shadow-md">
       <i class="fas fa-bullhorn text-2xl"></i>
       <p class="mt-2 font-semibold">Campaigns</p>
     </a>
@@ -170,38 +179,109 @@
   </div>
 </div>
 
-<!-- RECENT USERS -->
-<div class="max-w-7xl mx-auto bg-slate-50 rounded-2xl shadow-md p-6 border border-slate-200">
+<!-- RECENT ACTIVITY -->
+<div class="max-w-7xl mx-auto mt-10 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-slate-200">
 
-  <h2 class="text-lg font-bold text-slate-800 mb-4">Recent Registrations</h2>
+  <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+    <i class="fas fa-stream text-indigo-600"></i>
+    Recent Activity Logs
+  </h2>
 
-  <% if (!recentUsers || recentUsers.length === 0) { %>
-    <p class="text-slate-500">No recent registrations.</p>
-  <% } else { %>
+  <% if (recentActivity && recentActivity.length > 0) { %>
 
-    <ul class="divide-y divide-slate-200">
+    <div class="space-y-4">
 
-      <% recentUsers.forEach(user => { %>
-        <li class="py-3 flex justify-between items-center hover:bg-slate-100 px-2 rounded transition">
+      <% recentActivity.forEach(log => { 
 
-          <div>
-            <p class="text-slate-800 font-medium"><%= user.name || "Unknown" %></p>
-            <p class="text-sm text-slate-600">
-              Registered as
-              <span class="px-2 py-1 text-xs rounded <%= user.role === 'donor' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700' %>">
-                <%= user.role || "-" %>
-              </span>
-            </p>
+        const rawType = (log.type || '').toString().toLowerCase().trim();
+        let type = rawType;
+
+        if (["user", "donor", "volunteer", "registration"].includes(type)) {
+          type = "registration";
+        }
+
+        let icon = "fas fa-bell";
+        let bg = "bg-slate-500";
+        let badge = "bg-slate-100 text-slate-700";
+
+        if (type === "donation") {
+          icon = "fas fa-hand-holding-heart";
+          bg = "bg-green-500";
+          badge = "bg-green-100 text-green-700";
+        } 
+        else if (type === "application") {
+          icon = "fas fa-user-check";
+          bg = "bg-blue-500";
+          badge = "bg-blue-100 text-blue-700";
+        } 
+        else if (type === "registration") {
+          icon = "fas fa-user-circle";
+          bg = "bg-purple-600";
+          badge = "bg-purple-100 text-purple-700";
+        } 
+        else if (type === "campaign") {
+          icon = "fas fa-bullhorn";
+          bg = "bg-yellow-500";
+          badge = "bg-yellow-100 text-yellow-700";
+        }
+      %>
+
+      <!-- CARD -->
+      <div class="bg-slate-50 hover:bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md">
+
+        <div class="flex flex-col sm:flex-row sm:justify-between gap-4">
+
+          <!-- LEFT SIDE -->
+          <div class="flex items-start gap-4 min-w-0 flex-1">
+
+            <!-- ICON -->
+            <div class="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 flex items-center justify-center rounded-full text-white <%= bg %>">
+              <i class="<%= icon %>"></i>
+            </div>
+
+            <!-- TEXT -->
+            <div class="min-w-0 flex-1">
+
+              <p class="font-medium text-slate-800 break-words leading-relaxed">
+                <%= log.description %>
+              </p>
+
+              <div class="flex flex-wrap items-center gap-2 mt-3">
+
+                <span class="text-xs text-slate-500">
+                  <span class="font-semibold">User:</span>
+                  <%= log.userId?.name || "System" %>
+                </span>
+
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold <%= badge %>">
+                  <%= type %>
+                </span>
+
+              </div>
+
+            </div>
+
           </div>
 
-          <div class="text-sm text-slate-500">
-            <%= user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A" %>
+          <!-- RIGHT SIDE (DATE) -->
+          <div class="text-xs text-slate-400 sm:text-right flex-shrink-0">
+            <%= new Date(log.createdAt).toLocaleString() %>
           </div>
 
-        </li>
+        </div>
+
+      </div>
+
       <% }) %>
 
-    </ul>
+    </div>
+
+  <% } else { %>
+
+    <div class="text-center py-10 text-slate-500">
+      <i class="fa-regular fa-folder-open text-4xl mb-3"></i>
+      <p>No activity logs found</p>
+    </div>
 
   <% } %>
 

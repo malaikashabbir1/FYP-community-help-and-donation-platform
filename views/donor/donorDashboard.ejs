@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Donor Dashboard</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="/css/output.css">
@@ -226,6 +227,9 @@
                     <h3 class="font-bold text-slate-800 text-lg break-words">
                       <%= donation.campaign?.name || 'Campaign' %>
                     </h3>
+                    <p class="text-xs text-slate-400 mt-1">
+                      <%= donation.campaign?.category %> • <%= donation.campaign?.subCategory %>
+                    </p>
 
                     <p class="text-sm text-slate-500 mt-1">
                       Donated on

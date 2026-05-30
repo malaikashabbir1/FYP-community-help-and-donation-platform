@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>Edit Campaign</title>
+  <link rel="icon" type="image/png" href="/images/logo.PNG">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/output.css">
 </head>
@@ -76,11 +78,22 @@
       <!-- REQUIRED VOLUNTEERS -->
       <div>
         <label class="text-sm font-medium text-gray-700">Required Volunteers</label>
-        <input type="number" name="requiredVolunteers"
+        <!-- <input type="number" name="requiredVolunteers"
           value="<%= campaign.requiredVolunteers %>"
           class="w-full border p-3 rounded mt-1"
           min="1"
+          required> -->
+        <input
+          type="number"
+          name="requiredVolunteers"
+          value="<%= campaign.requiredVolunteers || 1 %>"
+          min="1"
+          step="1"
+          inputmode="numeric"
+          onwheel="this.blur()"
+          class="w-full border p-3 rounded mt-1"
           required>
+
       </div>
 
       <!-- LOCATION -->
@@ -91,6 +104,66 @@
           class="w-full border p-3 rounded mt-1"
           required>
       </div>
+
+      <!-- ================= AI LAYER (ADDED) ================= -->
+
+      <!-- CATEGORY -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Category</label>
+
+        <select name="category"
+          class="w-full border p-3 rounded mt-1"
+          required>
+
+          <option value="healthcare" <%= campaign.category === 'healthcare' ? 'selected' : '' %>>Healthcare</option>
+          <option value="education" <%= campaign.category === 'education' ? 'selected' : '' %>>Education</option>
+          <option value="emergency" <%= campaign.category === 'emergency' ? 'selected' : '' %>>Emergency</option>
+          <option value="social" <%= campaign.category === 'social' ? 'selected' : '' %>>Social</option>
+          <option value="animal_welfare" <%= campaign.category === 'animal_welfare' ? 'selected' : '' %>>Animal Welfare</option>
+          <option value="charity" <%= campaign.category === 'charity' ? 'selected' : '' %>>Charity</option>
+
+        </select>
+      </div>
+
+      <!-- SUB CATEGORY -->
+      <div>
+        <label class="text-sm font-medium text-gray-700">Sub Category</label>
+
+        <select name="subCategory"
+          class="w-full border p-3 rounded mt-1"
+          required>
+
+          <option value="cancer_treatment" <%= campaign.subCategory === 'cancer_treatment' ? 'selected' : '' %>>Cancer Treatment</option>
+          <option value="surgery" <%= campaign.subCategory === 'surgery' ? 'selected' : '' %>>Surgery</option>
+          <option value="emergency_care" <%= campaign.subCategory === 'emergency_care' ? 'selected' : '' %>>Emergency Care</option>
+          <option value="chronic_illness" <%= campaign.subCategory === 'chronic_illness' ? 'selected' : '' %>>Chronic Illness</option>
+          <option value="medical_equipment" <%= campaign.subCategory === 'medical_equipment' ? 'selected' : '' %>>Medical Equipment</option>
+
+          <option value="scholarship" <%= campaign.subCategory === 'scholarship' ? 'selected' : '' %>>Scholarship</option>
+          <option value="school_funding" <%= campaign.subCategory === 'school_funding' ? 'selected' : '' %>>School Funding</option>
+          <option value="skill_training" <%= campaign.subCategory === 'skill_training' ? 'selected' : '' %>>Skill Training</option>
+
+          <option value="flood_relief" <%= campaign.subCategory === 'flood_relief' ? 'selected' : '' %>>Flood Relief</option>
+          <option value="earthquake_relief" <%= campaign.subCategory === 'earthquake_relief' ? 'selected' : '' %>>Earthquake Relief</option>
+          <option value="fire_relief" <%= campaign.subCategory === 'fire_relief' ? 'selected' : '' %>>Fire Relief</option>
+
+          <option value="poverty_relief" <%= campaign.subCategory === 'poverty_relief' ? 'selected' : '' %>>Poverty Relief</option>
+          <option value="orphan_support" <%= campaign.subCategory === 'orphan_support' ? 'selected' : '' %>>Orphan Support</option>
+          <option value="elderly_care" <%= campaign.subCategory === 'elderly_care' ? 'selected' : '' %>>Elderly Care</option>
+          <option value="clean_water_project" <%= campaign.subCategory === 'clean_water_project' ? 'selected' : '' %>>Clean Water Project</option>
+          <option value="clothing_distribution" <%= campaign.subCategory === 'clothing_distribution' ? 'selected' : '' %>>Clothing Distribution</option>
+          <option value="basic_needs_support" <%= campaign.subCategory === 'basic_needs_support' ? 'selected' : '' %>>Basic Needs Support</option>
+          <option value="tree_plantation" <%= campaign.subCategory === 'tree_plantation' ? 'selected' : '' %>>Tree Plantation</option>
+          <option value="community_development" <%= campaign.subCategory === 'community_development' ? 'selected' : '' %>>Community Development</option>
+
+          <option value="animal_rescue" <%= campaign.subCategory === 'animal_rescue' ? 'selected' : '' %>>Animal Rescue</option>
+
+          <option value="other" <%= campaign.subCategory === 'other' ? 'selected' : '' %>>Other</option>
+
+        </select>
+      </div>
+
+      <!-- ================= END AI LAYER ================= -->
 
       <!-- URGENCY -->
       <div>
@@ -128,12 +201,15 @@
         </p>
       </div>
 
+
+      <% if (campaign.status === "rejected") { %>
+        <input type="hidden" name="resubmit" value="true">
+      <% } %>
+
       <!-- SUBMIT -->
       <button type="submit"
         class="w-full px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700">
-
         Update Campaign
-
       </button>
 
     </form>
