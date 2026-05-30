@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema({
   isActive: {
   type: Boolean,
   default: true
+  },
+
+  donationCount: {
+  type: Number,
+  default: 0,
+  index: true
   }
 },
    { timestamps: true }); //automatically adds createdAt and updatedAt (date&time)
