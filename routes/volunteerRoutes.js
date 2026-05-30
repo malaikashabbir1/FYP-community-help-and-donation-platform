@@ -2,29 +2,28 @@
 
 const express = require('express');
 const router = express.Router();
+
 const volunteerController = require('../controllers/volunteerController');
 const volunteerCampaignController = require('../controllers/volunteerCampaignController');
-const authenticateToken = require('../middlewares/authenticateToken');
-const authorizeRole = require('../middlewares/authorizeRole');
-const upload = require('../middlewares/upload'); // or your multer config file
-const campaignController = require('../controllers/campaignController');
 const volunteerApplicationController = require('../controllers/volunteerApplicationController');
 
-// Volunteer Dashboard Route
+const authenticateToken = require('../middlewares/authenticateToken');
+const authorizeRole = require('../middlewares/authorizeRole');
+
+const upload = require('../middlewares/upload');
+const campaignController = require('../controllers/campaignController');
+
+
+// ================= DASHBOARD =================
 router.get(
-    '/dashboard',
-    authenticateToken,
-    authorizeRole('volunteer'),
-    volunteerController.getVolunteerDashboard
+  '/dashboard',
+  authenticateToken,
+  authorizeRole('volunteer'),
+  volunteerController.getVolunteerDashboard
 );
 
-// Volunteer Signup / Task Request Route
-router.post(
-    '/signup',
-    authenticateToken,
-    authorizeRole('volunteer')
-);
 
+// ================= CREATE CAMPAIGN =================
 router.get(
   '/campaigns/create',
   authenticateToken,
@@ -40,7 +39,8 @@ router.post(
   volunteerCampaignController.createCampaign
 );
 
-// for getting the list of my campaigns
+
+// ================= MY CAMPAIGNS =================
 router.get(
   '/campaigns/my',
   authenticateToken,
@@ -49,6 +49,7 @@ router.get(
 );
 
 
+// ================= SUBMIT FOR APPROVAL =================
 router.post(
   '/campaigns/:id/submit',
   authenticateToken,
@@ -56,7 +57,8 @@ router.post(
   volunteerCampaignController.submitForApproval
 );
 
-//  Edit Page
+
+// ================= EDIT CAMPAIGN =================
 router.get(
   '/campaigns/edit/:id',
   authenticateToken,
@@ -64,7 +66,6 @@ router.get(
   volunteerCampaignController.editPage
 );
 
-// Update Function
 router.post(
   '/campaigns/edit/:id',
   authenticateToken,
@@ -73,21 +74,17 @@ router.post(
   volunteerCampaignController.updateCampaign
 );
 
-router.get('/campaigns/myCampaigns', (req, res) => {
-  res.send('Route working');
-});
 
-//__________ Nav bar ______________
-router.get('/campaigns/create', volunteerCampaignController.createCampaign);
-router.get('/campaigns/my', volunteerCampaignController.myCampaigns);
-
-
-
-// completed campaigns
-router.get('/campaigns/completed', campaignController.completedCampaigns);
+// ================= COMPLETED CAMPAIGNS =================
+router.get(
+  '/campaigns/completed',
+  authenticateToken,
+  authorizeRole('volunteer'),
+  campaignController.completedCampaigns
+);
 
 
-//_________________________________ JOIN CAMPAIGN ROUTE
+// ================= JOIN CAMPAIGN =================
 router.get(
   '/campaigns/:id/join',
   authenticateToken,
@@ -98,17 +95,18 @@ router.get(
 router.post(
   '/campaigns/:id/join',
   authenticateToken,
+  authorizeRole('volunteer'),
   volunteerCampaignController.joinCampaign
 );
 
-// ____________________ Applications Routes  ________________________
+
+// ================= APPLICATIONS =================
 router.get(
   '/applications',
   authenticateToken,
   authorizeRole('volunteer'),
   volunteerApplicationController.myApplications
 );
-
 
 
 module.exports = router;

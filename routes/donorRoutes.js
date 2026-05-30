@@ -36,8 +36,13 @@ router.post(
 );
 
 // success stories 
-router.get('/campaigns/completed', campaignController.completedCampaigns);
+router.get('/campaigns/completed', authenticateToken, campaignController.completedCampaigns);
 
 // MyDonations
-router.get('/my-donations', donorDonationController.getMyDonations);
+router.get('/my-donations',
+  authenticateToken,
+  authorizeRole('donor'),
+  donorDonationController.getMyDonations);
+
+  
 module.exports = router;
