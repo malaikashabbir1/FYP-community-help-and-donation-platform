@@ -21,23 +21,26 @@ exports.getAllDonations = async (req, res) => {
         .populate('campaign', 'name goal raised')
         .sort({ createdAt: -1 });
 
-      // remove null donors (important fix)
       donations = donations.filter(d => d.donor);
 
     } else {
 
       donations = await Donation.find()
-        .populate('donor', 'name')
+        .populate('donor', 'name _id')
         .populate('campaign', 'name goal raised')
         .sort({ createdAt: -1 });
 
     }
 
-    // STATS
-    const totalDonations = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+    const totalDonations = donations.reduce(
+      (sum, d) => sum + (d.amount || 0),
+      0
+    );
 
     const totalDonors = new Set(
-      donations.map(d => d.donor?._id?.toString())
+      donations
+        .map(d => d.donor?._id?.toString())
+        .filter(Boolean)
     ).size;
 
     const avgDonation = donations.length
@@ -57,7 +60,6 @@ exports.getAllDonations = async (req, res) => {
     res.redirect('/admin/dashboard');
   }
 };
-
 
 
 // ================= DONATION DETAILS =================
@@ -82,20 +84,21 @@ exports.getDonationDetails = async (req, res) => {
   }
 };
 
-// _______________ summary ______________
+
+// ================= DONATION SUMMARY =================
 exports.getDonationSummary = async (req, res) => {
   try {
+
     const donations = await Donation.find()
       .populate('campaign', 'name goal raised')
-      .populate('donor', 'name');
+      .populate('donor', 'name _id');
 
-    // group by campaign
     const summaryMap = {};
 
     donations.forEach(d => {
-      const id = d.campaign?._id?.toString();
 
-      if (!id) return;
+      const id = d.campaign?._id?.toString();
+      if (!id || !d.campaign) return;
 
       if (!summaryMap[id]) {
         summaryMap[id] = {
@@ -106,8 +109,11 @@ exports.getDonationSummary = async (req, res) => {
         };
       }
 
-      summaryMap[id].raised += d.amount;
-      summaryMap[id].donors.add(d.donor?._id?.toString());
+      summaryMap[id].raised += d.amount || 0;
+
+      if (d.donor?._id) {
+        summaryMap[id].donors.add(d.donor._id.toString());
+      }
     });
 
     const summary = Object.values(summaryMap).map(c => ({

@@ -1,52 +1,89 @@
 const Campaign = require('../models/campaign');
 const Application = require('../models/application');
+const Donation = require('../models/donation');
+const User = require('../models/User');
 
-// ____________________ GET ALL LIVE CAMPAIGNS ________________
+const {
+  getPersonalizedRecommendations,
+  getTrendingRecommendations
+} = require('../services/recommendationService');
+
 exports.liveCampaigns = async (req, res) => {
   try {
 
-    // 1️⃣ Get all active campaigns
     const campaigns = await Campaign.find({ status: 'active' })
       .populate('createdBy', 'name _id')
       .sort({ createdAt: -1 });
 
-    // 2️⃣ Get ALL approved applications (for correct counts)
     const approvedApplications = await Application.find({
       status: 'approved'
     }).lean();
 
-    // 3️⃣ Build approved count map (campaignId -> count)
     const approvedCountMap = {};
 
     approvedApplications.forEach(app => {
-      const campaignId = app.campaign.toString();
-      approvedCountMap[campaignId] =
-        (approvedCountMap[campaignId] || 0) + 1;
+      if (!app?.campaign) return;
+
+      const id = app.campaign.toString();
+      approvedCountMap[id] =
+        (approvedCountMap[id] || 0) + 1;
     });
 
-    // 4️⃣ Get current user applications (for UI state)
     let applicationMap = {};
 
-    if (req.user && req.user.role === 'volunteer') {
+    if (req.user?.role === 'volunteer') {
       const userApplications = await Application.find({
         user: req.user._id
       }).lean();
 
       userApplications.forEach(app => {
+        if (!app?.campaign) return;
         applicationMap[app.campaign.toString()] = app;
       });
     }
 
-    // 5️⃣ Render view
+    let recommended = [];
+    let trending = [];
+
+    const user = req.user;
+
+    if (user) {
+
+      const donationsCount = await Donation.countDocuments({
+        donor: user._id
+      });
+
+      const applicationsCount = await Application.countDocuments({
+        user: user._id
+      });
+
+      // ✅ FIXED NEW USER LOGIC (NO LOG DEPENDENCY)
+      const isNewUser =
+        donationsCount === 0 &&
+        applicationsCount === 0;
+
+      if (isNewUser) {
+        trending = await getTrendingRecommendations();
+      } else {
+        recommended = await getPersonalizedRecommendations(user);
+      }
+    }
+
     return res.render('campaigns/live', {
-      user: req.user ? {
-        _id: req.user._id,
-        role: req.user.role,
-        name: req.user.name
-      } : null,
+      user: req.user
+        ? {
+            _id: req.user._id,
+            role: req.user.role,
+            name: req.user.name
+          }
+        : null,
+
       campaigns,
       applicationMap,
-      approvedCountMap   // ✅ IMPORTANT
+      approvedCountMap,
+
+      recommended,
+      trending
     });
 
   } catch (err) {
@@ -56,9 +93,7 @@ exports.liveCampaigns = async (req, res) => {
 };
 
 
-
-
-// for showing the completed campaigns
+// __________________ COMPLETED CAMPAIGNS ________________
 exports.completedCampaigns = async (req, res) => {
   try {
 
@@ -66,30 +101,34 @@ exports.completedCampaigns = async (req, res) => {
       .populate('createdBy', 'name _id')
       .sort({ createdAt: -1 });
 
-    // 🔥 get approved applications only
-    const approvedApps = await Application.find({ status: 'approved' }).lean();
+    const approvedApps = await Application.find({
+      status: 'approved'
+    }).lean();
 
-    // 🔥 map: campaignId → count
     const approvedCountMap = {};
 
     approvedApps.forEach(app => {
+      if (!app.campaign) return;
+
       const id = app.campaign.toString();
       approvedCountMap[id] = (approvedCountMap[id] || 0) + 1;
     });
 
-    // 🔥 attach count to each campaign
     const campaignsWithCounts = campaigns.map(c => {
       const obj = c.toObject();
-      obj.approvedCount = approvedCountMap[c._id.toString()] || 0;
+      obj.approvedCount =
+        approvedCountMap[c._id.toString()] || 0;
       return obj;
     });
 
     res.render('campaigns/completed', {
-      user: req.user ? {
-        _id: req.user._id,
-        role: req.user.role,
-        name: req.user.name
-      } : null,
+      user: req.user
+        ? {
+            _id: req.user._id,
+            role: req.user.role,
+            name: req.user.name
+          }
+        : null,
       campaigns: campaignsWithCounts
     });
 
@@ -100,9 +139,7 @@ exports.completedCampaigns = async (req, res) => {
 };
 
 
-
-
-// ________________ Campaigns Details ______________
+// __________________ CAMPAIGN DETAILS ________________
 exports.getCampaignDetails = async (req, res) => {
   try {
 
@@ -113,31 +150,34 @@ exports.getCampaignDetails = async (req, res) => {
       return res.status(404).send('Campaign not found');
     }
 
-    // ✅ approved volunteers only (for display)
     const volunteers = await Application.find({
       campaign: req.params.id,
       status: "approved"
     }).populate('user', 'name email');
 
-    // ✅ check if current user already applied
     let existingApplication = null;
 
-    if (req.user) {
+    if (req.user?._id) {
       existingApplication = await Application.findOne({
         user: req.user._id,
         campaign: req.params.id
       });
     }
 
+    // safer defaults
+    campaign.category = campaign.category ?? null;
+    campaign.subCategory = campaign.subCategory ?? null;
+    campaign.urgency = campaign.urgency ?? "medium";
+
     res.render('campaigns/details', {
-      user: req.user,
+      user: req.user || null,
       campaign,
-      volunteers,
-      existingApplication   // 🔥 IMPORTANT ADDITION
+      volunteers: volunteers || [],
+      existingApplication
     });
 
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error loading campaign details');
+    return res.status(500).send('Error loading campaign details');
   }
 };

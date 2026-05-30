@@ -3,11 +3,13 @@ const Campaign = require('../models/campaign');
 const { setMessage } = require('../utils/flashMessage');
 const bcrypt = require('bcrypt');
 
+// 🔔 FIXED IMPORT (IMPORTANT)
+const { notifyUser } = require('../utils/notify');
+
 
 // ___________ navbar Profile _______________
 exports.getProfile = async (req, res) => {
   try {
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -44,7 +46,6 @@ exports.getProfile = async (req, res) => {
 // ================= EDIT PAGE =================
 exports.getEditProfile = async (req, res) => {
   try {
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -54,7 +55,7 @@ exports.getEditProfile = async (req, res) => {
 
     res.render('common/editProfile', {
       user,
-      errors: {} 
+      errors: {}
     });
 
   } catch (err) {
@@ -65,13 +66,13 @@ exports.getEditProfile = async (req, res) => {
 };
 
 
+// ================= UPDATE PROFILE =================
 exports.updateProfile = async (req, res) => {
   try {
     const { name, email } = req.body;
 
     let errors = {};
 
-    // ================= VALIDATION =================
     if (!name || name.trim() === "") {
       errors.name = "Name is required!";
     }
@@ -81,6 +82,7 @@ exports.updateProfile = async (req, res) => {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (email && !emailRegex.test(email)) {
       errors.email = "Invalid email format!";
     }
@@ -91,12 +93,10 @@ exports.updateProfile = async (req, res) => {
       return res.redirect('/profile');
     }
 
-    // no changes check
     if (user.name === name && user.email === email) {
       errors.general = "No changes were made!";
     }
 
-    // email duplicate check
     const emailExists = await User.findOne({
       email,
       _id: { $ne: req.user._id }
@@ -106,7 +106,6 @@ exports.updateProfile = async (req, res) => {
       errors.email = "Email already in use!";
     }
 
-    // ================= IF ERRORS =================
     if (Object.keys(errors).length > 0) {
       return res.render('common/editProfile', {
         user: { ...user._doc, name, email },
@@ -114,7 +113,6 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
-    // ================= UPDATE =================
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, email },
@@ -123,6 +121,14 @@ exports.updateProfile = async (req, res) => {
 
     req.user.name = updatedUser.name;
     req.user.email = updatedUser.email;
+
+    // 🔔 FIXED NOTIFICATION
+    await notifyUser(
+      updatedUser._id,
+      "Your profile information was updated successfully.",
+      "/profile",
+      "success"
+    );
 
     setMessage(req, "success", "Profile updated successfully!");
     return res.redirect('/profile');
@@ -154,6 +160,7 @@ exports.getChangePassword = async (req, res) => {
   }
 };
 
+
 // ============== UPDATE PASSWORD ==============
 exports.updatePassword = async (req, res) => {
   try {
@@ -161,15 +168,12 @@ exports.updatePassword = async (req, res) => {
 
     const errors = {};
 
-    // 1. empty validation
     if (!oldPassword?.trim()) errors.oldPassword = "Old password is required";
     if (!newPassword?.trim()) errors.newPassword = "New password is required";
     if (!confirmPassword?.trim()) errors.confirmPassword = "Confirm password is required";
 
     if (Object.keys(errors).length > 0) {
-      return res.render('common/changePassword', {
-        errors
-      });
+      return res.render('common/changePassword', { errors });
     }
 
     const user = await User.findById(req.user._id);
@@ -180,7 +184,6 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    // 2. check old password
     const isMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isMatch) {
@@ -189,32 +192,36 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    // 3. length check
     if (newPassword.length < 6) {
       return res.render('common/changePassword', {
         errors: { newPassword: "Password must be at least 6 characters" }
       });
     }
 
-    // 4. match check
     if (newPassword !== confirmPassword) {
       return res.render('common/changePassword', {
         errors: { confirmPassword: "Passwords do not match" }
       });
     }
 
-    // 5. no change check
     if (oldPassword === newPassword) {
       return res.render('common/changePassword', {
         errors: { newPassword: "New password cannot be same as old password" }
       });
     }
 
-    // 6. update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.password = hashedPassword;
     await user.save();
+
+    // 🔔 FIXED NOTIFICATION
+    await notifyUser(
+      user._id,
+      "Your password was changed successfully.",
+      "/profile",
+      "success"
+    );
 
     setMessage(req, "success", "Password updated successfully!");
     return res.redirect('/profile');

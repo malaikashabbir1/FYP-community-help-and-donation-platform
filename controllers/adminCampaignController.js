@@ -2,10 +2,14 @@ const Campaign = require('../models/Campaign');
 const Application = require('../models/Application');
 const { canChangeStatus } = require('../utils/campaignRules');
 const mongoose = require('mongoose');
+const logActivity = require('../utils/logActivity');
 const fs = require('fs');
 const path = require('path');
 const { setMessage } = require('../utils/flashMessage');
 const { checkAndCompleteCampaign } = require('../services/campaignService');
+
+// 🔔 FIXED IMPORT
+const { notifyUser } = require('../utils/notify');
 
 
 // ================= GET ALL CAMPAIGNS =================
@@ -35,9 +39,6 @@ exports.getAllCampaigns = async (req, res) => {
       .populate('createdBy', 'name role _id')
       .sort({ createdAt: -1 });
 
-    // 🔥 ADD APPROVED APPLICATION COUNT (FAST + CLEAN)
-    const Application = require('../models/Application');
-
     const approvedCounts = await Application.aggregate([
       { $match: { status: "approved" } },
       {
@@ -49,11 +50,11 @@ exports.getAllCampaigns = async (req, res) => {
     ]);
 
     const countMap = {};
+
     approvedCounts.forEach(item => {
       countMap[item._id.toString()] = item.count;
     });
 
-    // attach to campaigns
     const campaignsWithStats = campaigns.map(c => {
       const obj = c.toObject();
       obj.approvedApplications = countMap[c._id.toString()] || 0;
@@ -133,6 +134,7 @@ exports.deleteCampaign = async (req, res) => {
     return res.redirect('/admin/campaigns');
 
   } catch (error) {
+    console.error(error);
     setMessage(req, "error", "Server error while deleting campaign");
     return res.redirect('/admin/campaigns');
   }
@@ -147,7 +149,8 @@ exports.approveCampaign = async (req, res) => {
       return res.status(403).send("Unauthorized");
     }
 
-    const campaign = await Campaign.findById(req.params.id);
+    const campaign = await Campaign.findById(req.params.id)
+      .populate('createdBy', '_id name email');
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
@@ -167,6 +170,25 @@ exports.approveCampaign = async (req, res) => {
     campaign.status = 'active';
     await campaign.save();
 
+    const userId = campaign.createdBy?._id || campaign.createdBy;
+
+    await logActivity({
+      type: "campaign",
+      refId: campaign._id,
+      userId: campaign.createdBy?._id || campaign.createdBy,
+      description: `Campaign "${campaign.name}" has been approved`
+    });
+
+    // 🔔 FIXED NOTIFICATION
+    if (userId) {
+      await notifyUser(
+        userId,
+        "Your campaign has been approved and is now live!",
+        `/campaign/${campaign._id}`,
+        "success"
+      );
+    }
+
     setMessage(req, "success", "Campaign approved and now live");
     return res.redirect('/admin/campaigns');
 
@@ -179,7 +201,6 @@ exports.approveCampaign = async (req, res) => {
 
 
 // ================= COMPLETE CAMPAIGN =================
-// ================= COMPLETE CAMPAIGN =================
 exports.completeCampaign = async (req, res) => {
   try {
 
@@ -190,20 +211,25 @@ exports.completeCampaign = async (req, res) => {
       return res.redirect('/admin/campaigns');
     }
 
-    // 🔥 SINGLE SOURCE OF TRUTH
     const updatedCampaign = await checkAndCompleteCampaign(campaign._id);
 
-    // ❌ Not eligible
-    if (!updatedCampaign || updatedCampaign.status !== "completed") {
-      setMessage(
-        req,
-        "error",
-        "Requirements not met (funding or volunteers missing)"
+    const userId = updatedCampaign?.createdBy?._id || updatedCampaign?.createdBy;
+
+    // 🔔 FIXED NOTIFICATION
+    if (updatedCampaign?.status === "completed" && userId) {
+      await notifyUser(
+        userId,
+        "Your campaign has been marked as completed!",
+        `/campaign/${updatedCampaign._id}`,
+        "success"
       );
+    }
+
+    if (!updatedCampaign || updatedCampaign.status !== "completed") {
+      setMessage(req, "error", "Requirements not met (funding or volunteers missing)");
       return res.redirect('/admin/campaigns');
     }
 
-    // ✔ success case
     setMessage(req, "success", "Campaign marked as completed");
     return res.redirect('/admin/campaigns');
 
@@ -214,6 +240,7 @@ exports.completeCampaign = async (req, res) => {
   }
 };
 
+
 // ================= REJECT CAMPAIGN =================
 exports.rejectCampaign = async (req, res) => {
   try {
@@ -222,7 +249,8 @@ exports.rejectCampaign = async (req, res) => {
       return res.status(403).send("Unauthorized");
     }
 
-    const campaign = await Campaign.findById(req.params.id);
+    const campaign = await Campaign.findById(req.params.id)
+      .populate('createdBy', '_id name email');
 
     if (!campaign) {
       setMessage(req, "error", "Campaign not found");
@@ -251,6 +279,25 @@ exports.rejectCampaign = async (req, res) => {
     campaign.reviewedAt = new Date();
 
     await campaign.save();
+
+    const userId = campaign.createdBy?._id || campaign.createdBy;
+
+    await logActivity({
+      type: "campaign",
+      refId: campaign._id,
+      userId: campaign.createdBy?._id || campaign.createdBy,
+      description: `Campaign "${campaign.name}" was rejected`
+    });
+
+    // 🔔 FIXED NOTIFICATION
+    if (userId) {
+      await notifyUser(
+        userId,
+        `Your campaign was rejected. Reason: ${reason}`,
+        `/campaign/${campaign._id}`,
+        "error"
+      );
+    }
 
     setMessage(req, "success", "Campaign rejected successfully");
     return res.redirect('/admin/campaigns');

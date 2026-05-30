@@ -4,9 +4,15 @@ const Application = require('../models/application');
 
 exports.getVolunteerDashboard = async (req, res) => {
   try {
-     const userId = req.user._id; // correct `_id` usage
 
-    // PERSONAL CAMPAIGN STATS
+    // 🔒 Safety check (prevents crash if middleware fails)
+    if (!req.user?._id) {
+      return res.redirect('/auth/login');
+    }
+
+    const userId = req.user._id;
+
+    // ================= PERSONAL CAMPAIGN STATS =================
     const totalCampaigns = await Campaign.countDocuments({ createdBy: userId });
 
     const drafts = await Campaign.countDocuments({
@@ -34,27 +40,36 @@ exports.getVolunteerDashboard = async (req, res) => {
       status: "approved"
     });
 
-    // PLATFORM-WIDE STATS
+    // ================= PLATFORM STATS =================
     const liveCampaigns = await Campaign.countDocuments({ status: 'active' });
     const completedCampaigns = await Campaign.countDocuments({ status: 'completed' });
     const totalVolunteers = await User.countDocuments({ role: 'volunteer' });
 
+    // ================= RECENT JOINED CAMPAIGNS =================
+    const recentJoinedCampaigns = await Application.find({
+      user: userId,
+      status: "approved"
+    })
+      .populate("campaign")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // ================= SAFE USER =================
     const safeUser = {
       _id: req.user._id,
       role: req.user.role,
       name: req.user.name
     };
 
-
-    // STATS OBJECT
+    // ================= STATS OBJECT =================
     const stats = {
       myStats: {
         totalCampaigns,
         drafts,
         pending,
         active,
-        completed, 
-        joinedCampaigns 
+        completed,
+        joinedCampaigns
       },
       platformStats: {
         liveCampaigns,
@@ -63,9 +78,11 @@ exports.getVolunteerDashboard = async (req, res) => {
       }
     };
 
+    // ================= RENDER =================
     res.render('volunteer/volunteerDashboard', {
       user: safeUser,
-      stats
+      stats,
+      recentJoinedCampaigns
     });
 
   } catch (err) {
@@ -73,4 +90,3 @@ exports.getVolunteerDashboard = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-

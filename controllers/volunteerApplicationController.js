@@ -3,16 +3,27 @@ const Application = require('../models/application');
 exports.myApplications = async (req, res) => {
   try {
 
-    const applications = await Application.find({
+    const statusFilter = req.query.status; // 🔥 get filter from URL
+
+    // base query
+    let query = {
       user: req.user._id
-    })
-    .populate('campaign')
-    .sort({ createdAt: -1 });
+    };
+
+    // apply filter if exists
+    if (statusFilter) {
+      query.status = statusFilter;
+    }
+
+    const applications = await Application.find(query)
+      .populate('campaign')
+      .sort({ createdAt: -1 });
 
     return res.render('volunteer/applications/list', {
       applications,
       user: req.user,
-      message: req.session.message || null
+      message: req.session.message || null,
+      activeStatus: statusFilter || null // 🔥 for UI highlighting
     });
 
   } catch (err) {

@@ -4,28 +4,20 @@ const mongoose = require('mongoose');
 const { setMessage } = require('../utils/flashMessage');
 
 
+// ==========================
 // DONOR DASHBOARD
-
+// ==========================
 exports.getDonorDashboard = async (req, res) => {
   try {
+
     const userId = req.user._id;
 
-    // TOTAL DONATIONS (count by donor)
-    const totalDonations = await Donation.countDocuments({ donor: userId });
-
-    // PENDING DONATIONS
-    const pendingDonations = await Donation.countDocuments({
-      donor: userId,
-      status: 'pending'
+    // 1. TOTAL DONATIONS COUNT
+    const totalDonations = await Donation.countDocuments({
+      donor: userId
     });
 
-    // COMPLETED DONATIONS
-    const completedDonations = await Donation.countDocuments({
-      donor: userId,
-      status: 'completed'
-    });
-
-    // TOTAL DONATED AMOUNT
+    // 2. TOTAL AMOUNT
     const totalAmountResult = await Donation.aggregate([
       {
         $match: {
@@ -40,35 +32,94 @@ exports.getDonorDashboard = async (req, res) => {
       }
     ]);
 
-    const totalAmount =
-      totalAmountResult.length > 0 ? totalAmountResult[0].total : 0;
+    const totalAmount = totalAmountResult[0]?.total || 0;
 
-    // ACTIVE CAMPAIGNS (global)
+    // 3. ACTIVE CAMPAIGNS
     const activeCampaigns = await Campaign.countDocuments({
       status: 'active'
     });
 
-    // RECENT DONATIONS (last 5)
-    const recentDonations = await Donation.find({ donor: userId })
-      .populate('campaign', 'name goal raised')
+    // 4. RECENT DONATIONS
+    const recentDonations = await Donation.find({
+      donor: userId
+    })
+      .populate('campaign', 'name goal raised category subCategory')
       .sort({ createdAt: -1 })
       .limit(5);
 
-    // RENDER DASHBOARD
-    res.render('donor/donorDashboard', {
-      user: {
-        _id: req.user._id,
-        role: req.user.role,
-        name: req.user.name
+    // 5. AVERAGE DONATION
+    const avgResult = await Donation.aggregate([
+      {
+        $match: {
+          donor: new mongoose.Types.ObjectId(userId)
+        }
       },
+      {
+        $group: {
+          _id: null,
+          avgAmount: { $avg: "$amount" }
+        }
+      }
+    ]);
+
+    const averageDonation = avgResult[0]?.avgAmount || 0;
+
+    // 6. LAST DONATION
+    const lastDonation = await Donation.findOne({
+      donor: userId
+    })
+      .sort({ createdAt: -1 })
+      .select('createdAt amount campaign');
+
+    // 7. DONATION HISTORY
+    const donationHistory = await Donation.find({
+      donor: userId
+    })
+      .sort({ createdAt: -1 })
+      .select('amount createdAt campaign');
+
+    // 8. FREQUENCY CALCULATION
+    const firstDonation = await Donation.findOne({
+      donor: userId
+    }).sort({ createdAt: 1 });
+
+    const lastDonationDate = await Donation.findOne({
+      donor: userId
+    }).sort({ createdAt: -1 });
+
+    let frequency = 0;
+
+    if (firstDonation && lastDonationDate) {
+      const daysActive =
+        (lastDonationDate.createdAt - firstDonation.createdAt) /
+        (1000 * 60 * 60 * 24);
+
+      frequency = totalDonations / (daysActive || 1);
+    }
+
+    // ==========================
+    // RENDER
+    // ==========================
+    res.render('donor/donorDashboard', {
+      user: req.user
+        ? {
+            _id: req.user._id,
+            role: req.user.role,
+            name: req.user.name
+          }
+        : null,
+
       stats: {
         totalDonations,
-        pendingDonations,
-        completedDonations,
         activeCampaigns,
-        totalAmount
+        totalAmount,
+        averageDonation,
+        frequency
       },
-      recentDonations
+
+      recentDonations,
+      lastDonation,
+      donationHistory
     });
 
   } catch (err) {
@@ -78,9 +129,12 @@ exports.getDonorDashboard = async (req, res) => {
 };
 
 
-// DONATION FORM (WITH REMAINING)
+// ==========================
+// DONATION FORM
+// ==========================
 exports.donationForm = async (req, res) => {
   try {
+
     const campaignId = req.params.campaignId;
 
     if (!mongoose.Types.ObjectId.isValid(campaignId)) {
@@ -90,7 +144,6 @@ exports.donationForm = async (req, res) => {
 
     const campaign = await Campaign.findById(campaignId);
 
-    //  SAFETY CHECK
     if (
       !campaign ||
       campaign.status !== 'active' ||
@@ -100,13 +153,14 @@ exports.donationForm = async (req, res) => {
       return res.redirect('/campaigns/live');
     }
 
-    // ADD REMAINING
     const updatedCampaign = {
       ...campaign.toObject(),
       remaining: Math.max(0, campaign.goal - campaign.raised)
     };
 
-    res.render('donor/donationForm', { campaign: updatedCampaign });
+    res.render('donor/donationForm', {
+      campaign: updatedCampaign
+    });
 
   } catch (err) {
     console.error(err);
