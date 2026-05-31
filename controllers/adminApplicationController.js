@@ -14,19 +14,48 @@ exports.getAllApplications = async (req, res) => {
     const { status = "all" } = req.query;
 
     let filter = {};
-
     if (status !== "all") {
       filter.status = status;
     }
 
+    // ===================== STATS =====================
+    const totalApplications = await Application.countDocuments();
+    const pendingCount = await Application.countDocuments({ status: "pending" });
+    const approvedCount = await Application.countDocuments({ status: "approved" });
+    const rejectedCount = await Application.countDocuments({ status: "rejected" });
+
+    // ===================== APPLICATIONS =====================
     const applications = await Application.find(filter)
       .populate("user", "name email")
-      .populate("campaign", "name location")
+      .populate("campaign", "name location requiredVolunteers")
       .sort({ createdAt: -1 });
 
+    // ===================== CAPACITY MAP (IMPORTANT) =====================
+    const campaignIds = applications
+      .map(app => app.campaign?._id)
+      .filter(Boolean);
+
+    const approvedApplications = await Application.find({
+      status: "approved",
+      campaign: { $in: campaignIds }
+    }).lean();
+
+    const approvedCountMap = {};
+
+    approvedApplications.forEach(app => {
+      const id = app.campaign.toString();
+      approvedCountMap[id] = (approvedCountMap[id] || 0) + 1;
+    });
+
+    // ===================== RENDER =====================
     return res.render("admin/applications/list", {
       applications,
-      status
+      status,
+      totalApplications,
+      pendingCount,
+      approvedCount,
+      rejectedCount,
+      approvedCountMap 
     });
 
   } catch (err) {
@@ -34,7 +63,6 @@ exports.getAllApplications = async (req, res) => {
     return res.status(500).send("Error fetching applications");
   }
 };
-
 
 // ================= APPROVE APPLICATION =================
 exports.approveApplication = async (req, res) => {

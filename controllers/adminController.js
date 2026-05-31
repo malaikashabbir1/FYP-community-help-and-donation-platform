@@ -2,6 +2,7 @@ const User = require('../models/user');
 const Campaign = require('../models/campaign');
 const ActivityLog = require('../models/activityLog');
 const FraudAlert = require("../models/fraudAlert");
+const Donation = require("../models/donation");
 const Application = require('../models/application');
 const fraudService = require("../services/fraudDetectionService");
 
@@ -42,11 +43,113 @@ exports.getAdminDashboard = async (req, res) => {
     const pendingApplications = await Application.countDocuments({
       status: "pending"
     });
+    const approvedApplications = await Application.countDocuments({ status: "approved" });
+
+    const rejectedApplications = await Application.countDocuments({ status: "rejected" });
 
     const recentActivity = await ActivityLog.find()
       .sort({ createdAt: -1 })
       .limit(10)
       .populate('userId', 'name role _id');
+
+
+   const now = new Date();
+
+// TODAY
+const startOfToday = new Date();
+startOfToday.setHours(0, 0, 0, 0);
+
+// LAST 7 DAYS (FIXED)
+const startOfWeek = new Date();
+startOfWeek.setTime(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+// LAST 30 DAYS (FIXED)
+const startOfMonth = new Date();
+startOfMonth.setTime(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+
+    const usersToday = await User.countDocuments({
+
+      createdAt: { $gte: startOfToday }
+    });
+
+    const usersWeek = await User.countDocuments({
+      createdAt: { $gte: startOfWeek }
+    });
+
+    const usersMonth = await User.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
+
+
+
+    const donationsToday = await Donation.countDocuments({
+      createdAt: { $gte: startOfToday }
+    });
+
+    const donationsWeek = await Donation.countDocuments({
+      createdAt: { $gte: startOfWeek }
+    });
+
+    const  donationsMonth = await Donation.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
+
+
+    const applicationsToday = await Application.countDocuments({
+  createdAt: { $gte: startOfToday }
+});
+
+const applicationsWeek = await Application.countDocuments({
+  createdAt: { $gte: startOfWeek }
+});
+
+const applicationsMonth = await Application.countDocuments({
+  createdAt: { $gte: startOfMonth }
+});
+
+const campaignsToday = await Campaign.countDocuments({
+  createdAt: { $gte: startOfToday }
+});
+
+const campaignsWeek = await Campaign.countDocuments({
+  createdAt: { $gte: startOfWeek }
+});
+
+const campaignsMonth = await Campaign.countDocuments({
+  createdAt: { $gte: startOfMonth }
+});
+
+// top performing campaigns 
+const campaignDonationStats = await Donation.aggregate([
+  {
+    $group: {
+      _id: "$campaign",
+      totalAmount: { $sum: "$amount" }
+    }
+  },
+  {
+    $lookup: {
+      from: "campaigns",
+      localField: "_id",
+      foreignField: "_id",
+      as: "campaign"
+    }
+  },
+  {
+    $unwind: "$campaign"
+  },
+  {
+    $project: {
+      _id: 0,
+      campaignName: "$campaign.name",
+      totalAmount: 1
+    }
+  },
+  {
+    $sort: { totalAmount: -1 }
+  }
+]);
 
     res.render('admin/adminDashboard', {
       totalUsers,
@@ -58,8 +161,15 @@ exports.getAdminDashboard = async (req, res) => {
       completedCampaigns,
       rejectedCampaigns,
       pendingApplications,
+      approvedApplications, 
+      rejectedApplications,
       recentActivity,
       categoryStats,
+      usersToday, usersWeek, usersMonth,
+      donationsToday, donationsWeek, donationsMonth,
+      applicationsToday, applicationsWeek, applicationsMonth,
+      campaignsToday, campaignsWeek, campaignsMonth,
+      campaignDonationStats,
       user: {
         _id: req.user?._id,   // ✅ SAFE
         role: req.user?.role,

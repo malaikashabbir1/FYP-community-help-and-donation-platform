@@ -10,6 +10,7 @@ exports.signup = async (req, res) => {
   const errors = {};
 
   try {
+    
 
     // Validation
     if (!name || name.trim() === '')
