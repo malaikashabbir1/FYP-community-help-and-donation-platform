@@ -1,17 +1,13 @@
-<nav class="bg-blue-600 text-white shadow-md">
+<nav class="top-0 left-0 w-full z-50 bg-blue-600 text-white shadow-md">
   <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
 
-    <!-- Logo -->
+    <!-- LOGO -->
     <a href="/" class="flex items-center space-x-3">
-      <img src="/images/logo.PNG" alt="HelpingHands Logo"
-        class="w-10 h-10 object-contain rounded-full" />
-
-      <span class="text-lg sm:text-xl font-bold text-emerald-300">
-        HelpingHands <br class="hidden sm:block">
-      </span>
+      <img src="/images/logo.PNG" class="w-10 h-10 rounded-full" />
+      <span class="text-lg font-bold text-emerald-300">HelpingHands</span>
     </a>
 
-    <!-- Desktop Menu -->
+    <!-- DESKTOP MENU -->
     <div class="hidden md:flex space-x-6 items-center">
 
       <a href="/<%= user.role %>/dashboard" class="hover:text-gray-200">Dashboard</a>
@@ -21,125 +17,133 @@
         <a href="/admin/applications" class="hover:text-gray-200">Applications</a>
         <a href="/admin/campaigns?status=pending" class="hover:text-gray-200">Requests</a>
         <a href="/admin/campaigns/list" class="hover:text-gray-200">Campaigns</a>
-        <a href="/admin/fraud-alerts" class="hover:text-gray-200">Frauds Alerts</a>
+        <a href="/admin/fraud-alerts" class="hover:text-gray-200">Fraud Alerts</a>
       <% } %>
 
       <% if (user.role === 'donor') { %>
-        <a href="/campaigns/live" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">
-          Live Campaigns
-        </a>
+        <a href="/campaigns/live" class="hover:text-gray-200 px-3 py-1 rounded">Live Campaigns</a>
         <a href="/donor/my-donations" class="hover:text-gray-200">My Donations</a>
       <% } %>
 
       <% if (user.role === 'volunteer') { %>
-        <a href="/volunteer/campaigns/my" class="hover:text-gray-200">MyCampaigns</a>
-        <a href="/volunteer/campaigns/create" class="hover:text-gray-200">Create</a>
-        <a href="/campaigns/live" class="hover:text-gray-200">Opportunities</a>
+        <a href="/volunteer/campaigns/my" class="hover:text-gray-200">My Campaigns</a>
+        <a href="/volunteer/applications" class="hover:text-gray-200">My Applications</a>
+        <a href="/campaigns/live" class="hover:text-gray-200">Explore</a>
       <% } %>
 
-      <a href="/<%= user.role %>/campaigns/completed" class="hover:text-gray-200">
-        Success Stories
-      </a>
+      <a href="/<%= user.role %>/campaigns/completed" class="hover:text-gray-200">Success Stories</a>
 
-      <!-- 🔔 Notification -->
-      <a href="/notifications" class="relative inline-flex items-center">
-
-        <!-- Bell -->
-        <i id="notifBell" class="fas fa-bell text-xl leading-none"></i>
-
-        <!-- Badge -->
-        <span
-          id="notifCount"
-          class="absolute -top-1 -right-1
-                 bg-red-500 text-white text-[10px] font-bold
-                 min-w-[18px] h-[18px] px-[5px]
-                 flex items-center justify-center
-                 rounded-full shadow-md leading-none">
+      <!-- NOTIFICATION -->
+      <a href="/notifications" class="relative">
+        <i class="fas fa-bell text-xl"></i>
+        <span class="absolute -top-1 -right-2 bg-red-500 text-xs px-1 rounded-full">
           0
         </span>
-
       </a>
 
       <a href="/profile" class="hover:text-gray-200">Profile</a>
-
-      <a href="/" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Home</a>
-
-      <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-700">
-        Logout
-      </a>
+      <a href="/" class="bg-blue-700 px-3 py-1 rounded">Home</a>
+      <a href="/auth/logout" class="bg-emerald-600 px-3 py-1 rounded">Logout</a>
 
     </div>
 
-    <!-- Mobile Button -->
-    <button id="mobileBtn" class="md:hidden text-2xl">
+    <!-- MOBILE BUTTON -->
+    <button id="mobileBtn" class="md:hidden text-3xl">
       ☰
     </button>
 
   </div>
-
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="hidden md:hidden bg-blue-500 px-4 py-3 space-y-2">
-
-    <a href="/<%= user.role %>/dashboard" class="block">Dashboard</a>
-
-    <% if (user.role === 'admin') { %>
-      <a href="/admin/donations" class="block">Donations</a>
-      <a href="/admin/campaigns?status=pending" class="block">Requests</a>
-      <a href="/admin/applications" class="block">Applications</a>
-      <a href="/admin/campaigns/list" class="block">Campaigns</a>
-      <a href="/admin/fraud-alerts" class="block">Frauds Alerts</a>
-    <% } %>
-
-    <% if (user.role === 'donor') { %>
-      <a href="/campaigns/live" class="block bg-emerald-600 px-3 py-2 rounded">Live Campaigns</a>
-      <a href="/donor/my-donations" class="block">My Donations</a>
-    <% } %>
-
-    <% if (user.role === 'volunteer') { %>
-      <a href="/volunteer/campaigns/my" class="block">MyCampaigns</a>
-      <a href="/volunteer/campaigns/create" class="block">Create</a>
-      <a href="/campaigns/live" class="block">Opportunities</a>
-    <% } %>
-
-    <!-- Mobile Notification -->
-    <a href="/notifications" class="flex items-center gap-2 text-white">
-
-      <i class="fas fa-bell"></i>
-
-      <span>Notifications</span>
-
-      <span
-        id="notifCountMobile"
-        class="bg-red-500 text-white text-xs font-bold
-               min-w-[18px] h-[18px] px-[5px]
-               flex items-center justify-center
-               rounded-full leading-none">
-        0
-      </span>
-
-    </a>
-
-    <a href="/profile" class="block">Profile</a>
-
-    <a href="/" class="inline-block bg-blue-600 px-3 py-1 rounded text-white hover:bg-blue-700">
-      Home
-    </a>
-
-    <a href="/auth/logout" class="inline-block bg-emerald-600 px-3 py-2 rounded">
-      Logout
-    </a>
-
-  </div>
 </nav>
 
-<!-- Mobile Toggle -->
-<script>
-  document.getElementById("mobileBtn")
-    .addEventListener("click", () => {
-      document.getElementById("mobileMenu").classList.toggle("hidden");
-    });
-</script>
+<!-- ================= OVERLAY ================= -->
+<div id="overlay"
+  class="hidden md:hidden fixed inset-0 bg-black/40 z-30">
+</div>
 
+<!-- ================= MOBILE MENU ================= -->
+<div id="mobileMenu"
+  class="hidden md:hidden fixed top-16 left-0 w-full h-[calc(100vh-4rem)]
+         bg-white text-gray-800 z-40 shadow-xl px-5 py-6 space-y-2">
+
+  <a href="/<%= user.role %>/dashboard"
+     class="block px-4 py-3 rounded-lg hover:bg-gray-100">
+    Dashboard
+  </a>
+
+  <% if (user.role === 'admin') { %>
+    <a href="/admin/donations" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Donations</a>
+    <a href="/admin/applications" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Applications</a>
+    <a href="/admin/campaigns?status=pending" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Requests</a>
+    <a href="/admin/campaigns/list" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Campaigns</a>
+    <a href="/admin/fraud-alerts" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Fraud Alerts</a>
+  <% } %>
+
+  <% if (user.role === 'donor') { %>
+    <a href="/campaigns/live" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Live Campaigns</a>
+    <a href="/donor/my-donations" class="block px-4 py-3 rounded-lg hover:bg-gray-100">My Donations</a>
+  <% } %>
+
+  <% if (user.role === 'volunteer') { %>
+    <a href="/volunteer/campaigns/my" class="block px-4 py-3 rounded-lg hover:bg-gray-100">My Campaigns</a>
+    <a href="/volunteer/applications" class="block px-4 py-3 rounded-lg hover:bg-gray-100">My Applications</a>
+    <a href="/campaigns/live" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Explore</a>
+  <% } %>
+
+  <hr class="my-2">
+  <a href="/<%= user.role %>/campaigns/completed" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Success Stories</a>
+   <!-- NOTIFICATION -->
+      <a href="/notifications" class="block px-4 py-3 rounded-lg hover:bg-gray-100"> Notifications </a> 
+  <a href="/profile" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Profile</a>
+  <a href="/" class="block px-4 py-3 rounded-lg hover:bg-gray-100">Home</a>
+
+  <a href="/auth/logout"
+     class="block mt-3 bg-green-500 text-white text-center py-3 rounded-lg">
+    Logout
+  </a>
+
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+  const menu = document.getElementById("mobileMenu");
+  const overlay = document.getElementById("overlay");
+  const btn = document.getElementById("mobileBtn");
+
+  function isOpen() {
+    return !menu.classList.contains("hidden");
+  }
+
+  function openMenu() {
+    menu.classList.remove("hidden");
+    overlay.classList.remove("hidden");
+
+    // lock scroll properly
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+  }
+
+  function closeMenu() {
+    menu.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // restore scroll properly
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+    document.body.style.width = "";
+  }
+
+  function toggleMenu() {
+    isOpen() ? closeMenu() : openMenu();
+  }
+
+  btn.addEventListener("click", toggleMenu);
+  overlay.addEventListener("click", closeMenu);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+</script>
 <!-- Notification Logic (safe load) -->
 <script defer src="/js/notifications.js"></script>
 
@@ -159,3 +163,5 @@
   animation: ring 0.7s ease;
 }
 </style>
+
+

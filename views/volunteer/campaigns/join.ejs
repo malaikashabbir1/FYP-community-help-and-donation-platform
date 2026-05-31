@@ -51,11 +51,11 @@
     <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
 
       <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
-        Goal: Rs <%= campaign.goal %>
+        Goal: Rs <%= campaign.goal.toLocaleString() %>
       </div>
 
       <div class="bg-green-50 text-green-700 px-3 py-2 rounded-lg">
-        Raised: Rs <%= campaign.raised %>
+        Raised: Rs <%= campaign.raised.toLocaleString() %>
       </div>
 
       <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg">
@@ -109,6 +109,7 @@
           required
           class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
           placeholder="Write your motivation..."
+          oninput="this.value = this.value.replace(/[^A-Za-z\s.,'-]/g, '')"
         ></textarea>
       </div>
 
@@ -122,10 +123,12 @@
           type="tel"
           name="phone"
           required
-          pattern="03[0-9]{9}"
+          pattern="^03[0-9]{9}$"
           title="Enter valid Pakistani number like 03XXXXXXXXX"
           class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
           placeholder="03XXXXXXXXX"
+          maxlength="11"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '')"
         />
       </div>
 

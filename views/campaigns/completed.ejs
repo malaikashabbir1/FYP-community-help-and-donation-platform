@@ -63,18 +63,18 @@
           <% } %>
 
           <!-- DETAILS GRID -->
-          <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-2 text-xs">
 
             <!-- GOAL -->
             <div class="bg-green-50 text-green-700 px-3 py-2 rounded-lg border border-green-100">
               <i class="fas fa-bullseye"></i>
-              Goal: Rs <%= c.goal %>
+              Goal: Rs <%= c.goal.toLocaleString() %>
             </div>
 
             <!-- RAISED -->
             <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-100">
               <i class="fas fa-hand-holding-dollar"></i>
-              Raised: Rs <%= c.raised %>
+              Raised: Rs <%= c.raised.toLocaleString() %>
             </div>
 
             <!-- VOLUNTEERS (FIXED) -->
@@ -88,6 +88,14 @@
               <div class="bg-gray-50 text-gray-700 px-3 py-2 rounded-lg border">
                 <i class="fas fa-map-marker-alt"></i>
                 <%= c.location %>
+              </div>
+            <% } %>
+
+             <!-- URGENCY -->
+            <% if (c.category) { %>
+              <div class="bg-yellow-50 text-yellow-600 px-3 py-2 rounded-lg border border-red-100">
+                <i class="fa-solid fa-tag mr-1"></i>
+                Category: <%= c.category %>
               </div>
             <% } %>
 

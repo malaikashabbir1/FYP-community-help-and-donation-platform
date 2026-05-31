@@ -20,7 +20,7 @@
 <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
 
   <!-- HEADER -->
-  <div class="mb-4">
+  <div class="text-center mb-6">
     <h1 class="text-3xl font-bold text-gray-800">
       My Applications
     </h1>
@@ -31,11 +31,11 @@
   </div>
 
   <!-- ================= FILTERS (NEW ADDITION) ================= -->
-  <div class="mb-6 flex flex-wrap gap-3">
+  <div class="mb-6  justify-center flex flex-wrap gap-3">
 
     <a href="/volunteer/applications"
       class="px-4 py-2 rounded-lg text-sm font-semibold border
-      <%= !activeStatus ? 'bg-gray-800 text-gray-800' : 'bg-white text-gray-700' %>">
+      <%= !activeStatus ? 'bg-gray-800 text-white' : 'bg-white text-gray-700' %>">
       All
     </a>
 
@@ -58,6 +58,39 @@
     </a>
 
   </div>
+
+  <!-- STATS -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8 max-w-5xl mx-auto">
+
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">Total Applications</p>
+    <p class="text-2xl font-bold text-blue-600">
+      <%= totalApplications || 0 %>
+    </p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">Pending</p>
+    <p class="text-2xl font-bold text-yellow-500">
+      <%= pendingCount || 0 %>
+    </p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">Approved</p>
+    <p class="text-2xl font-bold text-green-600">
+      <%= approvedCount || 0 %>
+    </p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">Rejected</p>
+    <p class="text-2xl font-bold text-red-600">
+      <%= rejectedCount || 0 %>
+    </p>
+  </div>
+
+</div>
 
   <!-- FLASH MESSAGE -->
   <% if (message) { %>
@@ -111,7 +144,7 @@
   <% } else { %>
 
     <!-- APPLICATION LIST -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
 
       <% applications.forEach(app => { %>
 
@@ -168,10 +201,10 @@
 
             </div>
 
-            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2  gap-3 text-sm">
 
               <div class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
-                Goal: Rs <%= app.campaign?.goal || 0 %>
+                Goal: Rs <%= app.campaign?.goal.toLocaleString() || 0 %>
               </div>
 
               <div class="bg-purple-50 text-purple-700 px-3 py-2 rounded-lg">

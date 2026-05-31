@@ -61,7 +61,7 @@
   <% } else { %>
 
   <!-- GRID -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
     <% campaigns.forEach(c => { %>
 
@@ -153,8 +153,8 @@
 
           <div class="mt-3">
             <div class="flex justify-between text-xs mb-1">
-              <span>Rs. <%= c.raised %></span>
-              <span>Rs. <%= c.goal %></span>
+              <span>Rs. <%= c.raised.toLocaleString() %></span>
+              <span>Rs. <%= c.goal.toLocaleString() %></span>
             </div>
 
             <div class="w-full bg-gray-200 h-2 rounded-full">

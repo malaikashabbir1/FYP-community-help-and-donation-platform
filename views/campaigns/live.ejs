@@ -38,109 +38,137 @@
     </div>
   <% } %>
 
-  <!-- RECOMMENDED -->
-  <% if (recommended && recommended.length > 0) { %>
 
-  <div class="mb-10">
+<!-- RECOMMENDED -->
+<% if (recommended && recommended.length > 0) { %>
 
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold text-green-700 flex items-center gap-2">
-        <i class="fas fa-star text-green-600"></i>
-        Recommended for You
-      </h2>
+<div class="mb-10">
 
-      <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-        Personalized
-      </span>
-    </div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+      <i class="fas fa-star text-green-600"></i>
+      Recommended for You
+    </h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+    <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+      Personalized
+    </span>
+  </div>
 
-      <% recommended.forEach(c => { %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
 
-        <div class="bg-white border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+    <% recommended.forEach(c => { %>
+
+      <div class="bg-white border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition flex flex-col h-full">
+
+        <!-- TOP CONTENT -->
+        <div class="flex flex-col">
+
+          <!-- TITLE -->
+          <div class="min-h-[48px] flex items-start justify-between">
+            <h3 class="font-bold text-gray-800 line-clamp-2  min-h-[48px] pr-2">
+              <%= c.name %>
+            </h3>
+
+            <i class="fas fa-thumbs-up text-green-500"></i>
+          </div> 
+
+          <!-- CATEGORY -->
+          <% if (c.category) { %>
+            <p class="text-xs text-green-600 mt-3 flex items-center gap-1 min-h-[20px]">
+              <i class="fas fa-tag"></i>
+              <%= c.category %>
+            </p>
+          <% } else { %>
+            <div class="min-h-[20px] mt-3"></div>
+          <% } %>
+
+        </div>
+
+        <!-- BUTTON FIXED AT BOTTOM -->
+        <a href="/campaigns/<%= c._id %>"
+           class="mt-auto w-full text-center bg-green-600 hover:bg-green-700 text-white py-1 rounded-lg font-medium">
+          <i class="fas fa-eye mr-1"></i> View Campaign
+        </a>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+</div>
+
+<% } %>
+
+
+
+<!-- TRENDING -->
+<!-- TRENDING -->
+<% if (trending && trending.length > 0) { %>
+
+<div class="mb-10">
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-bold text-orange-600 flex items-center gap-2">
+      <i class="fas fa-chart-line text-orange-500"></i>
+      Trending Campaigns
+    </h2>
+
+    <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">
+      Hot Right Now
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+    <% trending.forEach(c => { %>
+
+      <div class="bg-white border border-orange-200 rounded-xl p-5 shadow-sm hover:shadow-md transition flex flex-col h-full">
+
+        <!-- TOP CONTENT (SAME STYLE AS RECOMMENDED) -->
+        <div>
 
           <div class="flex items-start justify-between">
             <h3 class="font-bold text-gray-800 line-clamp-1 pr-2">
               <%= c.name %>
             </h3>
 
-            <i class="fas fa-thumbs-up text-green-500"></i>
+            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full flex items-center gap-1">
+              <i class="fas fa-fire"></i>
+              Trending
+            </span>
           </div>
 
-          <p class="text-sm text-gray-600 line-clamp-2 mt-2">
+          <p class="text-sm text-gray-600 line-clamp-2 mt-2 min-h-[40px]">
             <%= c.description %>
           </p>
 
           <% if (c.category) { %>
-            <p class="text-xs text-green-600 mt-3 flex items-center gap-1">
+            <p class="text-xs text-orange-600 mt-3 flex items-center gap-1 min-h-[20px]">
               <i class="fas fa-tag"></i>
               <%= c.category %>
             </p>
+          <% } else { %>
+            <div class="min-h-[20px] mt-3"></div>
           <% } %>
 
-          <a href="/campaigns/<%= c._id %>"
-             class="mt-4 inline-block w-full text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium">
-            <i class="fas fa-eye mr-1"></i> View Campaign
-          </a>
-
         </div>
 
-      <% }) %>
+        <!-- BUTTON ALWAYS AT BOTTOM -->
+        <a href="/campaigns/<%= c._id %>"
+         class="mt-auto block w-full text-center bg-green-50 text-green-700 py-2 rounded-lg font-medium transition-transform duration-200 hover:scale-[1.03]">
+          <i class="fas fa-arrow-right mr-1"></i> Explore
+        </a>
 
-    </div>
+      </div>
+
+    <% }) %>
+
   </div>
+</div>
 
-  <% } %>
+<% } %>
 
-  <!-- TRENDING -->
-  <% if (trending && trending.length > 0) { %>
-
-  <div class="mb-10">
-
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold text-orange-600 flex items-center gap-2">
-        <i class="fas fa-chart-line text-orange-500"></i>
-        Trending Campaigns
-      </h2>
-
-      <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full">
-        Hot Right Now
-      </span>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <% trending.forEach(c => { %>
-
-        <div class="bg-white border border-orange-200 rounded-xl p-5 shadow-sm hover:shadow-md transition relative">
-
-          <span class="absolute top-3 right-3 text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full flex items-center gap-1">
-            <i class="fas fa-fire"></i>
-            Trending
-          </span>
-
-          <h3 class="font-bold text-gray-800 line-clamp-1 pr-6">
-            <%= c.name %>
-          </h3>
-
-          <p class="text-sm text-gray-600 line-clamp-2 mt-2">
-            <%= c.description %>
-          </p>
-
-          <a href="/campaigns/<%= c._id %>"
-             class="mt-4 inline-block w-full text-center bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium">
-            <i class="fas fa-arrow-right mr-1"></i> Explore
-          </a>
-
-        </div>
-
-      <% }) %>
-
-    </div>
-  </div>
-
-  <% } %>
 
   <!-- MAIN GRID (UNCHANGED) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -180,10 +208,6 @@
             <%= c.name %>
           </h2>
 
-          <p class="text-sm text-gray-600 mt-2 line-clamp-2 min-h-[40px]">
-            <%= c.description %>
-          </p>
-
           <% if (c.category) { %>
             <p class="text-xs text-gray-500 mt-2">
               <i class="fas fa-tag text-indigo-500"></i>
@@ -198,12 +222,12 @@
 
             <p>
               <i class="fas fa-bullseye text-blue-500"></i>
-              Goal: Rs <%= c.goal %>
+              Goal: Rs <%= c.goal.toLocaleString() %>
             </p>
 
             <p>
               <i class="fas fa-hand-holding-dollar text-green-500"></i>
-              Raised: Rs <%= c.raised %>
+              Raised: Rs <%= c.raised.toLocaleString() %>
             </p>
 
             <p>
@@ -255,7 +279,7 @@
 
               <% if (app) { %>
 
-                <div class="w-full bg-white border rounded-lg py-3 text-center font-semibold space-y-1">
+                <div class="w-full flex flex-col items-center justify-center gap-1 px-2 py-2 min-h-[88px] text-center font-semibold border rounded-lg bg-white">
 
                   <% if (app.status === 'approved') { %>
                     <span class="text-green-600">🟢 Approved</span>

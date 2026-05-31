@@ -25,17 +25,7 @@
     <p class="text-sm text-gray-500">Review and manage volunteer applications</p>
   </div>
 
-  <!-- FLASH MESSAGE -->
-  <% if (message) { %>
-    <div class="mb-6 px-4 py-3 rounded-lg shadow
-      <%= message.type === 'success'
-        ? 'bg-green-100 text-green-700 border border-green-300'
-        : 'bg-red-100 text-red-700 border border-red-300' %>">
-
-      <%= message.text %>
-    </div>
-  <% } %>
-
+  
   <!-- FILTERS -->
   <div class="flex flex-wrap gap-2 mb-6 justify-center">
 
@@ -65,12 +55,78 @@
 
   </div>
 
+
+  <!-- STATS -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
+
+  <!-- TOTAL -->
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">
+      Total Applications
+    </p>
+
+    <p class="text-2xl font-bold text-blue-600">
+      <%= totalApplications || 0 %>
+    </p>
+  </div>
+
+  <!-- PENDING -->
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">
+      Pending
+    </p>
+
+    <p class="text-2xl font-bold text-yellow-500">
+      <%= pendingCount || 0 %>
+    </p>
+  </div>
+
+  <!-- APPROVED -->
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">
+      Approved
+    </p>
+
+    <p class="text-2xl font-bold text-green-600">
+      <%= approvedCount || 0 %>
+    </p>
+  </div>
+
+  <!-- REJECTED -->
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-sm text-slate-500">
+      Rejected
+    </p>
+
+    <p class="text-2xl font-bold text-red-600">
+      <%= rejectedCount || 0 %>
+    </p>
+  </div>
+
+</div>
+
+  <!-- FLASH MESSAGE -->
+  <% if (message) { %>
+    <div class="mb-6 px-4 py-3 rounded-lg shadow
+      <%= message.type === 'success'
+        ? 'bg-green-100 text-green-700 border border-green-300'
+        : 'bg-red-100 text-red-700 border border-red-300' %>">
+
+      <%= message.text %>
+    </div>
+  <% } %>
+
   <!-- APPLICATIONS -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
 
     <% if (applications && applications.length > 0) { %>
 
       <% applications.forEach(app => { %>
+
+        <% const campaignId = app.campaign?._id?.toString();
+            const approved = approvedCountMap?.[campaignId] || 0;
+            const required = app.campaign?.requiredVolunteers || 0; 
+        %>
 
         <div class="bg-white rounded-xl shadow p-5">
 
@@ -81,9 +137,6 @@
               <h2 class="text-lg font-bold text-gray-800">
                 <%= app.user?.name || "N/A" %>
               </h2>
-              <p class="text-sm text-gray-500">
-                <%= app.user?.email || "N/A" %>
-              </p>
             </div>
 
             <span class="px-3 py-1 text-xs rounded-full text-white
@@ -102,11 +155,33 @@
             <%= app.campaign?.name || "N/A" %>
           </div>
 
+          
+          <div class="text-sm text-gray-500 mt-1">
+            Capacity:
+              <span class="font-semibold text-gray-700">
+                <%= approved %> / <%= required %>
+              </span>
+          </div>
+
+          <div class="w-full bg-gray-200 h-1.5 rounded mt-1">
+            <div
+              class="bg-green-500 h-1.5 rounded"
+              style="width:<%= required ? (approved / required) * 100 : 0 %>%">
+              </div>
+            </div>
+
           <!-- DETAILS -->
           <div class="text-sm text-gray-600 space-y-1">
+            
             <p><b>Phone:</b> <%= app.phone %></p>
             <p><b>Skills:</b> <%= app.skills %></p>
             <p><b>Availability:</b> <%= app.availability %></p>
+            <p><b>Applied on:</b> <%= new Date(app.createdAt).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+              }) %>
+            </p>
           </div>
 
           <!-- ACTIONS -->

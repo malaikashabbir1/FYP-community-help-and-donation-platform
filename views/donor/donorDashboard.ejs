@@ -8,19 +8,20 @@
 
   <link rel="stylesheet" href="/css/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-slate-100 min-h-screen">
+<body class="bg-slate-100 min-h-screen pt-16">
 
   <%- include('../partials/navbar') %>
 
   <!-- MAIN -->
-  <main class="pb-14">
+   <main class="px-6 py-10">
 
     <!-- HEADER -->
     <div class="max-w-7xl mx-auto pt-10 px-4 text-center">
 
-      <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">
+      <h1 class="text-3xl font-bold text-slate-800 tracking-tight">
         Donor Dashboard
       </h1>
 
@@ -129,7 +130,7 @@
                 Total Donations
               </p>
 
-              <p class="text-3xl font-extrabold text-blue-700">
+              <p class="text-3xl font-bold text-blue-700">
                 <%= stats.totalDonations %>
               </p>
 
@@ -150,7 +151,7 @@
                 Total Amount
               </p>
 
-              <p class="text-3xl font-extrabold text-green-700">
+              <p class="text-3xl font-bold text-green-700">
                 Rs <%= stats.totalAmount %>
               </p>
 
@@ -171,7 +172,7 @@
                 Active Campaigns
               </p>
 
-              <p class="text-3xl font-extrabold text-indigo-700">
+              <p class="text-3xl font-bold text-indigo-700">
                 <%= stats.activeCampaigns %>
               </p>
 
@@ -243,7 +244,7 @@
                 <!-- RIGHT -->
                 <div class="text-left sm:text-right">
 
-                  <p class="text-2xl font-extrabold text-green-600">
+                  <p class="text-2xl font-semibold text-green-600">
                     Rs <%= donation.amount %>
                   </p>
 

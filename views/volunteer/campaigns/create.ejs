@@ -42,13 +42,16 @@
           class="space-y-4">
 
       <!-- NAME -->
-      <input type="text" name="name" placeholder="Campaign Name"
-        class="w-full border p-3 rounded text-sm sm:text-base"
-        required>
+      <input type="text" name="name" placeholder="Campaign Name" class="w-full border p-3 rounded   text-sm sm:text-base" required 
+      pattern="[A-Za-z\s]+" title="Only letters are allowed (no numbers or symbols)"
+      oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
 
       <!-- DESCRIPTION -->
       <textarea name="description" placeholder="Description"
-        class="w-full border p-3 rounded text-sm sm:text-base"></textarea>
+      class="w-full border p-3 rounded text-sm sm:text-base"
+      required pattern="[A-Za-z\s.,'-]+"
+      title="Only letters and basic punctuation allowed"
+      oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')"></textarea>
 
       <!-- GOAL -->
       <input type="number" name="goal" min="100" max="10000000"
@@ -67,7 +70,8 @@
       <input type="text" name="location"
         placeholder="Location (e.g. Karachi)"
         class="w-full border p-3 rounded text-sm sm:text-base"
-        required>
+        required pattern="[A-Za-z\s]+" title="Only letters are allowed in location"
+        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')">
 
       <!-- ================= AI LAYER (ADDED) ================= -->
 
